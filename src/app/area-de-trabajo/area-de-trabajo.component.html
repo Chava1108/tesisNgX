@@ -1,0 +1,81 @@
+<ngx-graph
+  [update$]="update$"
+  class="chart-container"
+  [view]="[800, 550]"
+  [links]="links"
+  [nodes]="nodos"
+  layout="dagreCluster"
+  [layoutSettings]="layoutSettings"
+>
+<!--Templete para puntas de las fechas-->
+  <ng-template #defsTemplate>
+    <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+      <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+    </svg:marker>
+  </ng-template>
+<!--Templete -->
+  <ng-template #clusterTemplate let-cluster>
+    <svg:g class="node cluster">
+      <svg:rect
+        rx="5"
+        ry="5"
+        [attr.width]="cluster.dimension.width"
+        [attr.height]="cluster.dimension.height"
+        [attr.fill]="cluster.data.color"
+      />
+    </svg:g>
+  </ng-template>
+<!--Templete para puntas de las fechas-->
+  <ng-template #nodeTemplate let-node >
+    <svg:g class="node" (click)="imprimir(node)">
+        <svg:foreignObject width="122" height="200" >
+            <xhtml:div xmlns="http://www.w3.org/1999/xhtml">
+              <div style="height: 100%; width: 100%;" >
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                          <th scope="col">{{node.label}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Atributos</td>
+                        </tr> 
+                        <tr *ngFor="let item of node.atributos">
+                            <td >{{item}}</td>
+                        </tr>
+                        <tr>
+                            <td>Funciones</td>
+                        </tr>  
+                        <tr *ngFor="let item of node.funciones">
+                            <td >{{item}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+              </div>
+            </xhtml:div>
+          </svg:foreignObject>
+    </svg:g>
+  </ng-template>
+<!--Templete para las lineas -->
+  <ng-template #linkTemplate let-link>
+    <svg:g class="edge">
+      <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+      <svg:text class="edge-label" text-anchor="middle">
+        <textPath
+          class="text-path"
+          [attr.href]="'#' + link.id"
+          [style.dominant-baseline]="link.dominantBaseline"
+          startOffset="50%"
+        >
+          {{link.label}}
+        </textPath>
+      </svg:text>
+    </svg:g>
+  </ng-template>
+</ngx-graph>
+<div class="row">
+    <div class="col-2">
+        <button (click)="agregarNodo()" >Agregar nodo</button>
+    </div>
+</div>
