@@ -3,6 +3,7 @@
     <button type="button" class="btn btn-secondary dropdown-toggle" (click)="snav.toggle()">
         Dropup
     </button>
+    <h1>Aprende programacion orientada a objetos</h1>
   </mat-toolbar>
 
   <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0" >
@@ -10,6 +11,7 @@
       fixedTopGap="56" style=" color: white;width: 20%; background-color: black;">
       <mat-nav-list>
         <a mat-list-item (click)="recargarPagina()" style="color: white;"> Home</a>
+        <a  mat-list-item (click)="abrirForm()" style="color: white;">Agregar Clase</a>
       </mat-nav-list>
     </mat-sidenav>
 

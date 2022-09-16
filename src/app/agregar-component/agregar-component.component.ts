@@ -2,6 +2,9 @@ import {MediaMatcher} from '@angular/cdk/layout';
 import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
 import * as mermaid from 'mermaid';
 import mermaidAPI from "mermaid/mermaidAPI";
+import { MatDialog } from '@angular/material/dialog';
+import { FormularioComponent } from '../dialogs/formulario/formulario.component';
+
 
 @Component({
   selector: 'app-agregar-component',
@@ -20,7 +23,7 @@ export class AgregarComponentComponent implements OnDestroy {
 
   private _mobileQueryListener: () => void;
 
-  constructor(changeDetectorRef: ChangeDetectorRef, media: MediaMatcher) {
+  constructor(changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public dialog: MatDialog) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
@@ -38,6 +41,18 @@ export class AgregarComponentComponent implements OnDestroy {
 
   recargarPagina(){
     location.href="http://localhost:4200/area-de-trabajo.component"
+  }
+
+  abrirForm(){
+    const dialogRef= this.dialog.open(FormularioComponent,{
+      width:'100%',
+      height:'80%',
+      data:"Formulario"
+    });
+    dialogRef.afterClosed().subscribe(res=>{
+      console.log(res);
+
+    });
   }
   
 

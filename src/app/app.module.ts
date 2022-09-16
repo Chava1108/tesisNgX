@@ -13,12 +13,16 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatButtonModule} from '@angular/material/button';
+import { FormularioComponent } from './dialogs/formulario/formulario.component'; 
 
 @NgModule({
   declarations: [
     AppComponent,
     AreaDeTrabajoComponent,
-    AgregarComponentComponent
+    AgregarComponentComponent,
+    FormularioComponent
   ],
   imports: [
     BrowserModule,
@@ -31,9 +35,12 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
     MatToolbarModule,
     MatIconModule,
     HttpClientModule,
-    NgxGraphModule
+    NgxGraphModule,
+    MatButtonModule,
+    MatDialogModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents:[FormularioComponent],
 })
 export class AppModule { }
