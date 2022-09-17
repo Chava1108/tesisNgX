@@ -39,13 +39,13 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Atributos</td>
+                            <td class="bg-danger">Atributos</td>
                         </tr> 
                         <tr *ngFor="let item of node.atributos">
                             <td >{{item}}</td>
                         </tr>
                         <tr>
-                            <td>Funciones</td>
+                            <td class="bg-danger">Funciones</td>
                         </tr>  
                         <tr *ngFor="let item of node.funciones">
                             <td >{{item}}</td>
@@ -74,8 +74,3 @@
     </svg:g>
   </ng-template>
 </ngx-graph>
-<div class="row">
-    <div class="col-2">
-        <button (click)="agregarNodo()" >Agregar nodo</button>
-    </div>
-</div>

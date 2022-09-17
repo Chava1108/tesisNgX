@@ -45,7 +45,7 @@ export class AgregarComponentComponent implements OnDestroy {
 
   abrirForm(){
     const dialogRef= this.dialog.open(FormularioComponent,{
-      width:'100%',
+      width:'80%',
       height:'80%',
       data:"Formulario"
     });

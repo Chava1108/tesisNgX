@@ -132,14 +132,6 @@ export class AreaDeTrabajoComponent implements OnInit{
     this.update$.next(true)
   }
 
-  agregarNodo(){
-    this.nodos.push({
-      id: 'iu',
-      label: 'J'
-    })
-    this.updateChart()
-  }
-
   imprimir(node:any){
     console.log(node)
   }
