@@ -1,0 +1,27 @@
+<div class="cuerpo">
+    <h1>Informacion de la clase</h1>
+    <div style="width: 200px;">
+        <table class="table table-dark">
+            <thead>
+                <tr>
+                  <th scope="col">{{data.label}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="bg-danger">Atributos</td>
+                </tr> 
+                <tr *ngFor="let item of data.atributos">
+                    <td >{{item}}</td>
+                </tr>
+                <tr>
+                    <td class="bg-danger">Funciones</td>
+                </tr>  
+                <tr *ngFor="let item of data.funciones">
+                    <td >{{item}}</td>
+                </tr>
+            </tbody>
+        </table>
+      </div>
+    
+</div>

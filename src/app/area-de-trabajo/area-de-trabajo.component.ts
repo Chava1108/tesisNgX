@@ -3,6 +3,8 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Subject } from "rxjs";
 import { BaseDeDatosService } from "../services/base-de-datos.service";
+import { MatDialog } from '@angular/material/dialog';
+import { ShowclassComponent } from "../dialogs/showclass/showclass.component";
 import { Node, Edge, ClusterNode } from '@swimlane/ngx-graph';
 import { ThisReceiver } from "@angular/compiler";
 
@@ -23,7 +25,7 @@ export class AreaDeTrabajoComponent implements OnInit{
    orientation : 'TB'
   };
  
-  constructor(renderer2: Renderer2, private ElementRef: ElementRef,private apis: BaseDeDatosService) {
+  constructor(renderer2: Renderer2, private ElementRef: ElementRef,private apis: BaseDeDatosService, public dialog: MatDialog) {
 
   }
   nodos:any
@@ -34,6 +36,9 @@ export class AreaDeTrabajoComponent implements OnInit{
   atributos:any=[]
   funciones:any=[]
   calculo=12
+  i=0
+  imagenes:any= []
+
   ngOnInit(): void {
     this.nodos=[]
     this.links=[]
@@ -47,16 +52,18 @@ export class AreaDeTrabajoComponent implements OnInit{
     this.apis.getClases().subscribe({
       next: (res: any) => {
         this.clases=res;
-        this.clases.forEach((element: { nombre: any; }) => {
+        this.clases.forEach((element: { nombre: any; imagen: string; }) => {
           this.nodos.push({
             id: element.nombre,
             label: element.nombre,
+            imagen: "../../assets/imgs/"+element.imagen, 
             atributos:[],
             funciones:[]
           })
         });
         
         this.updateChart()
+        console.log(this.nodos)
       },
       error: () => {
 
@@ -132,7 +139,11 @@ export class AreaDeTrabajoComponent implements OnInit{
     this.update$.next(true)
   }
 
-  imprimir(node:any){
-    console.log(node)
+  Showclass(node:any){
+    const dialogRef = this.dialog.open(ShowclassComponent, {
+      width:'40%',
+      height:'70%',
+      data: node
+    });  
   }
 }

@@ -15,14 +15,16 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
-import { FormularioComponent } from './dialogs/formulario/formulario.component'; 
+import { FormularioComponent } from './dialogs/formulario/formulario.component';
+import { ShowclassComponent } from './dialogs/showclass/showclass.component'; 
 
 @NgModule({
   declarations: [
     AppComponent,
     AreaDeTrabajoComponent,
     AgregarComponentComponent,
-    FormularioComponent
+    FormularioComponent,
+    ShowclassComponent
   ],
   imports: [
     BrowserModule,

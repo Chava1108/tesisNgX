@@ -14,7 +14,7 @@
     </svg:marker>
   </ng-template>
 <!--Templete -->
-  <ng-template #clusterTemplate let-cluster>
+  <ng-template #clusterTemplate let-cluster >
     <svg:g class="node cluster">
       <svg:rect
         rx="5"
@@ -27,31 +27,12 @@
   </ng-template>
 <!--Templete para puntas de las fechas-->
   <ng-template #nodeTemplate let-node >
-    <svg:g class="node" (click)="imprimir(node)">
-        <svg:foreignObject width="122" height="200" >
+    <svg:g class="node" >
+        <svg:foreignObject width="200" height="180" class="tarjeta">
             <xhtml:div xmlns="http://www.w3.org/1999/xhtml">
-              <div style="height: 100%; width: 100%;" >
-                <table class="table table-dark">
-                    <thead>
-                        <tr>
-                          <th scope="col">{{node.label}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="bg-danger">Atributos</td>
-                        </tr> 
-                        <tr *ngFor="let item of node.atributos">
-                            <td >{{item}}</td>
-                        </tr>
-                        <tr>
-                            <td class="bg-danger">Funciones</td>
-                        </tr>  
-                        <tr *ngFor="let item of node.funciones">
-                            <td >{{item}}</td>
-                        </tr>
-                    </tbody>
-                </table>
+              <div >
+                <img [attr.src]="node.imagen" alt="no se encuentra" height="70" width="120"/>
+                <button class="btn btn-info" style="margin-top: 10%;" (click)="Showclass(node)">Ver clase</button>
               </div>
             </xhtml:div>
           </svg:foreignObject>
