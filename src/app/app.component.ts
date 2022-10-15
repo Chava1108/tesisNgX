@@ -1,8 +1,7 @@
 import { AfterContentInit, Component, ElementRef, OnInit, ViewChild, Renderer2 } from "@angular/core";
 import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
-import * as mermaid from 'mermaid';
-import mermaidAPI from "mermaid/mermaidAPI";
+
 
 @Component({
   selector: 'app-root',

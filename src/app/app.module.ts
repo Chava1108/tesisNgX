@@ -16,7 +16,8 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import { FormularioComponent } from './dialogs/formulario/formulario.component';
-import { ShowclassComponent } from './dialogs/showclass/showclass.component'; 
+import { ShowclassComponent } from './dialogs/showclass/showclass.component';
+import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-formulario.component'; 
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { ShowclassComponent } from './dialogs/showclass/showclass.component';
     AreaDeTrabajoComponent,
     AgregarComponentComponent,
     FormularioComponent,
-    ShowclassComponent
+    ShowclassComponent,
+   EditarFormularioComponent
   ],
   imports: [
     BrowserModule,

@@ -1,129 +1,118 @@
 <div mat-dialog-content class="layout-row layout-align-end-end">
-    {{message}}
+    <h1>Crear clase</h1>
 </div>
 <div>
     <div class="row">
         <div class="col-5">
             <div class="row formulario">
-                <form [formGroup]="formulario">
-                    <div class="form-group row" *ngIf="bandClase">
-                        <label for="exampleFormControlInput1">Nombre de la clase</label>
-                        <div class="col-7">
-                            <input class="form-control" type="text" formControlName="nombre">
+                <div class="form-group row" *ngIf="bandClase">
+                    <form [formGroup]="formularioClase">
+                        <div class="col-12">
+                            <label for="exampleFormControlInput1">Nombre de la clase</label>
+                            <div class="col-7">
+                                <input class="form-control" type="text" formControlName="nombre">
+                            </div>
+                            <div class="col-5"></div>
+                            <div class="custom-file col-8">
+                                <label class="custom-file-label" for="customFileLang">Agregar imagen</label>
+                                <input formControlName="imagen" accept="image/*" (change)="capturarArchivo($event)" type="file" class="custom-file-input"
+                                    id="customFileLang" lang="es">
+                            </div>
+                            <div class="col-4">
+                                <button type="button" [disabled]="formularioClase.pristine || formularioClase.invalid"
+                                    class="btn btn-success" (click)="crearClase()">Crear Clase</button>
+                            </div>
                         </div>
-                        <div class="col-5">
-                            <button type="button" class="btn btn-success" (click)="crearClase()">Crear Clase</button>
-                        </div>
+                    </form>
+                </div>
+                <div *ngIf="!bandClase">
+                    <div class="form-group row">
+                        <form [formGroup]="formularioAtributo">
+                            <div class="row">
+                                <label for="exampleFormControlInput1">Atributos</label>
+                                <div class="col-4">
+                                    <select id="inputState" class="form-control" formControlName="tipoAtributo">
+                                        <option *ngFor="let item of list" [value]="item">{{item}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-7">
+                                    <input class="form-control" formControlName="atributo" type="text">
+                                </div>
+                                <div class="col">
+                                    <button type="button"
+                                        [disabled]="formularioAtributo.pristine || formularioAtributo.invalid"
+                                        class="btn btn-success" (click)="agregarAtributo()">Agregar</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                     <div class="form-group row">
-                        <label for="exampleFormControlInput1">Atributos</label>
-                        <div class="col">
-                            <select id="inputState" class="form-control" formControlName="tipoAtributo">
-                                <option *ngFor="let item of list" [value]="item">{{item}}</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <input class="form-control" formControlName="atributo" type="text">
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-success" (click)="agregarAtributo()">Agregar</button>
-                        </div>
+                        <form [formGroup]="formularioFuncion">
+                            <div class="row">
+                                <label for="exampleFormControlInput1">Funciones</label>
+                                <div class="col-4">
+                                    <select id="inputState" class="form-control" formControlName="tipoFuncion">
+                                        <option *ngFor="let item of list2" [value]="item">{{item}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-7">
+                                    <input class="form-control" formControlName="funcion" type="text">
+                                </div>
+                                <div class="col">
+                                    <button type="button"
+                                        [disabled]="formularioFuncion.pristine || formularioFuncion.invalid"
+                                        class="btn btn-success" (click)="agregarFuncion()">Agregar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="form-group row">
+                        <form [formGroup]="formularioHerencia">
+                            <label for="exampleFormControlInput1">Hereda de :</label>
+                            <div class="col-11">
+                                <select id="inputState" class="form-control" formControlName="clases">
+                                    <option *ngFor="let item of clases" [value]="item.nombre">{{item.nombre}}</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <button type="button"
+                                    [disabled]="formularioHerencia.pristine || formularioHerencia.invalid"
+                                    class="btn btn-success" (click)="agregarHerencia()">Crear
+                                    herencia</button>
+                            </div>
+                        </form>
 
                     </div>
-                    <div class="form-group row">
-                        <label for="exampleFormControlInput1">Funciones</label>
-                        <div class="col">
-                            <select id="inputState" class="form-control" formControlName="tipoFuncion">
-                                <option *ngFor="let item of list2" [value]="item">{{item}}</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <input class="form-control" formControlName="funcion" type="text">
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-success" (click)="agregarFuncion()">Agregar</button>
-                        </div>
-
-                    </div>
-                    <div class="form-group row">
-                        <label for="exampleFormControlInput1">Hereda de :</label>
-                        <div class="col">
-                            <select id="inputState" class="form-control" formControlName="clases">
-                                <option *ngFor="let item of clases" [value]="item.nombre">{{item.nombre}}</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-success" (click)="agregarHerencia()">Crear herencia</button>
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
         <div class="col-2"></div>
         <div class="col-5">
-            <ngx-graph [update$]="update$" class="chart-container" [view]="[400, 550]" [links]="links" [nodes]="nodos"
-                layout="dagreCluster" [layoutSettings]="layoutSettings">
-                <!--Templete para puntas de las fechas-->
-                <ng-template #defsTemplate>
-                    <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4"
-                        orient="auto">
-                        <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
-                    </svg:marker>
-                </ng-template>
-                <!--Templete -->
-                <ng-template #clusterTemplate let-cluster>
-                    <svg:g class="node cluster">
-                        <svg:rect rx="5" ry="5" [attr.width]="cluster.dimension.width"
-                            [attr.height]="cluster.dimension.height" [attr.fill]="cluster.data.color" />
-                    </svg:g>
-                </ng-template>
-                <!--Templete para puntas de las fechas-->
-                <ng-template #nodeTemplate let-node>
-                    <svg:g class="node">
-                        <svg:foreignObject width="122" height="200">
-                            <xhtml:div xmlns="http://www.w3.org/1999/xhtml">
-                                <div style="height: 100%; width: 100%;">
-                                    <table class="table table-dark">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">{{node.label}}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="bg-danger">Atributos</td>
-                                            </tr>
-                                            <tr *ngFor="let item of node.atributos">
-                                                <td>{{item}}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-danger">Funciones</td>
-                                            </tr>
-                                            <tr *ngFor="let item of node.funciones">
-                                                <td>{{item}}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </xhtml:div>
-                        </svg:foreignObject>
-                    </svg:g>
-                </ng-template>
-                <!--Templete para las lineas -->
-                <ng-template #linkTemplate let-link>
-                    <svg:g class="edge">
-                        <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
-                        <svg:text class="edge-label" text-anchor="middle">
-                            <textPath class="text-path" [attr.href]="'#' + link.id"
-                                [style.dominant-baseline]="link.dominantBaseline" startOffset="50%">
-                                {{link.label}}
-                            </textPath>
-                        </svg:text>
-                    </svg:g>
-                </ng-template>
-            </ngx-graph>
+            <h1>Informacion de la clase</h1>
+            <div style="width: 200px;">
+                <table class="table table-dark">
+                    <thead>
+                        <tr >
+                            <th scope="col" class="bg-primary"> {{nameClase}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="bg-danger">Atributos</td>
+                        </tr>
+                        <tr *ngFor="let item of atributos">
+                            <td>{{item}}</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-danger">Funciones</td>
+                        </tr>
+                        <tr *ngFor="let item of funciones">
+                            <td>{{item}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button mat-raised-button class="btn btn-primary" mat-button [mat-dialog-close]="false">Cerrar</button>
         </div>
     </div>
-
-
 </div>

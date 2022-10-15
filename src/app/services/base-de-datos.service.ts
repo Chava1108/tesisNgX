@@ -14,6 +14,10 @@ export class BaseDeDatosService {
     return this.httpClient.get(`${this.servidor}clases`);
   }
 
+  getClasesId(nombre:string): any{
+    return this.httpClient.get(`${this.servidor}clases/${nombre}`);
+  }
+
   getAtributos(): any{
     return this.httpClient.get(`${this.servidor}atributos`);
   }
@@ -26,4 +30,49 @@ export class BaseDeDatosService {
     return this.httpClient.get(`${this.servidor}herencia`);
   }
   
+  postClase(clase:string, imagen:string):any{
+    const body={nombre:clase,imagen:imagen}
+    return this.httpClient.post(`${this.servidor}clases`,body);
+  }
+
+  postAtributos(nombre:string, tipo:string, id_clase:number):any{
+    const body={nombre:nombre,tipo:tipo,id_clase:id_clase}
+    return this.httpClient.post(`${this.servidor}atributos`,body);
+  }
+
+  postFunciones(nombre:string, tipo:string, id_clase:number):any{
+    const body={nombre:nombre,tipo:tipo,id_clase:id_clase}
+    return this.httpClient.post(`${this.servidor}funciones`,body);
+  }
+
+  postHerencia(id_clasePadre:number, id_claseHijo:number):any{
+    const body={id_clasePadre:id_clasePadre,id_claseHijo:id_claseHijo}
+    return this.httpClient.post(`${this.servidor}herencia`,body);
+  }
+
+  deleteClase(id:number){
+    return this.httpClient.delete(`${this.servidor}clase/${id}`);
+  }
+
+  deleteAtributos(id:number){
+    return this.httpClient.delete(`${this.servidor}atributos/${id}`);
+  }
+
+  deleteFunciones(id:number){
+    return this.httpClient.delete(`${this.servidor}funciones/${id}`);
+  }
+
+  deleteHerencia(id:number){
+    return this.httpClient.delete(`${this.servidor}herencia/${id}`);
+  }
+
+  putAtributos(tipo:string,nombre:string, id:any):any{
+    const body = {nombre:nombre, tipo:tipo}
+    return this.httpClient.put(`${this.servidor}atributos/${id}`,body);
+  }
+
+  putFunciones(tipo:string,nombre:string, id:any):any{
+    const body = {nombre:nombre, tipo:tipo}
+    return this.httpClient.put(`${this.servidor}funciones/${id}`,body);
+  }
 }
