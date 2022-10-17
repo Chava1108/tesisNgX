@@ -17,7 +17,7 @@ export class ShowclassComponent implements OnInit {
     bandEditar:boolean=false;
     id=this.data.identificador
   ngOnInit(): void {
-    
+    console.log(this.data);
   }
 
   eliminarClase() {
@@ -37,6 +37,7 @@ export class ShowclassComponent implements OnInit {
   }
 
   editar(item:any,cadena:string){
+  
     const dialogRef = this.dialog.open(EditarFormularioComponent, {
       width:'60%',
       height:'40%',

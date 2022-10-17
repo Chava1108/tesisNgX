@@ -19,20 +19,25 @@ export class EditarFormularioComponent implements OnInit {
     private api: BaseDeDatosService, private restService: RestService) { }
 
   formulario = new FormGroup({
+    nivelAtributo: new FormControl(this.data.nivel, Validators.required),
     tipoAtributo: new FormControl(this.data.tipo, Validators.required),
     atributo: new FormControl(this.data.nombre, Validators.required)
   });
   formulario2 = new FormGroup({
+    nivelFuncion: new FormControl(this.data.nivel, Validators.required),
     tipoFuncion: new FormControl(this.data.tipo, Validators.required),
     funcion: new FormControl(this.data.nombre, Validators.required)
   });
   list = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "string"]
   list2 = ["void", "int", "float", "char", "byte", "boolean", "double", "long", "short", "string"]
+  listNivel = ["public", "private", "protected"]
+  listNivel2 = ["public", "private"]
   bandAtributos = false;
   bandFunciones = false;
   boton: string = ""
   idClase: number=0
   ngOnInit(): void {
+    console.log(this.data);
     if (this.data.length > 1) {
       if (this.data[1].tipoAgregar == "Funcion") {
         this.bandFunciones = true;
@@ -62,10 +67,11 @@ export class EditarFormularioComponent implements OnInit {
 
   editarAtributos() {
 
-    const { tipoAtributo, atributo } = this.formulario.value
+    const {nivelAtributo, tipoAtributo, atributo } = this.formulario.value
     console.log(this.idClase)
+    console.log(this.data);
    if (this.boton == "Actualizar") {
-      this.api.putAtributos(tipoAtributo, atributo, this.data.id).subscribe({
+      this.api.putAtributos(nivelAtributo, tipoAtributo, atributo, this.data.id).subscribe({
         next: (res: any) => {
           this.dialgRef.close();
         },
@@ -73,7 +79,7 @@ export class EditarFormularioComponent implements OnInit {
         }
       })
     } else {
-      this.api.postAtributos(atributo, tipoAtributo, this.idClase).subscribe({
+      this.api.postAtributos(nivelAtributo, atributo, tipoAtributo, this.idClase).subscribe({
         next: (res: any) => {
           this.dialgRef.close();
         },
@@ -86,9 +92,10 @@ export class EditarFormularioComponent implements OnInit {
   }
 
   editarFunciones() {
-    const { tipoFuncion, funcion } = this.formulario2.value
+    const {nivelFuncion, tipoFuncion, funcion } = this.formulario2.value
     if (this.boton == "Actualizar") {
-      this.api.putFunciones(tipoFuncion, funcion, this.data.id).subscribe({
+      console.log(this.data)
+      this.api.putFunciones(nivelFuncion, tipoFuncion, funcion, this.data.id).subscribe({
         next: (res: any) => {
           this.dialgRef.close();
         },
@@ -97,7 +104,7 @@ export class EditarFormularioComponent implements OnInit {
         }
       })
     } else {
-      this.api.postFunciones(funcion, tipoFuncion, this.idClase).subscribe({
+      this.api.postFunciones(nivelFuncion, funcion, tipoFuncion, this.idClase).subscribe({
         next: (res: any) => {
           this.dialgRef.close();
         },

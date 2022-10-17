@@ -53,7 +53,7 @@ export class AreaDeTrabajoComponent implements OnInit {
     this.apis.getClases().subscribe({
       next: (res: any) => {
         this.clases = res;
-        this.clases.forEach((element: { id: any, nombre: any; imagen: string; }) => {
+        this.clases.forEach((element: { id: any; nombre: any; imagen: string; }) => {
           this.nodos.push({
             id: element.nombre,
             label: element.nombre,
@@ -99,11 +99,11 @@ export class AreaDeTrabajoComponent implements OnInit {
     this.apis.getAtributos().subscribe({
       next: (res: any) => {
         this.atributos = res;
-        this.atributos.forEach((atributo: { id: any; nombre: any; tipo: string; atributos: string; }) => {
+        this.atributos.forEach((atributo: { id: any; nombre: any; nivel: String; tipo: string; atributos: string; }) => {
           this.nodos.forEach((nodo: {
             identificador: any; label: any; atributos: any; }) => {
             if (nodo.label == atributo.nombre) {
-              nodo.atributos.push({ id: atributo.id, tipo: atributo.tipo, nombre: atributo.atributos, bandera:"Atributo", id_Clase:nodo.identificador })
+              nodo.atributos.push({ id: atributo.id, nivel:atributo.nivel, tipo: atributo.tipo, nombre: atributo.atributos, bandera:"Atributo", id_Clase:nodo.identificador })
             }
           });
         });
@@ -119,12 +119,12 @@ export class AreaDeTrabajoComponent implements OnInit {
     this.apis.getFunciones().subscribe({
       next: (res: any) => {
         this.funciones = res;
-        this.funciones.forEach((funcion: { id: any; nombre: any; tipo: string; funciones: string; }) => {
+        this.funciones.forEach((funcion: { id: any; nivel:any; nombre: any; tipo: string; funciones: string; }) => {
           this.nodos.forEach((nodo: {
-            identificador: any; label: any; funciones: any; 
-}) => {
+            identificador: any; label: any; funciones: any;    
+          }) => {
             if (nodo.label == funcion.nombre) {
-              nodo.funciones.push({ id: funcion.id, tipo: funcion.tipo, nombre: funcion.funciones, bandera:"Funcion", id_Clase:nodo.identificador  })
+              nodo.funciones.push({ id: funcion.id, nivel:funcion.nivel, tipo: funcion.tipo, nombre: funcion.funciones, bandera:"Funcion", id_Clase:nodo.identificador  })
             }
           });
         });
@@ -141,6 +141,7 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   Showclass(node: any) {
+    console.log(node);
     const dialogRef = this.dialog.open(ShowclassComponent, {
       width: '40%',
       height: '75%',

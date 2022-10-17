@@ -30,18 +30,18 @@ export class BaseDeDatosService {
     return this.httpClient.get(`${this.servidor}herencia`);
   }
   
-  postClase(clase:string, imagen:string):any{
-    const body={nombre:clase,imagen:imagen}
+  postClase(nivel: String, clase:string, imagen:string):any{
+    const body={nivel:nivel,nombre:clase,imagen:imagen}
     return this.httpClient.post(`${this.servidor}clases`,body);
   }
 
-  postAtributos(nombre:string, tipo:string, id_clase:number):any{
-    const body={nombre:nombre,tipo:tipo,id_clase:id_clase}
+  postAtributos(nivel:string, nombre:string, tipo:string, id_clase:number):any{
+    const body={nivel:nivel,nombre:nombre,tipo:tipo,id_clase:id_clase}
     return this.httpClient.post(`${this.servidor}atributos`,body);
   }
 
-  postFunciones(nombre:string, tipo:string, id_clase:number):any{
-    const body={nombre:nombre,tipo:tipo,id_clase:id_clase}
+  postFunciones(nivel:string, nombre:string, tipo:string, id_clase:number):any{
+    const body={nivel:nivel,nombre:nombre,tipo:tipo,id_clase:id_clase}
     return this.httpClient.post(`${this.servidor}funciones`,body);
   }
 
@@ -66,13 +66,13 @@ export class BaseDeDatosService {
     return this.httpClient.delete(`${this.servidor}herencia/${id}`);
   }
 
-  putAtributos(tipo:string,nombre:string, id:any):any{
-    const body = {nombre:nombre, tipo:tipo}
+  putAtributos(nivel:String, tipo:string, nombre:string, id:any):any{
+    const body = {nivel:nivel, nombre:nombre, tipo:tipo}
     return this.httpClient.put(`${this.servidor}atributos/${id}`,body);
   }
 
-  putFunciones(tipo:string,nombre:string, id:any):any{
-    const body = {nombre:nombre, tipo:tipo}
+  putFunciones(nivel:String, tipo:string,nombre:string, id:any):any{
+    const body = {nivel:nivel, nombre:nombre, tipo:tipo}
     return this.httpClient.put(`${this.servidor}funciones/${id}`,body);
   }
 }

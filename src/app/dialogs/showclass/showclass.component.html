@@ -14,7 +14,7 @@
                     
                 </tr> 
                 <tr *ngFor="let item of data.atributos">
-                    <td colspan="2">{{item.tipo + " "+ item.nombre}}</td>
+                    <td colspan="2">{{item.nivel + " " + item.tipo + " "+ item.nombre}}</td>
                     <td><button *ngIf="bandEditar" (click)="editar(item, 'Atributos')" style="margin-left: 10px;"  class="btn btn-primary">Editar</button></td>
                 </tr>
                 <tr *ngIf="bandEditar">
@@ -25,7 +25,7 @@
                     
                 </tr>  
                 <tr *ngFor="let item of data.funciones">
-                    <td colspan="2">{{item.tipo +" "+item.nombre}}</td>
+                    <td colspan="2">{{item.nivel + " " +item.tipo +" "+item.nombre}}</td>
                     <td><button *ngIf="bandEditar" (click)="editar(item,'Funciones')" style="margin-left: 10px;" class="btn btn-primary">Editar</button></td>
                 </tr>
                 <tr *ngIf="bandEditar">

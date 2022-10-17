@@ -19,21 +19,26 @@ export class FormularioComponent implements OnInit {
 
   formularioAtributo = new FormGroup({
     tipoAtributo: new FormControl('', Validators.required),
+    nivelAtributo: new FormControl('',Validators.required),
     atributo: new FormControl('', Validators.required),
   })
   formularioFuncion = new FormGroup({
     tipoFuncion: new FormControl('', Validators.required),
+    nivelFuncion: new FormControl('', Validators.required),
     funcion: new FormControl('', Validators.required),
   })
   formularioClase = new FormGroup({
     nombre: new FormControl('', Validators.required),
+    nivelClase: new FormControl('',Validators.required),
     imagen: new FormControl('', Validators.required),
   })
   formularioHerencia = new FormGroup({
     clases: new FormControl('', Validators.required),
   })
-  list = ["int", "float", "char", "byte", "boolean", "double", "long", "short"]
-  list2 = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "void"]
+  list = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "String"]
+  list2 = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "void", "String"]
+  listNivel = ["public", "private", "protected"]
+  listNivel2 = ["public", "private"]
   clases: any = []
   private fileTemp: any;
   atributos: any = []
@@ -65,9 +70,9 @@ export class FormularioComponent implements OnInit {
 
   crearClase() {
     this.bandClase = false
-    const { nombre } = this.formularioClase.value
+    const {nivelClase, nombre } = this.formularioClase.value
     this.nameClase = nombre
-    this.api.postClase(nombre, this.fileTemp.fileName).subscribe({
+    this.api.postClase(nivelClase, nombre, this.fileTemp.fileName).subscribe({
       next: (res: any) => {
         const body=new FormData();
         body.append('myFile',this.fileTemp.fileRaw,this.fileTemp.fileName)
@@ -88,12 +93,12 @@ export class FormularioComponent implements OnInit {
   }
 
   agregarAtributo() {
-    const { tipoAtributo, atributo, nombre } = this.formularioAtributo.value
-    this.atributos.push(tipoAtributo + " " + atributo)
+    const {nivelAtributo, tipoAtributo, atributo, nombre } = this.formularioAtributo.value
+    this.atributos.push(nivelAtributo + " " + tipoAtributo + " " + atributo)
     this.api.getClasesId(this.nameClase).subscribe({
       next: (res: any) => {
         this.idClase = res[0].id
-        this.api.postAtributos(atributo, tipoAtributo, this.idClase).subscribe({
+        this.api.postAtributos(nivelAtributo, atributo, tipoAtributo, this.idClase).subscribe({
           next: (res: any) => { },
           error: () => { }
         })
@@ -105,12 +110,12 @@ export class FormularioComponent implements OnInit {
   }
 
   agregarFuncion() {
-    const { tipoFuncion, funcion, nombre } = this.formularioFuncion.value
-    this.funciones.push(tipoFuncion + " " + funcion)
+    const {nivelFuncion, tipoFuncion, funcion, nombre } = this.formularioFuncion.value
+    this.funciones.push(nivelFuncion + " " + tipoFuncion + " " + funcion)
     this.api.getClasesId(this.nameClase).subscribe({
       next: (res: any) => {
         this.idClase = res[0].id
-        this.api.postFunciones(funcion, tipoFuncion, this.idClase).subscribe({
+        this.api.postFunciones(nivelFuncion, funcion, tipoFuncion, this.idClase).subscribe({
           next: (res: any) => { },
           error: () => { }
         })

@@ -6,6 +6,11 @@
         <div class="row">
             <label for="exampleFormControlInput1">Atributo</label>
             <div class="col-3">
+                <select id="inputState" class="form-control" formControlName="nivelAtributo">
+                    <option *ngFor="let item of listNivel" [value]="item">{{item}}</option>
+                </select>
+            </div>
+            <div class="col-3">
                 <select id="inputState" class="form-control" formControlName="tipoAtributo">
                     <option *ngFor="let item of list" [value]="item">{{item}}</option>
                 </select>
@@ -13,7 +18,7 @@
             <div class="col-4">
                 <input class="form-control" formControlName="atributo" type="text">
             </div>
-            <div class="col-4">
+            <div class="col-2">
                 <button type="button"
                     class="btn btn-success" [disabled]="formulario.pristine || formulario.invalid" (click)="editarAtributos()">{{boton}}</button>
             </div>
@@ -23,6 +28,11 @@
         <div class="row">
             <label for="exampleFormControlInput1">Funcion</label>
             <div class="col-3">
+                <select id="inputState" class="form-control" formControlName="nivelFuncion">
+                    <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
+                </select>
+            </div>
+            <div class="col-3">
                 <select id="inputState" class="form-control" formControlName="tipoFuncion">
                     <option *ngFor="let item of list2" [value]="item">{{item}}</option>
                 </select>
@@ -30,7 +40,7 @@
             <div class="col-4">
                 <input class="form-control" formControlName="funcion" type="text">
             </div>
-            <div class="col-4">
+            <div class="col-2">
                 <button type="button"
                     class="btn btn-success" [disabled]="formulario2.pristine || formulario2.invalid" (click)="editarFunciones()">{{boton}}</button>
             </div>

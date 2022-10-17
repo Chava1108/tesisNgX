@@ -12,7 +12,11 @@
                             <div class="col-7">
                                 <input class="form-control" type="text" formControlName="nombre">
                             </div>
-                            <div class="col-5"></div>
+                            <div class="col-5">
+                                <select id="inputState" class="form-control" formControlName="nivelClase">
+                                    <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
+                                </select>
+                            </div>
                             <div class="custom-file col-8">
                                 <label class="custom-file-label" for="customFileLang">Agregar imagen</label>
                                 <input formControlName="imagen" accept="image/*" (change)="capturarArchivo($event)" type="file" class="custom-file-input"
@@ -30,12 +34,17 @@
                         <form [formGroup]="formularioAtributo">
                             <div class="row">
                                 <label for="exampleFormControlInput1">Atributos</label>
-                                <div class="col-4">
+                                <div class="col-3">
+                                    <select id="inputState" class="form-control" formControlName="nivelAtributo">
+                                        <option *ngFor="let item of listNivel" [value]="item">{{item}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-3">
                                     <select id="inputState" class="form-control" formControlName="tipoAtributo">
                                         <option *ngFor="let item of list" [value]="item">{{item}}</option>
                                     </select>
                                 </div>
-                                <div class="col-7">
+                                <div class="col-6">
                                     <input class="form-control" formControlName="atributo" type="text">
                                 </div>
                                 <div class="col">
@@ -50,12 +59,17 @@
                         <form [formGroup]="formularioFuncion">
                             <div class="row">
                                 <label for="exampleFormControlInput1">Funciones</label>
-                                <div class="col-4">
+                                <div class="col-3">
+                                    <select id="inputState" class="form-control" formControlName="nivelFuncion">
+                                        <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-3">
                                     <select id="inputState" class="form-control" formControlName="tipoFuncion">
                                         <option *ngFor="let item of list2" [value]="item">{{item}}</option>
                                     </select>
                                 </div>
-                                <div class="col-7">
+                                <div class="col-6">
                                     <input class="form-control" formControlName="funcion" type="text">
                                 </div>
                                 <div class="col">
