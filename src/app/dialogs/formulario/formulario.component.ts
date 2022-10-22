@@ -60,7 +60,12 @@ export class FormularioComponent implements OnInit {
     this.api.getClases().subscribe({
       next: (res: any) => {
         this.clases = res;
+        
         console.log(this.clases)
+        res.forEach((element: {nombre:any} )=> {
+          this.list.push(element.nombre)
+          console.log(this.list)
+        });
       },
       error: () => {
 

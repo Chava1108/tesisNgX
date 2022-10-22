@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Subject } from "rxjs";
 import { BaseDeDatosService } from "../services/base-de-datos.service";
+import { CodeService } from "../services/code.service";
 import { MatDialog } from '@angular/material/dialog';
 import { ShowclassComponent } from "../dialogs/showclass/showclass.component";
 import { Node, Edge, ClusterNode } from '@swimlane/ngx-graph';
@@ -26,7 +27,7 @@ export class AreaDeTrabajoComponent implements OnInit {
   };
 
   constructor(renderer2: Renderer2, private ElementRef: ElementRef,
-    private apis: BaseDeDatosService, public dialog: MatDialog) {
+    private apis: BaseDeDatosService,private apiCode:CodeService, public dialog: MatDialog) {
 
   }
   nodos: any
@@ -63,7 +64,7 @@ export class AreaDeTrabajoComponent implements OnInit {
             identificador: element.id
           })
         });
-
+        
         this.updateChart()
       },
       error: () => {
@@ -141,7 +142,6 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   Showclass(node: any) {
-    console.log(node);
     const dialogRef = this.dialog.open(ShowclassComponent, {
       width: '40%',
       height: '75%',
@@ -155,5 +155,27 @@ export class AreaDeTrabajoComponent implements OnInit {
       this.getAtributos()
       this.getFunciones()
     });
+  }
+
+  Showcode(node:any){
+    console.log(node)
+    var atributosCadena=""
+    var funcionesCadena=""
+    node.atributos.forEach((element: {nivel:any; tipo:any; nombre:any}) => {
+      atributosCadena+= element.nivel+" "+element.tipo+" "+element.nombre+";"
+    });
+    node.funciones.forEach((element: {nivel:any; tipo:any; nombre:any}) => {
+      funcionesCadena+= element.nivel+" "+element.tipo+" "+element.nombre+";"
+    });
+    var code=" class "+node.id+" {/n" + atributosCadena +funcionesCadena+"/n}"
+    console.log(code)
+    this.apiCode.postCode(code,1,"c#","native").subscribe({
+      next: (res: any) => {
+        console.log(res)
+      },
+      error: (res:any) => {
+        console.log(res)
+      }
+    })
   }
 }
