@@ -169,13 +169,10 @@ export class AreaDeTrabajoComponent implements OnInit {
     });
     var code=" class "+node.id+" {/n" + atributosCadena +funcionesCadena+"/n}"
     console.log(code)
-    this.apiCode.postCode(code,1,"c#","native").subscribe({
+    this.apiCode.postCode(code,1,"j","native").subscribe({
       next: (res: any) => {
         console.log(res)
       },
-      error: (res:any) => {
-        console.log(res)
-      }
     })
   }
 }

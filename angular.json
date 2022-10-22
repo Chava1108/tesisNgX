@@ -104,5 +104,8 @@
       }
     }
   },
-  "defaultProject": "tesis"
+  "defaultProject": "tesis",
+  "cli": {
+    "analytics": "1e18dd73-af02-4f86-9c27-be8a7dcf6ba3"
+  }
 }
