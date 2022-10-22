@@ -1,3 +1,4 @@
+import { PrismService } from './../service/prism.service';
 import { AfterContentInit, Component, ElementRef, OnInit, ViewChild, Renderer2 } from "@angular/core";
 import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
@@ -5,14 +6,16 @@ import { Subject } from "rxjs";
 import { BaseDeDatosService } from "../services/base-de-datos.service";
 import { CodeService } from "../services/code.service";
 import { MatDialog } from '@angular/material/dialog';
+import { Subscription } from "rxjs";
 import { ShowclassComponent } from "../dialogs/showclass/showclass.component";
 import { Node, Edge, ClusterNode } from '@swimlane/ngx-graph';
 import { ThisReceiver } from "@angular/compiler";
 
+
 @Component({
   selector: 'app-area-de-trabajo',
   templateUrl: './area-de-trabajo.component.html',
-  styleUrls: ['./area-de-trabajo.component.css'],
+  styleUrls: ['./area-detrabajo-component.scss'],
 
 })
 export class AreaDeTrabajoComponent implements OnInit {
@@ -27,7 +30,8 @@ export class AreaDeTrabajoComponent implements OnInit {
   };
 
   constructor(renderer2: Renderer2, private ElementRef: ElementRef,
-    private apis: BaseDeDatosService,private apiCode:CodeService, public dialog: MatDialog) {
+    private apis: BaseDeDatosService,private apiCode:CodeService, public dialog: MatDialog,
+    private primsmService: PrismService, private fb: FormBuilder) {
 
   }
   nodos: any
@@ -40,6 +44,19 @@ export class AreaDeTrabajoComponent implements OnInit {
   calculo = 12
   i = 0
   imagenes: any = []
+  sub!: Subscription;
+  highlighted = false;
+  codeType = 'javascript';
+
+  form = this.fb.group({
+    content: ''
+  });
+
+  get contentControl() {
+    return this.form.get('content');
+  }
+
+  text = `<h1>hello world</h1>`
 
   ngOnInit(): void {
     this.nodos = []

@@ -43,7 +43,9 @@ import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-fo
     MatButtonModule,
     MatDialogModule
   ],
-  providers: [],
+  providers: [
+    
+  ],
   bootstrap: [AppComponent],
   entryComponents:[FormularioComponent],
 })

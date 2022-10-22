@@ -44,7 +44,24 @@
       </ng-template>
     </ngx-graph>
   </div>
-
+<div>
+  <form [formGroup]="form">
+    <div class="code-container line-numbers">
+      <textarea
+        #textArea
+        class="text-area-code-editor"
+        formControlName="content"
+        spellcheck="false"
+      ></textarea>
+      <pre
+        aria-hidden="true"
+        class="preline-numbers"
+        #pre
+      ><code [ngClass]="['code', 'language-' + codeType]" #codeContent>{{ text }}</code>
+      </pre>
+    </div>
+  </form>
+</div>
   <!-- HTML generated using hilite.me --><div class="col-3" style="background: #111111; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><table><tr><td><pre style="margin: 0; line-height: 125%; color: white; "> 1
  2
  3
