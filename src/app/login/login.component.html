@@ -1,0 +1,84 @@
+<div class="bodyLogIn">
+    <div class="row">
+      <div class="col-6 m-5">
+        <div class="container">
+          <div class="p-5 bgAblack">
+            <h1 class="aling-center">Proyecto Poo-graph</h1>
+            <br>
+            <img src="../../assets/imgs/Logo_UAA.png" alt="">
+           
+          </div>
+        </div>
+      </div>
+  
+      <div class="col-5">
+        <div class="login-form">
+          <form novalidate [formGroup]="logIn">
+            <h2 class="text-center titleOR">
+              Log in <i class="fa fa-user-graduate mx-2"></i>
+            </h2>
+  
+            <div class="form-group my-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Username"
+                required="required"
+                formControlName="usrName"
+              />
+              <div
+                class="error"
+                *ngIf="
+                  logIn.get('usrName').hasError('required') &&
+                  logIn.get('usrName').touched
+                "
+              >
+                <p class="errorMsg">*Coloca el nombre del usuario</p>
+              </div>
+            </div>
+            <div class="form-group my-3">
+              <input
+                type="password"
+                class="form-control"
+                placeholder="Password"
+                required="required"
+                formControlName="passwd"
+              />
+              <div
+                class="error"
+                *ngIf="
+                  logIn.get('passwd').hasError('required') &&
+                  logIn.get('passwd').touched
+                "
+              >
+                <p class="errorMsg">*Coloca la contraseña</p>
+              </div>
+            </div>
+  
+            <div class="form-group mb-3 d-grid gap-2">
+              <button
+                type="submit"
+                class="btn"
+                [disabled]="logIn.invalid"
+              >
+                <i class="fas fa-door-open mx-2"></i>Log in
+              </button>
+              <button
+                type="button"
+                class="btn"
+                mat-raised-button
+              >
+                <i class="fas fa-person-booth mx-2"></i>Crear cuenta
+              </button>
+              <div class="clearfix my-3">
+                <label class="pull-left checkbox-inline d-block text-center"
+                  ><input type="checkbox" /> recuerdame</label
+                >
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
