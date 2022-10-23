@@ -39,19 +39,21 @@
                             formControlName="correo" />
                     </div>
                     <div class="form-group my-3">
-                        <input type="text" class="form-control" placeholder="Nombre de usuario" required="required"
+                        <input type="text" class="form-control" (change)="comprobarUsuario()" placeholder="Nombre de usuario" required="required"
                             formControlName="usuario" />
+                            <label *ngIf="invalidUsername" class="errorMsg">El nombre de usuario ya existe</label>
                     </div>
                     <div class="form-group my-3">
                         <input type="password" class="form-control" placeholder="Contraseña" required="required"
                             formControlName="password" />
                     </div>
                     <div class="form-group my-3">
-                        <input type="text" class="form-control" placeholder="Vuelva a escribir su contraseña" required="required"
+                        <input type="password" class="form-control" (change)="comprobarPassword()" placeholder="Vuelva a escribir su contraseña" required="required"
                             formControlName="password2" />
+                        <label *ngIf="invalidPassword" class="errorMsg">La contraseña no coincide</label>
                     </div>
                     <div class="form-group mb-3 d-grid gap-2">
-                        <button type="submit" class="btn " (click)="crearUsuario()" [disabled]="horizontalStepperForm.invalid">
+                        <button type="submit" class="btn " (click)="crearUsuario()" [disabled]="horizontalStepperForm.invalid||invalidPassword||invalidUsername">
                             <i class="fas fa-door-open mx-2"></i>Crear mi cuenta
                         </button>
                         <button type="button" class="btn" routerLink="/" mat-raised-button>

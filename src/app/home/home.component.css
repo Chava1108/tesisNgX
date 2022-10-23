@@ -1,0 +1,18 @@
+.welcome{
+    background-color: #1e1e1e;
+    height: 100%;
+    width: 100%;
+}
+
+button{
+    background-color: rgba(2,123,204,255) !important;
+}
+
+h1{
+    color: white;
+    font-size: xx-large;
+}
+
+h2{
+    color: white;
+}

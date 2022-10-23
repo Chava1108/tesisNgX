@@ -19,7 +19,8 @@ import { FormularioComponent } from './dialogs/formulario/formulario.component';
 import { ShowclassComponent } from './dialogs/showclass/showclass.component';
 import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-formulario.component';
 import { LoginComponent } from './login/login.component'; 
-import { RegisterComponent } from './register/register.component'; 
+import { RegisterComponent } from './register/register.component';
+import { HomeComponent } from './home/home.component'; 
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { RegisterComponent } from './register/register.component';
     ShowclassComponent,
    EditarFormularioComponent,
    LoginComponent,
-   RegisterComponent
+   RegisterComponent,
+   HomeComponent
   ],
   imports: [
     BrowserModule,
