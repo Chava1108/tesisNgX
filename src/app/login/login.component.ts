@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { UsuariosService } from './../services/usuarios.service';
+import { Component, OnInit, Inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
+import { DOCUMENT } from '@angular/common';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-login',
@@ -9,9 +12,11 @@ import { FormGroup, FormControl } from '@angular/forms';
 })
 export class LoginComponent implements OnInit {
   user: any;
-  bandLogIn: boolean = false;
+  bandLogin: boolean = false;
+  userID: number = 0
+  bandError: boolean = false;
   logIn: any;
-  constructor() { }
+  constructor(private api: UsuariosService, @Inject(DOCUMENT) private document:any) { }
 
   ngOnInit(): void {
     this.logIn = new FormGroup({
@@ -23,9 +28,58 @@ export class LoginComponent implements OnInit {
       passwd: new FormControl('', [
         Validators.required,
         Validators.minLength(2),
-        Validators.maxLength(10),
+        Validators.maxLength(15),
       ]),
     });
+  }
+
+   validateUser(){
+    const values = this.logIn.getRawValue();
+    var passDesncypt= ""
+     this.api.getUsuarios().subscribe({
+       next: (res:any)=>{
+         console.log(res);
+         res.forEach((element: {id:any, username:any , password:any}) => {
+          passDesncypt = CryptoJS.AES.decrypt(element.password,"POOGraph").toString(CryptoJS.enc.Utf8)
+          if(values.usrName == element.username && values.passwd == passDesncypt){
+              this.bandLogin = true
+              this.userID = element.id
+            }
+         });
+
+        if(this.bandLogin){
+          localStorage.clear();
+          this.guardarEnStorage(values)
+        }else{
+         this.bandError = true
+        }
+
+       },
+
+       error: ()=>{
+       }
+     })
+
+    
+  }
+
+  guardarEnStorage(values: any){
+    if(localStorage.getItem('usrTmp')) {
+      localStorage.removeItem('usrTmp'); 
+      localStorage.setItem('usrTmp', values);
+    } else {
+      localStorage.setItem('usrTmp', values);
+    }
+
+    if(localStorage.getItem('Usrid')) {
+      localStorage.removeItem('Usrid'); 
+      localStorage.setItem('Usrid', this.userID.toString());
+    } else {
+      localStorage.setItem('Usrid', this.userID.toString());
+    }
+
+    this.document.location.href = '../area-de-trabajo.component';
+
   }
 
 }
