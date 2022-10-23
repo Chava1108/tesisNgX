@@ -13,7 +13,7 @@
 
     <div class="col-5">
       <div class="login-form">
-        <form novalidate [formGroup]="logIn">
+        <form novalidate [formGroup]="logIn" (ngSubmit)="validateUser()">
           <h2 class="text-center titleOR">
             Log in <i class="fa fa-user-graduate mx-2"></i>
           </h2>
@@ -37,6 +37,10 @@
                 ">
               <p class="errorMsg">*Coloca la contraseña</p>
             </div>
+          </div>
+
+          <div class="error" *ngIf="bandError">
+            <p class="errorMsg">*Usuario y/o contraseña incorreta, intentalo de nuevo...</p>
           </div>
 
           <div class="form-group mb-3 d-grid gap-2">
