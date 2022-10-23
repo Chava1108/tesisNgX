@@ -21,7 +21,8 @@ import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-fo
 import { LoginComponent } from './login/login.component'; 
 import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
-import { NavbarComponent } from './navbar/navbar.component'; 
+import { NavbarComponent } from './navbar/navbar.component';
+import { FormProyectComponent } from './dialogs/form-proyect/form-proyect.component'; 
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { NavbarComponent } from './navbar/navbar.component';
    LoginComponent,
    RegisterComponent,
    HomeComponent,
-   NavbarComponent
+   NavbarComponent,
+   FormProyectComponent
   ],
   imports: [
     BrowserModule,

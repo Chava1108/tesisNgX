@@ -1,0 +1,23 @@
+<div mat-dialog-content class="layout-row layout-align-end-end">
+    <h1>Crear Proyecto</h1>
+</div>
+<div>
+    <div class="row">
+        <div class="col-5">
+            <div class="row formulario">
+                <div class="form-group row" >
+                    <form [formGroup]="formularioProyecto">
+                        <div class="col-12">
+                            <label for="exampleFormControlInput1">Nombre de la clase</label>
+                            <div class="col-7">
+                                <input class="form-control" type="text" (change)="checkProyecto()" formControlName="nombreProyecto">
+                            </div>
+                            
+                        </div>
+                   </form>
+                   <button (click) = "crearProyecto()" [disabled]="bandPost || formularioProyecto.invalid">Crear Proyecto</button> 
+                </div>   
+            </div> 
+        </div>
+    </div>  
+</div>
