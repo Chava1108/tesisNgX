@@ -19,6 +19,7 @@ import { FormularioComponent } from './dialogs/formulario/formulario.component';
 import { ShowclassComponent } from './dialogs/showclass/showclass.component';
 import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-formulario.component';
 import { LoginComponent } from './login/login.component'; 
+import { RegisterComponent } from './register/register.component'; 
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { LoginComponent } from './login/login.component';
     FormularioComponent,
     ShowclassComponent,
    EditarFormularioComponent,
-   LoginComponent
+   LoginComponent,
+   RegisterComponent
   ],
   imports: [
     BrowserModule,
