@@ -1,7 +1,7 @@
 import { PoryectosService } from './../../services/poryectos.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-form-proyect',
@@ -15,12 +15,21 @@ export class FormProyectComponent implements OnInit {
     nombreProyecto: new FormControl('', Validators.required)
   })
   
-  constructor(private api: PoryectosService) { }
+  constructor(private api: PoryectosService, private router:Router) { }
 
   ngOnInit(): void {
      this.idUsr = localStorage.getItem('Usrid')
   }
 
+  obtenerProyecto(nombre:any, id:any){
+    this.api.getProyectoIndividual(nombre, id).subscribe({
+      next: (res:any)=>{
+        localStorage.setItem("Id_Proyecto", res[0].id.toString())
+        localStorage.setItem("Nombre_Proyecto", res[0].nombre)
+        this.router.navigate(["/area-de-trabajo.component"])
+      }
+    })
+  }
  
 
   crearProyecto(){
@@ -30,16 +39,11 @@ export class FormProyectComponent implements OnInit {
 
     this.api.postProyectos(nombreProyecto, this.idUsr).subscribe({
       next: (res:any)=>{
-        if(res.length == 0){
-          this.bandPost = true;
-        }
+        this.obtenerProyecto(nombreProyecto, this.idUsr)
       },
-
       error: () =>{
 
       }
-
-
     })
   }
 

@@ -16,4 +16,8 @@ export class PoryectosService {
     const body={nombre:nombre,id_usr:id_usr}
     return this.httpClient.post(`${this.servidor}proyecto`,body);
   }
+
+  getProyectoIndividual(nombre:any, id_usr:any){
+    return this.httpClient.get(`${this.servidor}proyectoIndividual?n1=${id_usr}&n2=${nombre}`)
+  }
 }
