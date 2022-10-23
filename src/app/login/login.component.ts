@@ -4,6 +4,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
 import { DOCUMENT } from '@angular/common';
 import * as CryptoJS from 'crypto-js';
+import { Router,ActivatedRoute, ParamMap } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,7 @@ export class LoginComponent implements OnInit {
   userID: number = 0
   bandError: boolean = false;
   logIn: any;
-  constructor(private api: UsuariosService, @Inject(DOCUMENT) private document:any) { }
+  constructor(private api: UsuariosService, @Inject(DOCUMENT) private document:any,private router: Router) { }
 
   ngOnInit(): void {
     this.logIn = new FormGroup({
@@ -66,9 +67,9 @@ export class LoginComponent implements OnInit {
   guardarEnStorage(values: any){
     if(localStorage.getItem('usrTmp')) {
       localStorage.removeItem('usrTmp'); 
-      localStorage.setItem('usrTmp', values);
+      localStorage.setItem('usrTmp', values.usrName);
     } else {
-      localStorage.setItem('usrTmp', values);
+      localStorage.setItem('usrTmp', values.usrName);
     }
 
     if(localStorage.getItem('Usrid')) {
@@ -78,7 +79,7 @@ export class LoginComponent implements OnInit {
       localStorage.setItem('Usrid', this.userID.toString());
     }
 
-    this.document.location.href = '../area-de-trabajo.component';
+    document.location.href="../home"
 
   }
 

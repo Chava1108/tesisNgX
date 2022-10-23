@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
 import { UsuariosService } from '../services/usuarios.service';
 import * as CryptoJS from 'crypto-js';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -10,7 +11,7 @@ import * as CryptoJS from 'crypto-js';
 })
 export class RegisterComponent implements OnInit {
 
-  constructor(private api: UsuariosService) { }
+  constructor(private api: UsuariosService, private router: Router) { }
   horizontalStepperForm = new FormGroup({
     nombre: new FormControl('', Validators.required),
     correo: new FormControl('', Validators.required),
@@ -39,6 +40,7 @@ export class RegisterComponent implements OnInit {
 
     this.api.postUsuarios(nombre, correo, usuario, encriptar).subscribe({
       next: (res: any) => {
+        this.router.navigate(['/home']);
       },
       error: () => {
 

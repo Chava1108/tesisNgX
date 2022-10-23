@@ -20,7 +20,8 @@ import { ShowclassComponent } from './dialogs/showclass/showclass.component';
 import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-formulario.component';
 import { LoginComponent } from './login/login.component'; 
 import { RegisterComponent } from './register/register.component';
-import { HomeComponent } from './home/home.component'; 
+import { HomeComponent } from './home/home.component';
+import { NavbarComponent } from './navbar/navbar.component'; 
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { HomeComponent } from './home/home.component';
    EditarFormularioComponent,
    LoginComponent,
    RegisterComponent,
-   HomeComponent
+   HomeComponent,
+   NavbarComponent
   ],
   imports: [
     BrowserModule,
