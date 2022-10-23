@@ -6,11 +6,10 @@ import { Subject } from "rxjs";
 import { BaseDeDatosService } from "../services/base-de-datos.service";
 import { CodeService } from "../services/code.service";
 import { MatDialog } from '@angular/material/dialog';
-import { Subscription } from "rxjs";
 import { ShowclassComponent } from "../dialogs/showclass/showclass.component";
 import { Node, Edge, ClusterNode } from '@swimlane/ngx-graph';
 import { ThisReceiver } from "@angular/compiler";
-
+import { fromEvent, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-area-de-trabajo',
@@ -20,7 +19,15 @@ import { ThisReceiver } from "@angular/compiler";
 })
 export class AreaDeTrabajoComponent implements OnInit {
 
+  @ViewChild('codeContent', { static: true })
+  codeContent!: ElementRef;
+  @ViewChild('pre', { static: true })
+  pre!: ElementRef;
 
+  sub!: Subscription;
+  highlighted = false;
+  codeType = 'java';
+  bandCode=0
   horizontalStepperForm = new FormGroup({
     clase: new FormControl('', Validators.required)
   });
@@ -29,11 +36,13 @@ export class AreaDeTrabajoComponent implements OnInit {
     orientation: 'TB'
   };
 
-  constructor(renderer2: Renderer2, private ElementRef: ElementRef,
+  constructor(private renderer: Renderer2, private ElementRef: ElementRef,
     private apis: BaseDeDatosService,private apiCode:CodeService, public dialog: MatDialog,
     private primsmService: PrismService, private fb: FormBuilder) {
 
   }
+  nombrePadre=""
+  nombreHijo=""
   nodos: any
   links: any
   update$: Subject<any> = new Subject
@@ -44,9 +53,6 @@ export class AreaDeTrabajoComponent implements OnInit {
   calculo = 12
   i = 0
   imagenes: any = []
-  sub!: Subscription;
-  highlighted = false;
-  codeType = 'javascript';
 
   form = this.fb.group({
     content: ''
@@ -56,8 +62,8 @@ export class AreaDeTrabajoComponent implements OnInit {
     return this.form.get('content');
   }
 
-  text = `<h1>hello world</h1>`
-
+  text =  " Bienvenidos a POOGraph \n La Programación Orientada a objetos permite que el \n código sea reutilizable, organizado y fácil de mantener \n  En este sitio podras personalizar tus diagramas para \n trabajar con POO, es ideal por si"
+  aributosHeredados:any=[]
   ngOnInit(): void {
     this.nodos = []
     this.links = []
@@ -65,6 +71,9 @@ export class AreaDeTrabajoComponent implements OnInit {
     this.getHerencia()
     this.getAtributos()
     this.getFunciones()
+    this.listenForm()
+   
+    
   }
 
   getClase() {
@@ -175,21 +184,83 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   Showcode(node:any){
-    console.log(node)
+    this.aributosHeredados=[]
+    this.bandCode=1;
     var atributosCadena=""
     var funcionesCadena=""
+    var atributosConstructor=""
+    var igualacionesConstructor=""
+    var contA=0
+    this.getAtributosHeredados(node.id)
     node.atributos.forEach((element: {nivel:any; tipo:any; nombre:any}) => {
-      atributosCadena+= element.nivel+" "+element.tipo+" "+element.nombre+";"
+      atributosCadena+= "&nbsp;" + "&nbsp;" + "&nbsp;" + element.nivel+" "+element.tipo+" "+element.nombre+"; \n"
+      if(contA<node.atributos.length-1){
+        atributosConstructor+=element.tipo+" "+element.nombre+", "
+        igualacionesConstructor+="&nbsp;" + "&nbsp;" + "&nbsp;&nbsp;&nbsp;&nbsp;"+"this."+element.nombre+" = " + element.nombre+";\n"
+        contA++
+      }else{
+        atributosConstructor+=element.tipo+" "+element.nombre
+        igualacionesConstructor+="&nbsp;" + "&nbsp;" + "&nbsp;&nbsp;&nbsp;&nbsp;"+"this."+element.nombre+" = " + element.nombre+";"
+      }
     });
     node.funciones.forEach((element: {nivel:any; tipo:any; nombre:any}) => {
-      funcionesCadena+= element.nivel+" "+element.tipo+" "+element.nombre+";"
+      funcionesCadena+= "&nbsp;" + "&nbsp;" + "&nbsp;" + element.nivel+" "+element.tipo+" "+element.nombre+"{ \n" +
+         "&nbsp;&nbsp;&nbsp;//Código de la funcion "+"\n &nbsp;&nbsp;&nbsp;} \n"
     });
-    var code=" class "+node.id+" {/n" + atributosCadena +funcionesCadena+"/n}"
-    console.log(code)
-    this.apiCode.postCode(code,1,"j","native").subscribe({
-      next: (res: any) => {
-        console.log(res)
-      },
-    })
+    var constructor="&nbsp;&nbsp;&nbsp;public "+node.id+"("+atributosConstructor+"){ \n"+igualacionesConstructor+"  \n &nbsp;&nbsp;&nbsp;}"
+    this.text=" class "+node.id+" { "+" \n &nbsp;&nbsp//Atributos \n" + atributosCadena +"\n"+constructor+"\n &nbsp;&nbsp;//Funciones \n"+funcionesCadena+ " \n"+" }"
+    //const modifiedContent = this.primsmService.convertHtmlIntoString(this.text);
+
+    this.renderer.setProperty(this.codeContent.nativeElement, 'innerHTML', this.text);
+    
+    this.highlighted = true;
   }
+
+  ngAfterViewInit() {
+    this.primsmService.highlightAll();
+  }
+
+  ngAfterViewChecked() {
+    if (this.highlighted) {
+      this.primsmService.highlightAll();
+      this.highlighted = false;
+    }
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
+
+  private listenForm() {
+    this.sub = this.form.valueChanges.subscribe((val) => {
+      const modifiedContent = this.primsmService.convertHtmlIntoString(val.content);
+
+      this.renderer.setProperty(this.codeContent.nativeElement, 'innerHTML', modifiedContent);
+
+      this.highlighted = true;
+    });
+  }
+
+  getAtributosHeredados(nombre:any){
+    
+    this.links.forEach((element:{target:any, source:any}) => {
+      if(element.target==nombre){
+        this.nombrePadre=element.source
+        this.nombreHijo=element.target
+        this.apis.getClasesId(this.nombreHijo).subscribe({
+          next: (res: any) => {
+            this.apis.getAtributosHeredos(res[0].id).subscribe({
+              next:(res:any)=>{
+                this.aributosHeredados =this.aributosHeredados.concat(res[0])
+                console.log(this.aributosHeredados)
+                this.getAtributosHeredados(this.nombrePadre)
+              }
+            })
+          }
+        })
+      }
+    });
+  }
+
+ 
 }

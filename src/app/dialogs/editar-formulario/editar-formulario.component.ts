@@ -28,16 +28,17 @@ export class EditarFormularioComponent implements OnInit {
     tipoFuncion: new FormControl(this.data.tipo, Validators.required),
     funcion: new FormControl(this.data.nombre, Validators.required)
   });
-  list = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "string"]
-  list2 = ["void", "int", "float", "char", "byte", "boolean", "double", "long", "short", "string"]
+  list = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "String"]
+  list2 = ["void", "int", "float", "char", "byte", "boolean", "double", "long", "short", "String"]
   listNivel = ["public", "private", "protected"]
   listNivel2 = ["public", "private"]
   bandAtributos = false;
   bandFunciones = false;
   boton: string = ""
   idClase: number=0
+  clases: any
   ngOnInit(): void {
-    console.log(this.data);
+
     if (this.data.length > 1) {
       if (this.data[1].tipoAgregar == "Funcion") {
         this.bandFunciones = true;
@@ -57,8 +58,8 @@ export class EditarFormularioComponent implements OnInit {
         this.boton = "Actualizar"
       }
     }
+    this.obtenerClases()
 
-    console.log(this.data)
   }
 
   onClickNo() {
@@ -113,6 +114,23 @@ export class EditarFormularioComponent implements OnInit {
         }
       })
     }
+  }
+
+  obtenerClases() {
+    this.api.getClases().subscribe({
+      next: (res: any) => {
+        this.clases = res;
+        
+        console.log(this.clases)
+        res.forEach((element: {nombre:any} )=> {
+          this.list.push(element.nombre)
+          this.list2.push(element.nombre)
+        });
+      },
+      error: () => {
+
+      }
+    });
   }
 
 }

@@ -64,7 +64,7 @@ export class FormularioComponent implements OnInit {
         console.log(this.clases)
         res.forEach((element: {nombre:any} )=> {
           this.list.push(element.nombre)
-          console.log(this.list)
+          this.list2.push(element.nombre)
         });
       },
       error: () => {

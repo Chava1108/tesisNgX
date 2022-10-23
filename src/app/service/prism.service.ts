@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import 'prismjs';
-import 'prismjs/plugins/line-numbers/prism-line-numbers'
+import 'prismjs/plugins/line-numbers/prism-line-numbers';
 import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-java';
@@ -13,19 +13,19 @@ import 'prismjs/components/prism-scss';
 declare var Prism: any;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PrismService {
-
-  constructor() { }
-
+  constructor() {}
+  
   highlightAll() {
-      Prism.highlightAll();
+    Prism.highlightAll();
   }
 
-  convertHTMLintoString(text: String){
+  convertHtmlIntoString(text: string) {
     return text
-    .replace(new RegExp('&', 'g'), '&amp;')
-    .replace(new RegExp('<', 'g'), '&lt;');
+      .replace(new RegExp('&', 'g'), '&amp;')
+      .replace(new RegExp('<', 'g'), '&lt;');
   }
 }
+

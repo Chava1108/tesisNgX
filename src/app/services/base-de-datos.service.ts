@@ -75,4 +75,8 @@ export class BaseDeDatosService {
     const body = {nivel:nivel, nombre:nombre, tipo:tipo}
     return this.httpClient.put(`${this.servidor}funciones/${id}`,body);
   }
+
+  getAtributosHeredos(id:number){
+    return this.httpClient.get(`${this.servidor}atributosHeredados/${id}`);
+  }
 }
