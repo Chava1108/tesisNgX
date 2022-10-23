@@ -17,7 +17,8 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import { FormularioComponent } from './dialogs/formulario/formulario.component';
 import { ShowclassComponent } from './dialogs/showclass/showclass.component';
-import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-formulario.component'; 
+import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-formulario.component';
+import { RegisterComponent } from './register/register.component'; 
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { EditarFormularioComponent } from './dialogs/editar-formulario/editar-fo
     AgregarComponentComponent,
     FormularioComponent,
     ShowclassComponent,
-   EditarFormularioComponent
+   EditarFormularioComponent,
+   RegisterComponent
   ],
   imports: [
     BrowserModule,
