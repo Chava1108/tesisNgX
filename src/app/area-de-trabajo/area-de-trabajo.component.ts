@@ -184,14 +184,14 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   Showcode(node:any){
-    this.aributosHeredados=[]
+    
     this.bandCode=1;
     var atributosCadena=""
     var funcionesCadena=""
     var atributosConstructor=""
     var igualacionesConstructor=""
     var contA=0
-    this.getAtributosHeredados(node.id)
+    //this.getAtributosHeredados(node.id)
     node.atributos.forEach((element: {nivel:any; tipo:any; nombre:any}) => {
       atributosCadena+= "&nbsp;" + "&nbsp;" + "&nbsp;" + element.nivel+" "+element.tipo+" "+element.nombre+"; \n"
       if(contA<node.atributos.length-1){
@@ -203,12 +203,44 @@ export class AreaDeTrabajoComponent implements OnInit {
         igualacionesConstructor+="&nbsp;" + "&nbsp;" + "&nbsp;&nbsp;&nbsp;&nbsp;"+"this."+element.nombre+" = " + element.nombre+";"
       }
     });
+    contA=0
+    var extendsPadre=""
+    if(this.aributosHeredados.length>0){
+      atributosConstructor+=", "
+      extendsPadre=" extends "+this.aributosHeredados[0].Padre
+      this.aributosHeredados.forEach((element:{nombre:any, tipo:any}) => {
+        
+        if(contA<this.aributosHeredados.length-1){
+          atributosConstructor+=element.tipo+" "+element.nombre+", "
+          contA++
+        }else{
+          atributosConstructor+=element.tipo+" "+element.nombre
+        }
+        
+      });
+    }
     node.funciones.forEach((element: {nivel:any; tipo:any; nombre:any}) => {
       funcionesCadena+= "&nbsp;" + "&nbsp;" + "&nbsp;" + element.nivel+" "+element.tipo+" "+element.nombre+"{ \n" +
          "&nbsp;&nbsp;&nbsp;//Código de la funcion "+"\n &nbsp;&nbsp;&nbsp;} \n"
     });
-    var constructor="&nbsp;&nbsp;&nbsp;public "+node.id+"("+atributosConstructor+"){ \n"+igualacionesConstructor+"  \n &nbsp;&nbsp;&nbsp;}"
-    this.text=" class "+node.id+" { "+" \n &nbsp;&nbsp//Atributos \n" + atributosCadena +"\n"+constructor+"\n &nbsp;&nbsp;//Funciones \n"+funcionesCadena+ " \n"+" }"
+    
+    console.log(this.aributosHeredados)
+    var superAtributos="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super("
+    contA=0
+    if(this.aributosHeredados.length>0){
+      this.aributosHeredados.forEach((element:{Padre:any, nombre:any}) => {
+          superAtributos+=element.nombre+","
+      });
+    }
+    superAtributos=superAtributos.slice(0,-1)
+    superAtributos+=") \n"
+    console.log(superAtributos)
+    var bandSuper=""
+    if(this.aributosHeredados.length>0){
+      bandSuper=superAtributos
+    }
+    var constructor="&nbsp;&nbsp;&nbsp;public "+node.id+"("+atributosConstructor+"){ \n"+bandSuper+igualacionesConstructor+"  \n &nbsp;&nbsp;&nbsp;}"
+    this.text=" class "+node.id+extendsPadre+" { "+" \n &nbsp;&nbsp//Atributos \n" + atributosCadena +"\n"+constructor+"\n &nbsp;&nbsp;//Funciones \n"+funcionesCadena+ " \n"+" }"
     //const modifiedContent = this.primsmService.convertHtmlIntoString(this.text);
 
     this.renderer.setProperty(this.codeContent.nativeElement, 'innerHTML', this.text);
@@ -241,8 +273,14 @@ export class AreaDeTrabajoComponent implements OnInit {
     });
   }
 
-  getAtributosHeredados(nombre:any){
+  reinicio(nombre:any, nodo:any){
+    this.aributosHeredados=[]
+    this.getAtributosHeredados(nombre,nodo)
     
+  }
+
+  getAtributosHeredados(nombre:any,nodo:any){
+   
     this.links.forEach((element:{target:any, source:any}) => {
       if(element.target==nombre){
         this.nombrePadre=element.source
@@ -250,14 +288,16 @@ export class AreaDeTrabajoComponent implements OnInit {
         this.apis.getClasesId(this.nombreHijo).subscribe({
           next: (res: any) => {
             this.apis.getAtributosHeredos(res[0].id).subscribe({
-              next:(res:any)=>{
-                this.aributosHeredados =this.aributosHeredados.concat(res[0])
-                console.log(this.aributosHeredados)
-                this.getAtributosHeredados(this.nombrePadre)
+              next:( res:any)=>{
+                this.aributosHeredados = this.aributosHeredados.concat(res[0]);
+                this.getAtributosHeredados(this.nombrePadre, nodo)
+                this.Showcode(nodo)
               }
             })
           }
         })
+      }else{
+        this.Showcode(nodo)
       }
     });
   }

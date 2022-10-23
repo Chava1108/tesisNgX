@@ -24,7 +24,7 @@
                 <img [attr.src]="node.imagen" alt="no se encuentra" height="52" width="90" />
                 <h1>{{node.label}}</h1>
                 <button class="btn btn-info" style="margin-top: 10%;" (click)="Showclass(node)">Ver clase</button>
-                <button class="btn btn-info" style="margin-top: 10%;" (click)="Showcode(node)">Ver codigo</button>
+                <button class="btn btn-info" style="margin-top: 10%;" (click)="reinicio(node.id,node)">Ver codigo</button>
               </div>
             </xhtml:div>
           </svg:foreignObject>
