@@ -54,6 +54,10 @@ export class AreaDeTrabajoComponent implements OnInit {
   i = 0
   imagenes: any = []
 
+  //valores del proyecto
+  idProyect: number = 0
+  nameProyect: any
+
   form = this.fb.group({
     content: ''
   });
@@ -65,6 +69,10 @@ export class AreaDeTrabajoComponent implements OnInit {
   text =  " Bienvenidos a POOGraph \n La Programación Orientada a objetos permite que el \n código sea reutilizable, organizado y fácil de mantener \n  En este sitio podras personalizar tus diagramas para \n trabajar con POO, es ideal por si"
   aributosHeredados:any=[]
   ngOnInit(): void {
+
+    this.idProyect = Number(localStorage.getItem("Id_Proyecto"))
+   this.nameProyect = localStorage.getItem("Nombre_Proyecto")
+
     this.nodos = []
     this.links = []
     this.getClase()
@@ -72,13 +80,15 @@ export class AreaDeTrabajoComponent implements OnInit {
     this.getAtributos()
     this.getFunciones()
     this.listenForm()
+
    
     
   }
 
   getClase() {
-    this.apis.getClases().subscribe({
+    this.apis.getClasesProyectId(this.idProyect).subscribe({
       next: (res: any) => {
+        console.log(res)
         this.clases = res;
         this.clases.forEach((element: { id: any; nombre: any; imagen: string; }) => {
           this.nodos.push({

@@ -22,7 +22,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let item of proyectos">
+                    <tr *ngFor="let item of proyectos" (click) ="openProyect(item)">
                         <td >../{{item.nombre}}</td>
                     </tr>
                   </tbody>

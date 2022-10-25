@@ -14,6 +14,10 @@ export class BaseDeDatosService {
     return this.httpClient.get(`${this.servidor}clases`);
   }
 
+  getClasesProyectId(id:number): any{
+    return this.httpClient.get(`${this.servidor}clasesProyectId/${id}`);
+  }
+
   getClasesId(nombre:string): any{
     return this.httpClient.get(`${this.servidor}clases/${nombre}`);
   }

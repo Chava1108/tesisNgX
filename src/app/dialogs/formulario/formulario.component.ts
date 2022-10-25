@@ -57,7 +57,8 @@ export class FormularioComponent implements OnInit {
   }
 
   obtenerClases() {
-    this.api.getClases().subscribe({
+    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
+    this.api.getClasesProyectId(idProyect).subscribe({
       next: (res: any) => {
         this.clases = res;
         

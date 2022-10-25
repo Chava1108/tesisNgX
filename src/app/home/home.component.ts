@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormProyectComponent } from '../dialogs/form-proyect/form-proyect.component';
@@ -9,7 +10,7 @@ import { PoryectosService } from '../services/poryectos.service';
 })
 export class HomeComponent implements OnInit {
 
-  constructor(public dialog: MatDialog, private apis: PoryectosService) { }
+  constructor(public dialog: MatDialog, private apis: PoryectosService, private router: Router) { }
   username:any
   id:any
   proyectos:any
@@ -25,6 +26,13 @@ export class HomeComponent implements OnInit {
         this.proyectos=res
       }
     })
+  }
+
+  openProyect(proyect: any){
+    console.log(proyect)
+    localStorage.setItem("Id_Proyecto", proyect.id)
+    localStorage.setItem("Nombre_Proyecto", proyect.nombre)
+    this.router.navigate(["/area-de-trabajo.component"])
   }
 
   openDialog(){
