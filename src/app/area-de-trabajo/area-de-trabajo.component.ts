@@ -233,7 +233,7 @@ export class AreaDeTrabajoComponent implements OnInit {
       });
     }
     superAtributos=superAtributos.slice(0,-1)
-    superAtributos+=") \n"
+    superAtributos+="); \n"
     console.log(superAtributos)
     var bandSuper=""
     if(this.aributosHeredados.length>0){

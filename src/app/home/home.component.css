@@ -16,3 +16,7 @@ h1{
 h2{
     color: white;
 }
+
+td:hover{
+    background-color: #1e1e1e;
+}

@@ -15,7 +15,18 @@
     </div>
     <div class="row">
         <div class="col-4 m-5">
-            <h2>Abrir proyectos</h2>
+            <table class="table table-dark">
+                <thead>
+                    <tr>
+                      <th colspan="4">Abrir proyecto </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of proyectos">
+                        <td >../{{item.nombre}}</td>
+                    </tr>
+                  </tbody>
+            </table>
         </div>
     </div>
 
