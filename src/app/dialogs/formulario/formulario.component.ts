@@ -75,10 +75,11 @@ export class FormularioComponent implements OnInit {
   }
 
   crearClase() {
+    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
     this.bandClase = false
     const {nivelClase, nombre } = this.formularioClase.value
     this.nameClase = nombre
-    this.api.postClase(nivelClase, nombre, this.fileTemp.fileName).subscribe({
+    this.api.postClase(nivelClase, nombre, this.fileTemp.fileName, idProyect).subscribe({
       next: (res: any) => {
         const body=new FormData();
         body.append('myFile',this.fileTemp.fileRaw,this.fileTemp.fileName)

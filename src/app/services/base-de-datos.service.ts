@@ -34,8 +34,8 @@ export class BaseDeDatosService {
     return this.httpClient.get(`${this.servidor}herencia`);
   }
   
-  postClase(nivel: String, clase:string, imagen:string):any{
-    const body={nivel:nivel,nombre:clase,imagen:imagen}
+  postClase(nivel: String, clase:string, imagen:string, id_proyecto:number):any{
+    const body={nivel:nivel,nombre:clase,imagen:imagen, id_proyecto: id_proyecto}
     return this.httpClient.post(`${this.servidor}clases`,body);
   }
 
