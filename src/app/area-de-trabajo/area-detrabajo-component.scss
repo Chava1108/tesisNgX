@@ -6,6 +6,20 @@
   min-height: 150px;
 }
 
+.principal{
+  height: 40rem;
+  background-color: var(--color-3);
+  color: var(--text-color-2);
+  font-family: var(--font-family);
+
+}
+
+.text-path{
+  color: white;
+}
+
+
+
 .text-area-code-editor {
   &,
   &:focus {

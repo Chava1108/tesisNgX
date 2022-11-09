@@ -69,6 +69,7 @@ export class AreaDeTrabajoComponent implements OnInit {
   text =  " Bienvenidos a POOGraph \n La Programación Orientada a objetos permite que el \n código sea reutilizable, organizado y fácil de mantener \n  En este sitio podras personalizar tus diagramas para \n trabajar con POO, es ideal por si"
   aributosHeredados:any=[]
   ngOnInit(): void {
+    
 
     this.idProyect = Number(localStorage.getItem("Id_Proyecto"))
    this.nameProyect = localStorage.getItem("Nombre_Proyecto")

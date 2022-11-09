@@ -1,59 +1,66 @@
-<div class="row">
-  <div class="col-7">
-    <ngx-graph [update$]="update$" class="chart-container" [view]="[900, 550]" [links]="links" [nodes]="nodos"
-      layout="dagreCluster" [layoutSettings]="layoutSettings">
-      <!--Templete para puntas de las fechas-->
-      <ng-template #defsTemplate>
-        <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
-          <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
-        </svg:marker>
-      </ng-template>
-      <!--Templete -->
-      <ng-template #clusterTemplate let-cluster>
-        <svg:g class="node cluster">
-          <svg:rect rx="5" ry="5" [attr.width]="cluster.dimension.width" [attr.height]="cluster.dimension.height"
-            [attr.fill]="cluster.data.color" />
-        </svg:g>
-      </ng-template>
-      <!--Templete para puntas de las fechas-->
-      <ng-template #nodeTemplate let-node>
-        <svg:g class="node">
-          <svg:foreignObject width="130" height="200" class="tarjeta">
-            <xhtml:div xmlns="http://www.w3.org/1999/xhtml">
-              <div>
-                <img [attr.src]="node.imagen" alt="no se encuentra" height="52" width="90" />
-                <h1>{{node.label}}</h1>
-                <button class="btn btn-info" style="margin-top: 10%;" (click)="Showclass(node)">Ver clase</button>
-                <button class="btn btn-info" style="margin-top: 10%;" (click)="reinicio(node.id,node)">Ver codigo</button>
-              </div>
-            </xhtml:div>
-          </svg:foreignObject>
-        </svg:g>
-      </ng-template>
-      <!--Templete para las lineas -->
-      <ng-template #linkTemplate let-link>
-        <svg:g class="edge">
-          <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
-          <svg:text class="edge-label" text-anchor="middle">
-            <textPath class="text-path" [attr.href]="'#' + link.id" [style.dominant-baseline]="link.dominantBaseline"
-              startOffset="50%">
-              {{link.label}}
-            </textPath>
-          </svg:text>
-        </svg:g>
-      </ng-template>
-    </ngx-graph>
-  </div>
-  <div class="col-5" >
-    <form [formGroup]="form">
-      <div class="code-container line-numbers">
-        <pre
-          aria-hidden="true"
-          class="pre line-numbers"
-          #pre
-        ><code [ngClass]="['code', 'language-' + codeType]" #codeContent>{{text}}</code>
-        </pre>
-      </div>
-    </form>
+<div class="app-body pattern-grid-lg bg-custom-white principal">
+  <div #zoneFlowChart class="row">
+    <div class="col-7">
+      <ngx-graph [update$]="update$" class="chart-container" [view]="[1200, 550]" [links]="links" [nodes]="nodos"
+        layout="dagreCluster" [layoutSettings]="layoutSettings">
+        <!--Templete para puntas de las fechas-->
+        <ng-template #defsTemplate>
+          <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+            <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+          </svg:marker>
+        </ng-template>
+        <!--Templete -->
+        <ng-template #clusterTemplate let-cluster>
+          <svg:g class="node cluster">
+            <svg:rect rx="5" ry="5" [attr.width]="cluster.dimension.width" [attr.height]="cluster.dimension.height"
+              [attr.fill]="cluster.data.color" />
+          </svg:g>
+        </ng-template>
+        <!--Templete para puntas de las fechas-->
+        <ng-template #nodeTemplate let-node>
+          <svg:g class="node">
+            <svg:foreignObject width="130" height="200" class="tarjeta">
+              <xhtml:div xmlns="http://www.w3.org/1999/xhtml">
+                <div>
+                  <img [attr.src]="node.imagen" alt="no se encuentra" height="52" width="90" />
+                  <h1>{{node.label}}</h1>
+                  <button class="btn btn-info" style="margin-top: 10%;" (click)="Showclass(node)">Ver clase</button>
+                  <button class="btn btn-info" style="margin-top: 10%;" (click)="reinicio(node.id,node)">Ver codigo</button>
+                </div>
+              </xhtml:div>
+            </svg:foreignObject>
+          </svg:g>
+        </ng-template>
+        <!--Templete para las lineas -->
+        <ng-template #linkTemplate let-link>
+          <svg:g class="edge">
+            <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+            <svg:text class="edge-label" text-anchor="middle">
+              <textPath class="text-path" [attr.href]="'#' + link.id" [style.dominant-baseline]="link.dominantBaseline"
+                startOffset="50%">
+                {{link.label}}
+              </textPath>
+            </svg:text>
+          </svg:g>
+        </ng-template>
+      </ngx-graph>
+    </div>
+    <!--   
+  
+    
+      
+    -->
+    <div class="col-5" >
+      <form [formGroup]="form">
+        <div class="code-container line-numbers">
+          <pre
+            aria-hidden="true"
+            class="pre line-numbers"
+            #pre
+          ><code [ngClass]="['code', 'language-' + codeType]" #codeContent>{{text}}</code>
+          </pre>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
