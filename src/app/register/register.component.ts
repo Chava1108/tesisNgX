@@ -40,7 +40,7 @@ export class RegisterComponent implements OnInit {
 
     this.api.postUsuarios(nombre, correo, usuario, encriptar).subscribe({
       next: (res: any) => {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/login']);
       },
       error: () => {
 
