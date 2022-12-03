@@ -1,11 +1,11 @@
 <div class="app-body pattern-grid-lg bg-custom-white principal">
   <div #zoneFlowChart class="row">
     <div class="col-7">
-      <ngx-graph [update$]="update$" class="chart-container" [view]="[1200, 550]" [links]="links" [nodes]="nodos"
+      <ngx-graph [update$]="update$" class="chart-container"  [view]="[1200, 700]" [links]="links" [nodes]="nodos"
         layout="dagreCluster" [layoutSettings]="layoutSettings">
         <!--Templete para puntas de las fechas-->
         <ng-template #defsTemplate>
-          <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+          <svg:marker fill="aqua" id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
             <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
           </svg:marker>
         </ng-template>
@@ -13,10 +13,10 @@
         <ng-template #clusterTemplate let-cluster>
           <svg:g class="node cluster">
             <svg:rect rx="5" ry="5" [attr.width]="cluster.dimension.width" [attr.height]="cluster.dimension.height"
-              [attr.fill]="cluster.data.color" />
+            fill="aqua" />
           </svg:g>
         </ng-template>
-        <!--Templete para puntas de las fechas-->
+        <!--Templete para nodos-->
         <ng-template #nodeTemplate let-node>
           <svg:g class="node">
             <svg:foreignObject width="130" height="200" class="tarjeta">
@@ -32,12 +32,12 @@
           </svg:g>
         </ng-template>
         <!--Templete para las lineas -->
-        <ng-template #linkTemplate let-link>
-          <svg:g class="edge">
-            <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
-            <svg:text class="edge-label" text-anchor="middle">
-              <textPath class="text-path" [attr.href]="'#' + link.id" [style.dominant-baseline]="link.dominantBaseline"
-                startOffset="50%">
+        <ng-template #linkTemplate let-link >
+          <svg:g class="edge"  >
+            <svg:path stroke="aqua" class="line" stroke-width="6" marker-end="url(#arrow)" ></svg:path>
+            <svg:text   class="edge-label" text-anchor="middle">
+              <textPath style="font-size: 15px;font-weight: bold;" class="text-path" [attr.href]="'#' + link.id" 
+                startOffset="40%">
                 {{link.label}}
               </textPath>
             </svg:text>

@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
     console.log(proyect)
     localStorage.setItem("Id_Proyecto", proyect.id)
     localStorage.setItem("Nombre_Proyecto", proyect.nombre)
-    this.router.navigate(["/area-de-trabajo.component"])
+    document.location.href = "../area-de-trabajo.component"
   }
 
   openDialog(){

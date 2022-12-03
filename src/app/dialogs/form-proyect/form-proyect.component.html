@@ -8,16 +8,22 @@
                 <div class="form-group row" >
                     <form [formGroup]="formularioProyecto">
                         <div class="col-12">
-                            <label for="exampleFormControlInput1">Nombre de la clase</label>
+                            <label style="margin-bottom: 4%;" for="exampleFormControlInput1">Nombre del proyecto</label>
                             <div class="col-7">
                                 <input class="form-control" type="text" (change)="checkProyecto()" formControlName="nombreProyecto">
                             </div>
-                            
                         </div>
                    </form>
-                   <button (click) = "crearProyecto()" [disabled]="bandPost || formularioProyecto.invalid">Crear Proyecto</button> 
                 </div>   
             </div> 
         </div>
+        <div class="col-6">
+            <img src="../../../assets/imgs/proyecto.PNG" width="100%">
+        </div>
     </div>  
+    <div class="row">
+        <div class="col-12">
+            <button style="margin-top: 5%; width: 100%;" class="btn btn-success" (click) = "crearProyecto()" [disabled]="bandPost || formularioProyecto.invalid">Crear Proyecto</button> 
+        </div>
+    </div>
 </div>
