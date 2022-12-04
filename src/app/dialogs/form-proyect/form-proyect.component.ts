@@ -2,7 +2,8 @@ import { PoryectosService } from './../../services/poryectos.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
+import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 @Component({
   selector: 'app-form-proyect',
   templateUrl: './form-proyect.component.html',
@@ -15,7 +16,7 @@ export class FormProyectComponent implements OnInit {
     nombreProyecto: new FormControl('', Validators.required)
   })
   
-  constructor(private api: PoryectosService, private router:Router) { }
+  constructor(public dialgRef: MatDialogRef<FormProyectComponent>,private api: PoryectosService, private router:Router) { }
 
   ngOnInit(): void {
      this.idUsr = localStorage.getItem('Usrid')
@@ -40,6 +41,7 @@ export class FormProyectComponent implements OnInit {
     this.api.postProyectos(nombreProyecto, this.idUsr).subscribe({
       next: (res:any)=>{
         this.obtenerProyecto(nombreProyecto, this.idUsr)
+        this.dialgRef.close();
       },
       error: () =>{
 

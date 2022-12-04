@@ -1,5 +1,12 @@
 import { PrismService } from './../service/prism.service';
-import {  AfterContentInit, Component,ElementRef,OnInit,ViewChild,Renderer2,} from '@angular/core';
+import {
+  AfterContentInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  Renderer2,
+} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -86,7 +93,6 @@ export class AreaDeTrabajoComponent implements OnInit {
   getClase() {
     this.apis.getClasesProyectId(this.idProyect).subscribe({
       next: (res: any) => {
-        console.log(res);
         this.clases = res;
         if (this.clases.length > 0) {
           this.clases.forEach(
@@ -113,21 +119,21 @@ export class AreaDeTrabajoComponent implements OnInit {
     this.apis.getHerencia().subscribe({
       next: (res: any) => {
         this.herencia = res;
-        console.log(res);
         this.herencia.forEach((element: { Padre: any; Hijo: any }) => {
-          if(this.clases.length>0){
-            this.clases.forEach((element2:{nombre:any}) => {
-              if(element2.nombre==element.Padre|| element2.nombre==element.Hijo){
+          if (this.clases.length > 0) {
+            this.clases.forEach((element2: { nombre: any }) => {
+              if (
+                element2.nombre == element.Padre ||
+                element2.nombre == element.Hijo
+              ) {
                 this.links.push({
-                id: element.Padre + element.Hijo,
-                source: element.Padre,
-                target: element.Hijo,
-                label: 'Es padre de',
-              });
+                  id: element.Padre + element.Hijo,
+                  source: element.Padre,
+                  target: element.Hijo,
+                  label: 'Es padre de',
+                });
               }
-              
             });
-           
           }
         });
         this.updateChart();
@@ -383,24 +389,30 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   getAtributosHeredados(nombre: any, nodo: any) {
-    this.links.forEach((element: { target: any; source: any }) => {
-      if (element.target == nombre) {
-        this.nombrePadre = element.source;
-        this.nombreHijo = element.target;
-        this.apis.getClasesId(this.nombreHijo).subscribe({
-          next: (res: any) => {
-            this.apis.getAtributosHeredos(res[0].id).subscribe({
-              next: (res: any) => {
-                this.aributosHeredados = this.aributosHeredados.concat(res[0]);
-                this.getAtributosHeredados(this.nombrePadre, nodo);
-                this.Showcode(nodo);
-              },
-            });
-          },
-        });
-      } else {
-        this.Showcode(nodo);
-      }
-    });
+    if (this.links.length == 0) {
+      this.Showcode(nodo);
+    } else {
+      this.links.forEach((element: { target: any; source: any }) => {
+        if (element.target == nombre) {
+          this.nombrePadre = element.source;
+          this.nombreHijo = element.target;
+          this.apis.getClasesId(this.nombreHijo).subscribe({
+            next: (res: any) => {
+              this.apis.getAtributosHeredos(res[0].id).subscribe({
+                next: (res: any) => {
+                  this.aributosHeredados = this.aributosHeredados.concat(
+                    res[0]
+                  );
+                  this.getAtributosHeredados(this.nombrePadre, nodo);
+                  this.Showcode(nodo);
+                },
+              });
+            },
+          });
+        } else {
+          this.Showcode(nodo);
+        }
+      });
+    }
   }
 }

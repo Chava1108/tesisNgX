@@ -147,4 +147,8 @@ export class FormularioComponent implements OnInit {
       error: () => { }
     })
   }
+
+  reiniciar(){
+    location.reload()
+  }
 }
