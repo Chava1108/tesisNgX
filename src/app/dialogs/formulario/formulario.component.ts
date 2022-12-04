@@ -139,7 +139,7 @@ export class FormularioComponent implements OnInit {
         this.idClasePadre= res[0].id
         this.api.postHerencia(this.idClasePadre,this.idClase).subscribe({
           next:(res:any)=>{
-            
+            this.dialgRef.close
           },
           error:()=>{}
         })

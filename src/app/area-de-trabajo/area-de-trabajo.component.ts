@@ -120,18 +120,21 @@ export class AreaDeTrabajoComponent implements OnInit {
       next: (res: any) => {
         this.herencia = res;
         this.herencia.forEach((element: { Padre: any; Hijo: any }) => {
+          var bandF=true;
           if (this.clases.length > 0) {
             this.clases.forEach((element2: { nombre: any }) => {
               if (
-                element2.nombre == element.Padre ||
-                element2.nombre == element.Hijo
+                (element2.nombre == element.Padre ||
+                element2.nombre == element.Hijo) && bandF
               ) {
+                bandF=false
                 this.links.push({
                   id: element.Padre + element.Hijo,
                   source: element.Padre,
                   target: element.Hijo,
                   label: 'Es padre de',
                 });
+                
               }
             });
           }
@@ -220,12 +223,7 @@ export class AreaDeTrabajoComponent implements OnInit {
       data: node,
     });
     dialogRef.afterClosed().subscribe((res) => {
-      this.nodos = [];
-      this.links = [];
-      this.getClase();
-      this.getHerencia();
-      this.getAtributos();
-      this.getFunciones();
+      location.reload()
     });
   }
 
@@ -236,7 +234,7 @@ export class AreaDeTrabajoComponent implements OnInit {
     var atributosConstructor = '';
     var igualacionesConstructor = '';
     var contA = 0;
-    //this.getAtributosHeredados(node.id)
+    
     node.atributos.forEach(
       (element: { nivel: any; tipo: any; nombre: any }) => {
         atributosCadena +=
@@ -385,34 +383,34 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   reinicio(nombre: any, nodo: any) {
     this.aributosHeredados = [];
-    this.getAtributosHeredados(nombre, nodo);
-  }
-
-  getAtributosHeredados(nombre: any, nodo: any) {
     if (this.links.length == 0) {
       this.Showcode(nodo);
     } else {
-      this.links.forEach((element: { target: any; source: any }) => {
-        if (element.target == nombre) {
-          this.nombrePadre = element.source;
-          this.nombreHijo = element.target;
-          this.apis.getClasesId(this.nombreHijo).subscribe({
-            next: (res: any) => {
-              this.apis.getAtributosHeredos(res[0].id).subscribe({
-                next: (res: any) => {
-                  this.aributosHeredados = this.aributosHeredados.concat(
-                    res[0]
-                  );
-                  this.getAtributosHeredados(this.nombrePadre, nodo);
-                  this.Showcode(nodo);
-                },
-              });
-            },
-          });
-        } else {
-          this.Showcode(nodo);
-        }
-      });
+      this.getAtributosHeredados(nombre, nodo);
     }
+  }
+
+  getAtributosHeredados(nombre: any, nodo: any) {
+    console.log(this.links)
+    this.links.forEach((element: { target: any; source: any }) => {
+      if (element.target == nombre) {
+        this.nombrePadre = element.source;
+        this.nombreHijo = element.target;
+        this.apis.getClasesId(this.nombreHijo).subscribe({
+          next: (res: any) => {
+            this.apis.getAtributosHeredos(res[0].id).subscribe({
+              next: (res: any) => {
+                this.aributosHeredados = this.aributosHeredados.concat(res[0]);
+                console.log(this.aributosHeredados)
+                this.getAtributosHeredados(this.nombrePadre, nodo);
+                this.Showcode(nodo);
+              },
+            });
+          },
+        });
+      } else {
+        this.Showcode(nodo);
+      }
+    });
   }
 }
