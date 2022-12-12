@@ -13,6 +13,7 @@
                                 <input class="form-control" type="text" formControlName="nombre" (change)="classExist()">
                             </div>
                             <div class="col-5">
+                                <label for="exampleFormControlInput2">Nivel de acceso</label>
                                 <select id="inputState" class="form-control" formControlName="nivelClase">
                                     <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
                                 </select>

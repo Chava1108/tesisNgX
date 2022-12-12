@@ -6,3 +6,15 @@
 .navbar-nav{
     width: 100%;
 }
+
+.boton{
+    margin-right: 10px;
+    padding: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    color: black;    
+}
+
+.boton:hover{
+    background-color: rgba(255, 255, 255, 0.4);
+}
