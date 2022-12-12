@@ -14,12 +14,15 @@ export class NavbarComponent implements OnInit {
   constructor(private router: Router, @Inject(DOCUMENT) private document: any, public dialog: MatDialog) { }
   bandLogeo: boolean = false
   bandAreaTrabajo=false
+  idProject = 0
+
   ngOnInit(): void {
     if (localStorage.getItem("usrTmp") != null) {
       this.bandLogeo = true;
     }
     if(this.document.URL=="http://localhost:4200/area-de-trabajo.component"){
       this.bandAreaTrabajo=true;
+      this.idProject = Number(localStorage.getItem('Id_Proyecto'))
     }else{
       this.bandAreaTrabajo=false;
     }
@@ -41,12 +44,13 @@ export class NavbarComponent implements OnInit {
   }
 
   abrirCrearClase() {
-    
+
     console.log(this.router.url)
     const dialogRef = this.dialog.open(FormularioComponent, {
       width: '80%',
       height: '80%',
       data: "Formulario"
+     
     });
     dialogRef.afterClosed().subscribe(res => {
       console.log(res);

@@ -10,7 +10,7 @@
                         <div class="col-12">
                             <label for="exampleFormControlInput1">Nombre de la clase</label>
                             <div class="col-7">
-                                <input class="form-control" type="text" formControlName="nombre">
+                                <input class="form-control" type="text" formControlName="nombre" (change)="classExist()">
                             </div>
                             <div class="col-5">
                                 <select id="inputState" class="form-control" formControlName="nivelClase">
@@ -23,7 +23,7 @@
                                     id="customFileLang" lang="es">
                             </div>
                             <div class="col-4">
-                                <button type="button" [disabled]="formularioClase.pristine || formularioClase.invalid"
+                                <button type="button" [disabled]="formularioClase.pristine || formularioClase.invalid && !bandExistClass"
                                     class="btn btn-success" (click)="crearClase()">Crear Clase</button>
                             </div>
                         </div>

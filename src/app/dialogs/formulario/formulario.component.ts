@@ -45,6 +45,7 @@ export class FormularioComponent implements OnInit {
   funciones: any = []
   update$: Subject<any> = new Subject
   bandClase = true
+  bandExistClass = false;
   nameClase = ""
   idClase: number = 0
   idClasePadre: number = 0;
@@ -79,6 +80,7 @@ export class FormularioComponent implements OnInit {
     this.bandClase = false
     const {nivelClase, nombre } = this.formularioClase.value
     this.nameClase = nombre
+    this.bandExistClass = false;
     this.api.postClase(nivelClase, nombre, this.fileTemp.fileName, idProyect).subscribe({
       next: (res: any) => {
         const body=new FormData();
@@ -150,5 +152,22 @@ export class FormularioComponent implements OnInit {
 
   reiniciar(){
     location.reload()
+  }
+
+  classExist(){
+    const {nivelClase, nombre } = this.formularioClase.value
+    var band= false
+  
+    this.clases.forEach((element: {nombre: any}) => {
+      if(nombre == element.nombre){
+        band=true
+      }
+    });
+
+    if(band){
+      this.bandExistClass = true;
+    }else{
+      this.bandExistClass = false;
+    }
   }
 }
