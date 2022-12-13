@@ -77,14 +77,17 @@ export class FormularioComponent implements OnInit {
 
   crearClase() {
     var idProyect = Number(localStorage.getItem("Id_Proyecto"))
+    var usrTemp = localStorage.getItem("usrTmp")+""
     this.bandClase = false
     const {nivelClase, nombre } = this.formularioClase.value
     this.nameClase = nombre
+    var nameFile=nombre+usrTemp+idProyect+"."+this.fileTemp.fileName.split('.').pop();
+    console.log(nameFile)
     this.bandExistClass = false;
-    this.api.postClase(nivelClase, nombre, this.fileTemp.fileName, idProyect).subscribe({
+    this.api.postClase(nivelClase, nombre, nameFile, idProyect).subscribe({
       next: (res: any) => {
         const body=new FormData();
-        body.append('myFile',this.fileTemp.fileRaw,this.fileTemp.fileName)
+        body.append('myFile',this.fileTemp.fileRaw,nameFile)
         this.restService.sendPost(body).subscribe(res=>console.log(res))
       },
       error: () => {
@@ -95,6 +98,7 @@ export class FormularioComponent implements OnInit {
 
   capturarArchivo($event: any) {
     const [file] = $event.target.files
+    console.log(file)
     this.fileTemp = {
       fileRaw: file,
       fileName: file.name
