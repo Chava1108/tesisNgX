@@ -116,7 +116,8 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   getHerencia() {
-    this.apis.getHerencia().subscribe({
+
+    this.apis.getHerencia(this.idProyect).subscribe({
       next: (res: any) => {
         this.herencia = res;
         this.herencia.forEach((element: { Padre: any; Hijo: any }) => {

@@ -30,8 +30,8 @@ export class BaseDeDatosService {
     return this.httpClient.get(`${this.servidor}funciones`);
   }
 
-  getHerencia(): any{
-    return this.httpClient.get(`${this.servidor}herencia`);
+  getHerencia(id_proyecto:any): any{
+    return this.httpClient.get(`${this.servidor}herencia/${id_proyecto}`);
   }
   
   postClase(nivel: String, clase:string, imagen:string, id_proyecto:number):any{
