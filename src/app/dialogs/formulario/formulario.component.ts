@@ -62,8 +62,6 @@ export class FormularioComponent implements OnInit {
     this.api.getClasesProyectId(idProyect).subscribe({
       next: (res: any) => {
         this.clases = res;
-        
-        console.log(this.clases)
         res.forEach((element: {nombre:any} )=> {
           this.list.push(element.nombre)
           this.list2.push(element.nombre)
@@ -82,7 +80,6 @@ export class FormularioComponent implements OnInit {
     const {nivelClase, nombre } = this.formularioClase.value
     this.nameClase = nombre
     var nameFile=nombre+usrTemp+idProyect+"."+this.fileTemp.fileName.split('.').pop();
-    console.log(nameFile)
     this.bandExistClass = false;
     this.api.postClase(nivelClase, nombre, nameFile, idProyect).subscribe({
       next: (res: any) => {
@@ -98,7 +95,6 @@ export class FormularioComponent implements OnInit {
 
   capturarArchivo($event: any) {
     const [file] = $event.target.files
-    console.log(file)
     this.fileTemp = {
       fileRaw: file,
       fileName: file.name

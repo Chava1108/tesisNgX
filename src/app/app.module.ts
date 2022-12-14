@@ -22,7 +22,9 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
 import { NavbarComponent } from './navbar/navbar.component';
-import { FormProyectComponent } from './dialogs/form-proyect/form-proyect.component'; 
+import { FormProyectComponent } from './dialogs/form-proyect/form-proyect.component';
+import { ConfirmComponent } from './dialogs/confirm/confirm.component';
+import { ErrorComponent } from './dialogs/error/error.component'; 
 
 @NgModule({
   declarations: [
@@ -36,7 +38,9 @@ import { FormProyectComponent } from './dialogs/form-proyect/form-proyect.compon
    RegisterComponent,
    HomeComponent,
    NavbarComponent,
-   FormProyectComponent
+   FormProyectComponent,
+   ConfirmComponent,
+   ErrorComponent
   ],
   imports: [
     BrowserModule,

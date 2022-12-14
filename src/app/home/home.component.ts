@@ -38,7 +38,7 @@ export class HomeComponent implements OnInit {
   openDialog(){
     const formDialog = this.dialog.open(FormProyectComponent, {
       width: '50%' ,
-      height: '50%'
+      height: '60%'
     });
   }
 

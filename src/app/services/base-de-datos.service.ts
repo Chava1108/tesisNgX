@@ -70,6 +70,10 @@ export class BaseDeDatosService {
     return this.httpClient.delete(`${this.servidor}herencia/${id}`);
   }
 
+  deleteHerenciaPadre(id:number){
+    return this.httpClient.delete(`${this.servidor}herenciaP/${id}`);
+  }
+
   putAtributos(nivel:String, tipo:string, nombre:string, id:any):any{
     const body = {nivel:nivel, nombre:nombre, tipo:tipo}
     return this.httpClient.put(`${this.servidor}atributos/${id}`,body);

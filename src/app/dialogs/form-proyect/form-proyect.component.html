@@ -23,7 +23,10 @@
     </div>  
     <div class="row">
         <div class="col-12">
-            <button style="margin-top: 5%; width: 100%;" class="btn btn-success" (click) = "crearProyecto()" [disabled]="bandPost || formularioProyecto.invalid">Crear Proyecto</button> 
+            <button style="margin-top: 5%; margin-bottom: 5%; width: 100%;" class="btn btn-success" (click) = "crearProyecto()" [disabled]="bandPost || formularioProyecto.invalid">Crear Proyecto</button> 
+            <div *ngIf="bandPost" class="alert alert-danger" role="alert">
+                El proyecto "{{ nameProject }}" ya existe
+            </div>
         </div>
     </div>
 </div>
