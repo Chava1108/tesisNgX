@@ -102,11 +102,13 @@ export class FormularioComponent implements OnInit {
   }
 
   agregarAtributo() {
+    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
     const {nivelAtributo, tipoAtributo, atributo, nombre } = this.formularioAtributo.value
     this.atributos.push(nivelAtributo + " " + tipoAtributo + " " + atributo)
-    this.api.getClasesId(this.nameClase).subscribe({
+    this.api.getClasesId(this.nameClase, idProyect).subscribe({
       next: (res: any) => {
         this.idClase = res[0].id
+        console.log("clase:" + this.idClase)
         this.api.postAtributos(nivelAtributo, atributo, tipoAtributo, this.idClase).subscribe({
           next: (res: any) => { },
           error: () => { }
@@ -119,9 +121,10 @@ export class FormularioComponent implements OnInit {
   }
 
   agregarFuncion() {
+    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
     const {nivelFuncion, tipoFuncion, funcion, nombre } = this.formularioFuncion.value
     this.funciones.push(nivelFuncion + " " + tipoFuncion + " " + funcion)
-    this.api.getClasesId(this.nameClase).subscribe({
+    this.api.getClasesId(this.nameClase, idProyect).subscribe({
       next: (res: any) => {
         this.idClase = res[0].id
         this.api.postFunciones(nivelFuncion, funcion, tipoFuncion, this.idClase).subscribe({
@@ -135,8 +138,9 @@ export class FormularioComponent implements OnInit {
   }
 
   agregarHerencia() {
+    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
     const { clases } = this.formularioHerencia.value
-    this.api.getClasesId(clases).subscribe({
+    this.api.getClasesId(clases,idProyect).subscribe({
       next: (res: any) => {
         this.idClasePadre= res[0].id
         this.api.postHerencia(this.idClasePadre,this.idClase).subscribe({

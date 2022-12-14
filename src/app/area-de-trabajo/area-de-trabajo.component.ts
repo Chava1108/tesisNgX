@@ -392,12 +392,13 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   getAtributosHeredados(nombre: any, nodo: any) {
+    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
     console.log(this.links)
     this.links.forEach((element: { target: any; source: any }) => {
       if (element.target == nombre) {
         this.nombrePadre = element.source;
         this.nombreHijo = element.target;
-        this.apis.getClasesId(this.nombreHijo).subscribe({
+        this.apis.getClasesId(this.nombreHijo, idProyect).subscribe({
           next: (res: any) => {
             this.apis.getAtributosHeredos(res[0].id).subscribe({
               next: (res: any) => {
