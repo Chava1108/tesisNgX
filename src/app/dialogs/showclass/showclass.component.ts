@@ -25,20 +25,12 @@ export class ShowclassComponent implements OnInit {
   }
 
   eliminarClase() {
-    this.apis.deleteAtributos(this.data.identificador).subscribe((res: any) => {
-      this.apis.deleteFunciones(this.data.identificador).subscribe((res: any) => {
-          this.apis.deleteHerencia(this.data.identificador).subscribe((res: any) => {
-              this.apis.deleteHerenciaPadre(this.data.identificador).subscribe((res: any) => {
-                  this.apis.deleteClase(this.data.identificador).subscribe((res: any) => {
-                      this.dialog.open(ConfirmComponent, {
-                        width: '300px',
-                        data: 'La clase ha sido eliminada',
-                      });
-                      this.dialRef.close();
-                    });
-                });
-            });
-        });
+    this.apis.deleteClase(this.data.identificador).subscribe((res: any) => {
+      this.dialog.open(ConfirmComponent, {
+        width: '300px',
+        data: 'La clase ha sido eliminada',
+      });
+      this.dialRef.close();
     });
   }
 
@@ -50,32 +42,55 @@ export class ShowclassComponent implements OnInit {
     const dialogRef = this.dialog.open(EditarFormularioComponent, {
       width: '60%',
       height: '40%',
-      data: item,
+      data: { 
+        item: item,       // Tu objeto original
+        bandera: cadena    // Tu nueva variable string
+      }
     });
     dialogRef.afterClosed().subscribe((res) => {
       this.dialRef.close();
     });
   }
 
+  eliminar(item: any, cadena: string) {
+    if (cadena === 'Atributos') {
+      this.apis.deleteAtributos(item.id).subscribe((res: any) => {
+        this.dialog.open(ConfirmComponent, {
+          width: '300px',
+          data: 'El atributo ha sido eliminado',
+        });
+        this.dialRef.close();
+      });
+    } else {
+      this.apis.deleteFunciones(item.id).subscribe((res: any) => {
+        this.dialog.open(ConfirmComponent, {
+          width: '300px',
+          data: 'El método ha sido eliminado',
+        });
+        this.dialRef.close();
+      });
+    }
+  }
+
   agregarAtributo() {
-    var data2: any = [];
-    data2.push(this.data);
-    data2.push({ tipoAgregar: 'Atributo' });
     const dialogRef = this.dialog.open(EditarFormularioComponent, {
       width: '60%',
       height: '40%',
-      data: data2,
+      data: {
+        item : this.data,
+        tipoAgregar: 'Atributo' 
+      },
     });
   }
 
   agregarFuncion() {
-    var data2: any = [];
-    data2.push(this.data);
-    data2.push({ tipoAgregar: 'Funcion' });
     const dialogRef = this.dialog.open(EditarFormularioComponent, {
       width: '60%',
       height: '40%',
-      data: data2,
+      data: {
+        item : this.data,
+        tipoAgregar: 'Funcion' 
+      },
     });
   }
 }

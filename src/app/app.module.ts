@@ -25,6 +25,9 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { FormProyectComponent } from './dialogs/form-proyect/form-proyect.component';
 import { ConfirmComponent } from './dialogs/confirm/confirm.component';
 import { ErrorComponent } from './dialogs/error/error.component'; 
+import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { FormsModule } from '@angular/forms';
+import { AngularSplitModule } from 'angular-split';
 
 @NgModule({
   declarations: [
@@ -40,7 +43,7 @@ import { ErrorComponent } from './dialogs/error/error.component';
    NavbarComponent,
    FormProyectComponent,
    ConfirmComponent,
-   ErrorComponent
+   ErrorComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,7 +58,10 @@ import { ErrorComponent } from './dialogs/error/error.component';
     HttpClientModule,
     NgxGraphModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    FormsModule,
+    AngularSplitModule,
+    MonacoEditorModule.forRoot()
   ],
   providers: [
     

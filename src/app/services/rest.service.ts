@@ -12,6 +12,6 @@ export class RestService {
   }
 
   sendPost(body:FormData):Observable<any>{
-    return this.http.post(`http://localhost:9000/upload`,body)
+    return this.http.post(`http://127.0.0.1:8000/upload`,body)
   }
 }

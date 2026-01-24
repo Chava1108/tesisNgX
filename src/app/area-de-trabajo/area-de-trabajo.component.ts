@@ -17,6 +17,8 @@ import { ShowclassComponent } from '../dialogs/showclass/showclass.component';
 import { Node, Edge, ClusterNode } from '@swimlane/ngx-graph';
 import { ThisReceiver } from '@angular/compiler';
 import { fromEvent, Subscription } from 'rxjs';
+import { catchError, tap, map, switchMap } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-area-de-trabajo',
@@ -24,10 +26,42 @@ import { fromEvent, Subscription } from 'rxjs';
   styleUrls: ['./area-detrabajo-component.scss'],
 })
 export class AreaDeTrabajoComponent implements OnInit {
+
   @ViewChild('codeContent', { static: true })
   codeContent!: ElementRef;
   @ViewChild('pre', { static: true })
   pre!: ElementRef;
+
+  onInitEditor(editor: any) {
+    // Accedemos a la variable global monaco
+    const monaco = (window as any).monaco;
+
+    // Definimos el tema "StackBlitz-Like"
+    monaco.editor.defineTheme('my-dark-theme', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '6A9955' },
+            { token: 'keyword', foreground: '569CD6' },
+            { token: 'identifier', foreground: '9CDCFE' },
+            { token: 'string', foreground: 'CE9178' },
+            { token: 'number', foreground: 'B5CEA8' },
+            { token: 'type', foreground: '4EC9B0' },
+        ],
+        colors: {
+            'editor.background': '#1e1e1e', 
+            'editor.foreground': '#d4d4d4',
+            'editorCursor.foreground': '#A79696',
+            'editor.lineHighlightBackground': '#2F3337',
+            'editorLineNumber.foreground': '#858585',
+            'editorIndentGuide.background': '#404040',
+            'editor.selectionBackground': '#264F78',
+        }
+    });
+
+    // Aplicamos el tema
+    monaco.editor.setTheme('my-dark-theme');
+}
 
   sub!: Subscription;
   highlighted = false;
@@ -36,6 +70,35 @@ export class AreaDeTrabajoComponent implements OnInit {
   horizontalStepperForm = new FormGroup({
     clase: new FormControl('', Validators.required),
   });
+
+ editorOptions = {
+    theme: 'vs-dark', // El que creamos arriba
+    language: 'java',
+    fontFamily: "'Fira Code', 'Consolas', monospace", // Usar Fira Code
+    fontLigatures: true, // ¡ACTIVAR LIGADURAS! (La magia visual)
+    fontSize: 14,
+    lineHeight: 24, // Un poco más de aire entre líneas se ve mejor
+    minimap: {
+        enabled: true // El mapa pequeño a la derecha
+    },
+    scrollBeyondLastLine: false, // Para que no scrollee al infinito abajo
+    automaticLayout: true,
+    renderLineHighlight: 'all', // Resaltar toda la línea actual
+    smoothScrolling: true,
+    cursorBlinking: 'smooth', // Cursor suave tipo fase
+    padding: { top: 15, bottom: 15 } // Margen interno para que no pegue al borde
+};
+
+  code: string = 'public class MiClase {\n    // Escribe tu código aquí\n}';
+  mostrarEditor: boolean = false;
+  salidaTerminal: any = [];
+  toggleEditor() {
+    this.mostrarEditor = !this.mostrarEditor;
+    // Un pequeño hack para que la gráfica se redibuje bien al cambiar el tamaño del div
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 300);
+  }
 
   public layoutSettings = {
     orientation: 'TB',
@@ -48,24 +111,28 @@ export class AreaDeTrabajoComponent implements OnInit {
     private apiCode: CodeService,
     public dialog: MatDialog,
     private primsmService: PrismService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private codeService: CodeService
   ) {}
   nombrePadre = '';
   nombreHijo = '';
   nodos: any;
   links: any;
-  update$: Subject<any> = new Subject();
+  update$: Subject<boolean> = new Subject();
   clases: any = [];
   herencia: any = [];
-  atributos: any = [];
   funciones: any = [];
   calculo = 12;
   i = 0;
   imagenes: any = [];
+  entradasUsuario: any = "";
 
   //valores del proyecto
   idProyect: number = 0;
   nameProyect: any;
+
+  listaArchivos: any[] = [];
+  archivoActivo: any = null;
 
   form = this.fb.group({
     content: '',
@@ -78,6 +145,7 @@ export class AreaDeTrabajoComponent implements OnInit {
   text =
     ' Bienvenidos a POOGraph \n La Programación Orientada a objetos permite que el \n código sea reutilizable, organizado y fácil de mantener \n  En este sitio podras personalizar tus diagramas para \n trabajar con POO, es ideal por si';
   aributosHeredados: any = [];
+
   ngOnInit(): void {
     this.idProyect = Number(localStorage.getItem('Id_Proyecto'));
     this.nameProyect = localStorage.getItem('Nombre_Proyecto');
@@ -85,57 +153,76 @@ export class AreaDeTrabajoComponent implements OnInit {
     this.nodos = [];
     this.links = [];
     this.getClase();
-    this.getAtributos();
-    this.getFunciones();
     this.listenForm();
   }
 
-  getClase() {
-    this.apis.getClasesProyectId(this.idProyect).subscribe({
-      next: (res: any) => {
-        this.clases = res;
-        if (this.clases.length > 0) {
-          this.clases.forEach(
-            (element: { id: any; nombre: any; imagen: string }) => {
-              this.nodos.push({
-                id: element.nombre,
-                label: element.nombre,
-                imagen: 'http://localhost:9000/' + element.imagen,
-                atributos: [],
-                funciones: [],
-                identificador: element.id,
-              });
-            }
-          );
-        }
-        this.updateChart();
-        this.getHerencia();
-      },
-      error: () => {},
-    });
-  }
+
+getClase() {
+  this.nodos = []; 
+  this.links = [];
+  this.apis.getClasesProyectId(this.idProyect).pipe(
+    switchMap((clases: any[]) => {
+      this.clases = clases;
+      if (clases.length === 0) {
+        return []; 
+      }
+      const peticionesPorClase = clases.map((clase: any) => {
+        return forkJoin({
+          atributosData: this.getAtributos(clase.id), 
+          funcionesData: this.getFunciones(clase.id)  
+        }).pipe(
+          map((detalles: any) => {
+            return {
+              ...clase,
+              listadoAtributos: detalles.atributosData,
+              listadoFunciones: detalles.funcionesData
+            };
+          })
+        );
+      });
+      return forkJoin(peticionesPorClase);
+    })
+  ).subscribe({
+    next: (clasesCompletas: any) => {
+      this.nodos = []; 
+      clasesCompletas.forEach((element: any) => {
+        this.nodos.push({
+          id: element.nombre,
+          label: element.nombre,
+          imagen: 'http://127.0.0.1:8000/archivos/' + element.imagen,
+          atributos: element.listadoAtributos, 
+          funciones: element.listadoFunciones, 
+          identificador: element.id,
+        });
+      });
+
+      this.updateChart();
+      this.getHerencia();
+    },
+    error: (err: any) => console.error("Error cargando clases:", err),
+  });
+}
 
   getHerencia() {
-
     this.apis.getHerencia(this.idProyect).subscribe({
       next: (res: any) => {
         this.herencia = res;
         this.herencia.forEach((element: { Padre: any; Hijo: any }) => {
-          var bandF=true;
+          var bandF = true;
           if (this.clases.length > 0) {
             this.clases.forEach((element2: { nombre: any }) => {
               if (
                 (element2.nombre == element.Padre ||
-                element2.nombre == element.Hijo) && bandF
+                  element2.nombre == element.Hijo) &&
+                bandF
               ) {
-                bandF=false
+                bandF = false;
                 this.links.push({
                   id: element.Padre + element.Hijo,
                   source: element.Padre,
                   target: element.Hijo,
                   label: 'Es padre de',
                 });
-                
               }
             });
           }
@@ -146,71 +233,12 @@ export class AreaDeTrabajoComponent implements OnInit {
     });
   }
 
-  getAtributos() {
-    var aux: any = [];
-    this.apis.getAtributos().subscribe({
-      next: (res: any) => {
-        this.atributos = res;
-        this.atributos.forEach(
-          (atributo: {
-            id: any;
-            nombre: any;
-            nivel: String;
-            tipo: string;
-            atributos: string;
-          }) => {
-            this.nodos.forEach(
-              (nodo: { identificador: any; label: any; atributos: any }) => {
-                if (nodo.label == atributo.nombre) {
-                  nodo.atributos.push({
-                    id: atributo.id,
-                    nivel: atributo.nivel,
-                    tipo: atributo.tipo,
-                    nombre: atributo.atributos,
-                    bandera: 'Atributo',
-                    id_Clase: nodo.identificador,
-                  });
-                }
-              }
-            );
-          }
-        );
-      },
-      error: () => {},
-    });
+  getAtributos(idClase: number) {
+    return this.apis.getAtributosClase(idClase);
   }
 
-  getFunciones() {
-    this.apis.getFunciones().subscribe({
-      next: (res: any) => {
-        this.funciones = res;
-        this.funciones.forEach(
-          (funcion: {
-            id: any;
-            nivel: any;
-            nombre: any;
-            tipo: string;
-            funciones: string;
-          }) => {
-            this.nodos.forEach(
-              (nodo: { identificador: any; label: any; funciones: any }) => {
-                if (nodo.label == funcion.nombre) {
-                  nodo.funciones.push({
-                    id: funcion.id,
-                    nivel: funcion.nivel,
-                    tipo: funcion.tipo,
-                    nombre: funcion.funciones,
-                    bandera: 'Funcion',
-                    id_Clase: nodo.identificador,
-                  });
-                }
-              }
-            );
-          }
-        );
-      },
-      error: () => {},
-    });
+  getFunciones(idClase: number) {
+    return this.apis.getFuncionesClase(idClase);
   }
 
   updateChart() {
@@ -224,131 +252,9 @@ export class AreaDeTrabajoComponent implements OnInit {
       data: node,
     });
     dialogRef.afterClosed().subscribe((res) => {
-      location.reload()
+      console.log("Diálogo cerrado, recargando diagrama...");
+      this.getClase()
     });
-  }
-
-  Showcode(node: any) {
-    this.bandCode = 1;
-    var atributosCadena = '';
-    var funcionesCadena = '';
-    var atributosConstructor = '';
-    var igualacionesConstructor = '';
-    var contA = 0;
-    
-    node.atributos.forEach(
-      (element: { nivel: any; tipo: any; nombre: any }) => {
-        atributosCadena +=
-          '&nbsp;' +
-          '&nbsp;' +
-          '&nbsp;' +
-          element.nivel +
-          ' ' +
-          element.tipo +
-          ' ' +
-          element.nombre +
-          '; \n';
-        if (contA < node.atributos.length - 1) {
-          atributosConstructor += element.tipo + ' ' + element.nombre + ', ';
-          igualacionesConstructor +=
-            '&nbsp;' +
-            '&nbsp;' +
-            '&nbsp;&nbsp;&nbsp;&nbsp;' +
-            'this.' +
-            element.nombre +
-            ' = ' +
-            element.nombre +
-            ';\n';
-          contA++;
-        } else {
-          atributosConstructor += element.tipo + ' ' + element.nombre;
-          igualacionesConstructor +=
-            '&nbsp;' +
-            '&nbsp;' +
-            '&nbsp;&nbsp;&nbsp;&nbsp;' +
-            'this.' +
-            element.nombre +
-            ' = ' +
-            element.nombre +
-            ';';
-        }
-      }
-    );
-    contA = 0;
-    var extendsPadre = '';
-    if (this.aributosHeredados.length > 0) {
-      atributosConstructor += ', ';
-      extendsPadre = ' extends ' + this.aributosHeredados[0].Padre;
-      this.aributosHeredados.forEach((element: { nombre: any; tipo: any }) => {
-        if (contA < this.aributosHeredados.length - 1) {
-          atributosConstructor += element.tipo + ' ' + element.nombre + ', ';
-          contA++;
-        } else {
-          atributosConstructor += element.tipo + ' ' + element.nombre;
-        }
-      });
-    }
-    node.funciones.forEach(
-      (element: { nivel: any; tipo: any; nombre: any }) => {
-        funcionesCadena +=
-          '&nbsp;' +
-          '&nbsp;' +
-          '&nbsp;' +
-          element.nivel +
-          ' ' +
-          element.tipo +
-          ' ' +
-          element.nombre +
-          '{ \n' +
-          '&nbsp;&nbsp;&nbsp;//Código de la funcion ' +
-          '\n &nbsp;&nbsp;&nbsp;} \n';
-      }
-    );
-
-    var superAtributos = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(';
-    contA = 0;
-    if (this.aributosHeredados.length > 0) {
-      this.aributosHeredados.forEach((element: { Padre: any; nombre: any }) => {
-        superAtributos += element.nombre + ',';
-      });
-    }
-    superAtributos = superAtributos.slice(0, -1);
-    superAtributos += '); \n';
-    var bandSuper = '';
-    if (this.aributosHeredados.length > 0) {
-      bandSuper = superAtributos;
-    }
-    var constructor =
-      '&nbsp;&nbsp;&nbsp;public ' +
-      node.id +
-      '(' +
-      atributosConstructor +
-      '){ \n' +
-      bandSuper +
-      igualacionesConstructor +
-      '  \n &nbsp;&nbsp;&nbsp;}';
-    this.text =
-      ' class ' +
-      node.id +
-      extendsPadre +
-      ' { ' +
-      ' \n &nbsp;&nbsp//Atributos \n' +
-      atributosCadena +
-      '\n' +
-      constructor +
-      '\n &nbsp;&nbsp;//Funciones \n' +
-      funcionesCadena +
-      ' \n' +
-      ' }';
-    //const modifiedContent = this.primsmService.convertHtmlIntoString(this.text);
-
-    this.renderer.setProperty(
-      this.codeContent.nativeElement,
-      'innerHTML',
-      this.text
-    );
-
-    this.highlighted = true;
   }
 
   ngAfterViewInit() {
@@ -382,37 +288,194 @@ export class AreaDeTrabajoComponent implements OnInit {
     });
   }
 
-  reinicio(nombre: any, nodo: any) {
-    this.aributosHeredados = [];
-    if (this.links.length == 0) {
-      this.Showcode(nodo);
-    } else {
-      this.getAtributosHeredados(nombre, nodo);
-    }
+  onCodeChange(value: string) {
+    console.log('Código actual:', value);
   }
 
-  getAtributosHeredados(nombre: any, nodo: any) {
-    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
-    console.log(this.links)
-    this.links.forEach((element: { target: any; source: any }) => {
-      if (element.target == nombre) {
-        this.nombrePadre = element.source;
-        this.nombreHijo = element.target;
-        this.apis.getClasesId(this.nombreHijo, idProyect).subscribe({
-          next: (res: any) => {
-            this.apis.getAtributosHeredos(res[0].id).subscribe({
-              next: (res: any) => {
-                this.aributosHeredados = this.aributosHeredados.concat(res[0]);
-                console.log(this.aributosHeredados)
-                this.getAtributosHeredados(this.nombrePadre, nodo);
-                this.Showcode(nodo);
-              },
+  sincronizarDiagrama() {
+    console.log('Enviando código a Python...');
+
+    // ID temporal, luego usaremos el real del login
+    const usuarioId = 1;
+
+    this.codeService.analizarCodigo(this.code, usuarioId).subscribe({
+      next: (res: any) => {
+        console.log('Respuesta Python:', res);
+
+        if (res.errores && res.errores.length > 0) {
+          alert('Errores de sintaxis: ' + res.errores[0]);
+          return;
+        }
+
+        // LIMPIEZA Y LLENADO DEL DIAGRAMA
+        this.nodos = [];
+        this.links = [];
+
+        // Convertir Clases -> Nodos
+        res.clases.forEach((clase: any) => {
+          this.nodos.push({
+            id: clase.nombre,
+            label: clase.nombre,
+            imagen: 'assets/monaco/min/vs/editor/editor.main.css', // Imagen temporal
+            dimension: { width: 150, height: 200 },
+            data: clase, // Guardamos todo el objeto por si acaso
+          });
+
+          // Convertir Herencia -> Links
+          if (clase.padre) {
+            this.links.push({
+              id: `link-${clase.padre}-${clase.nombre}`,
+              source: clase.padre,
+              target: clase.nombre,
+              label: 'extends',
             });
-          },
+          }
         });
-      } else {
-        this.Showcode(nodo);
+
+        this.update$.next(true);
+      },
+      error: (err: any) => {
+        console.error('Error conectando con el parser:', err);
+        alert('Error al conectar con el servidor Python');
+      },
+    });
+  }
+
+  // Esta función se llama al dar clic en "Ver código"
+  reinicio(id: any, node: any) {
+    this.cargarArchivosProyecto();
+    console.log('Solicitando código para la clase:', node.label, ' ...');
+    console.log(node);
+    console.log(id);
+    this.codeService.obtenerCodigoFuente(id).subscribe({
+      next: (res: any) => {
+        this.code = res.codigo;
+        if (!this.mostrarEditor) {
+          this.toggleEditor();
+        }
+        console.log('Código cargado exitosamente');
+      },
+      error: (err) => {
+        console.error('Error al cargar código:', err);
+        this.code =
+          '// Error: No se pudo cargar el código fuente.\n// ' +
+            err.error?.error || err.message;
+        if (!this.mostrarEditor) this.toggleEditor();
+      },
+    });
+  }
+
+  cargarArchivosProyecto() {
+    // Asumiendo que tienes el ID del proyecto en una variable
+    var idProyect = Number(localStorage.getItem('Id_Proyecto'));
+    if (!idProyect) return;
+
+    this.codeService.listarArchivos(idProyect).subscribe((res: any) => {
+      this.listaArchivos = res;
+      console.log(this.listaArchivos);
+      // Opcional: Abrir Main.java por defecto si no hay nada abierto
+      const main = this.listaArchivos.find((f) => f.es_main);
+      if (main && !this.archivoActivo) {
+        this.abrirArchivo(main);
       }
     });
+  }
+
+  abrirArchivo(archivo: any) {
+    this.archivoActivo = archivo;
+
+    // Pedimos el contenido al backend
+    this.codeService
+      .leerArchivoPorRuta(archivo.ruta_relativa)
+      .subscribe((res: any) => {
+        this.code = res.codigo;
+      });
+  }
+
+  // 3. Ejecutar Proyecto (Siempre compila y ejecuta Main)
+  // 3. ACCIÓN DEL BOTÓN "EJECUTAR" (Guarda -> Luego Compila)
+  ejecutarProyecto() {
+    this.salidaTerminal = []; // Limpiamos terminal
+    this.salidaTerminal.push({
+      texto: '> Preparando ejecución...',
+      tipo: 'info',
+    });
+
+    // PRIMERO GUARDAMOS
+    this.guardarCambios().subscribe({
+      next: () => {
+        // SI GUARDÓ BIEN (O no había nada que guardar), COMPILAMOS
+        this.iniciarCompilacionReal();
+      },
+      error: (err) => {
+        // SI FALLA EL GUARDADO, NO COMPILAMOS
+        this.salidaTerminal.push({
+          texto: '❌ Error crítico al guardar. Se canceló la compilación.',
+          tipo: 'error',
+        });
+      },
+    });
+  }
+
+  // (Tu función de compilación se mantiene igual)
+  iniciarCompilacionReal() {
+    var idProyect = Number(localStorage.getItem('Id_Proyecto'));
+    this.salidaTerminal.push({
+      texto: '> Compilando y Ejecutando...',
+      tipo: 'info',
+    });
+
+    this.codeService.compilarProyecto(this.idProyect, this.entradasUsuario).subscribe({
+      next: (res: any) => {
+        if (res.exito) {
+          this.salidaTerminal.push({ texto: res.mensaje, tipo: 'info' });
+        } else {
+          this.salidaTerminal.push({ texto: res.mensaje, tipo: 'error' });
+        }
+      },
+      error: (err) =>
+        this.salidaTerminal.push({
+          texto: 'Error de conexión con el servidor',
+          tipo: 'error',
+        }),
+    });
+  }
+
+  guardarCambios(): Observable<any>{
+    if (!this.archivoActivo) {
+      // Si no hay archivo, retornamos un observable vacío para no romper el flujo
+      return of(null);
+    }
+    console.log(this.archivoActivo)
+    // Retornamos la petición del servicio directamente
+    return this.codeService.guardarArchivo(
+      this.archivoActivo.ruta_relativa,
+      this.code
+    );
+  }
+
+  btnGuardar() {
+    this.salidaTerminal.push({ texto: '> Guardando...', tipo: 'info' });
+
+    this.guardarCambios().subscribe({
+      next: () => {
+        this.salidaTerminal.push({
+          texto: '✅ Archivo guardado correctamente.',
+          tipo: 'info',
+        });
+      },
+      error: (err) => {
+        this.salidaTerminal.push({
+          texto: '❌ Error al guardar: ' + err.message,
+          tipo: 'error',
+        });
+      },
+    });
+  }
+
+  limpiarTerminal() {
+    this.entradasUsuario = "";
+
+    this.salidaTerminal  = [];
   }
 }

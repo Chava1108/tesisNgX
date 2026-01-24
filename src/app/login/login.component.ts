@@ -42,6 +42,7 @@ export class LoginComponent implements OnInit {
          console.log(res);
          res.forEach((element: {id:any, username:any , password:any}) => {
           passDesncypt = CryptoJS.AES.decrypt(element.password,"POOGraph").toString(CryptoJS.enc.Utf8)
+          console.log("Usuario: "+element+"passw: "+passDesncypt)
           if(values.usrName == element.username && values.passwd == passDesncypt){
               this.bandLogin = true
               this.userID = element.id

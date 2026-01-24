@@ -30,7 +30,7 @@ export class FormProyectComponent implements OnInit {
       next: (res:any)=>{
         localStorage.setItem("Id_Proyecto", res[0].id.toString())
         localStorage.setItem("Nombre_Proyecto", res[0].nombre)
-        this.router.navigate(["/area-de-trabajo.component"])
+        location.href="http://localhost:4200/area-de-trabajo.component"
       }
     })
   }
@@ -47,6 +47,7 @@ export class FormProyectComponent implements OnInit {
           data:'El proyecto se creo con éxito'
         })
         this.dialgRef.close();
+
       },
       error: () =>{
 

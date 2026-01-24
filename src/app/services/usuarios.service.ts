@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class UsuariosService {
-  servidor='http://localhost:9000/';
+  servidor='http://127.0.0.1:8000/';
 
   constructor(private httpClient: HttpClient) { }
 

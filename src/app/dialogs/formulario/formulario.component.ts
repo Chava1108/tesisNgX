@@ -76,12 +76,13 @@ export class FormularioComponent implements OnInit {
   crearClase() {
     var idProyect = Number(localStorage.getItem("Id_Proyecto"))
     var usrTemp = localStorage.getItem("usrTmp")+""
+    var usrId = Number(localStorage.getItem("Usrid"))
     this.bandClase = false
     const {nivelClase, nombre } = this.formularioClase.value
     this.nameClase = nombre
     var nameFile=nombre+usrTemp+idProyect+"."+this.fileTemp.fileName.split('.').pop();
     this.bandExistClass = false;
-    this.api.postClase(nivelClase, nombre, nameFile, idProyect).subscribe({
+    this.api.postClase(nivelClase, nombre, nameFile, idProyect, usrId).subscribe({
       next: (res: any) => {
         const body=new FormData();
         body.append('myFile',this.fileTemp.fileRaw,nameFile)
@@ -155,7 +156,7 @@ export class FormularioComponent implements OnInit {
   }
 
   reiniciar(){
-    location.reload()
+    this.dialgRef.close()
   }
 
   classExist(){

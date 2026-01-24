@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class PoryectosService {
-  servidor='http://localhost:9000/';
+  servidor='http://127.0.0.1:8000/';
   constructor( private httpClient: HttpClient ) { }
 
   getProyectos(id: any){

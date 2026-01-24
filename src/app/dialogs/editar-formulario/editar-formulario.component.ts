@@ -19,14 +19,14 @@ export class EditarFormularioComponent implements OnInit {
     private api: BaseDeDatosService, private restService: RestService) { }
 
   formulario = new FormGroup({
-    nivelAtributo: new FormControl(this.data.nivel, Validators.required),
-    tipoAtributo: new FormControl(this.data.tipo, Validators.required),
-    atributo: new FormControl(this.data.nombre, Validators.required)
+    nivelAtributo: new FormControl(this.data.item.nivel, Validators.required),
+    tipoAtributo: new FormControl(this.data.item.tipo, Validators.required),
+    atributo: new FormControl(this.data.item.nombre, Validators.required)
   });
   formulario2 = new FormGroup({
-    nivelFuncion: new FormControl(this.data.nivel, Validators.required),
-    tipoFuncion: new FormControl(this.data.tipo, Validators.required),
-    funcion: new FormControl(this.data.nombre, Validators.required)
+    nivelFuncion: new FormControl(this.data.item.nivel, Validators.required),
+    tipoFuncion: new FormControl(this.data.item.tipo, Validators.required),
+    funcion: new FormControl(this.data.item.nombre, Validators.required)
   });
   list = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "String"]
   list2 = ["void", "int", "float", "char", "byte", "boolean", "double", "long", "short", "String"]
@@ -37,20 +37,22 @@ export class EditarFormularioComponent implements OnInit {
   boton: string = ""
   idClase: number=0
   clases: any
+  datos: any = []
   ngOnInit(): void {
-
-    if (this.data.length > 1) {
-      if (this.data[1].tipoAgregar == "Funcion") {
+    this.datos = this.data.item
+    console.log(this.datos)
+    if ('tipoAgregar' in  this.data) {
+      if (this.data.tipoAgregar == "Funcion") {
         this.bandFunciones = true;
         this.boton = "Agregar"
-        this.idClase=this.data[0].identificador
-      } else if (this.data[1].tipoAgregar == "Atributo") {
+        this.idClase=this.datos.identificador
+      } else if (this.data.tipoAgregar == "Atributo") {
         this.bandAtributos = true;
         this.boton = "Agregar"
-        this.idClase=this.data[0].identificador
+        this.idClase=this.datos.identificador
       }
     } else {
-      if (this.data.bandera == "Funcion") {
+      if (this.data.bandera == "Funciones") {
         this.bandFunciones = true;
         this.boton = "Actualizar"
       } else {
@@ -67,12 +69,11 @@ export class EditarFormularioComponent implements OnInit {
   }
 
   editarAtributos() {
-
     const {nivelAtributo, tipoAtributo, atributo } = this.formulario.value
     console.log(this.idClase)
-    console.log(this.data);
+    console.log(this.datos);
    if (this.boton == "Actualizar") {
-      this.api.putAtributos(nivelAtributo, tipoAtributo, atributo, this.data.id).subscribe({
+      this.api.putAtributos(nivelAtributo, tipoAtributo, atributo, this.datos.id).subscribe({
         next: (res: any) => {
           this.dialgRef.close();
         },
@@ -96,7 +97,7 @@ export class EditarFormularioComponent implements OnInit {
     const {nivelFuncion, tipoFuncion, funcion } = this.formulario2.value
     if (this.boton == "Actualizar") {
       console.log(this.data)
-      this.api.putFunciones(nivelFuncion, tipoFuncion, funcion, this.data.id).subscribe({
+      this.api.putFunciones(nivelFuncion, tipoFuncion, funcion, this.datos.id).subscribe({
         next: (res: any) => {
           this.dialgRef.close();
         },
@@ -132,6 +133,14 @@ export class EditarFormularioComponent implements OnInit {
 
       }
     });
+  }
+
+  eliminarFunciones(){
+
+  }
+
+  eliminarAtributos(){
+
   }
 
 }

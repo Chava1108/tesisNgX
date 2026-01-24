@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 
 export class BaseDeDatosService {
 
-  servidor='http://localhost:9000/';
+  servidor='http://127.0.0.1:8000/';
   constructor(private httpClient: HttpClient) { }
   
   getClases(): any{
@@ -26,16 +26,24 @@ export class BaseDeDatosService {
     return this.httpClient.get(`${this.servidor}atributos`);
   }
 
+  getAtributosClase(idClase:number): any{
+    return this.httpClient.get(`${this.servidor}atributosClases/${idClase}`);
+  }
+
   getFunciones(): any{
     return this.httpClient.get(`${this.servidor}funciones`);
+  }
+
+  getFuncionesClase(idClase:number): any{
+    return this.httpClient.get(`${this.servidor}funcionesClases/${idClase}`);
   }
 
   getHerencia(id_proyecto:any): any{
     return this.httpClient.get(`${this.servidor}herencia/${id_proyecto}`);
   }
   
-  postClase(nivel: String, clase:string, imagen:string, id_proyecto:number):any{
-    const body={nivel:nivel,nombre:clase,imagen:imagen, id_proyecto: id_proyecto}
+  postClase(nivel: String, clase:string, imagen:string, id_proyecto:number, id_usuario:number):any{
+    const body={nivel:nivel,nombre:clase,imagen:imagen, id_proyecto: id_proyecto, id_usuario:id_usuario}
     return this.httpClient.post(`${this.servidor}clases`,body);
   }
 
@@ -50,7 +58,7 @@ export class BaseDeDatosService {
   }
 
   postHerencia(id_clasePadre:number, id_claseHijo:number):any{
-    const body={id_clasePadre:id_clasePadre,id_claseHijo:id_claseHijo}
+    const body={id_clasepadre:id_clasePadre,id_clasehijo:id_claseHijo}
     return this.httpClient.post(`${this.servidor}herencia`,body);
   }
 

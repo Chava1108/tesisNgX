@@ -44,7 +44,6 @@ export class NavbarComponent implements OnInit {
   }
 
   abrirCrearClase() {
-
     console.log(this.router.url)
     const dialogRef = this.dialog.open(FormularioComponent, {
       width: '80%',
@@ -54,7 +53,6 @@ export class NavbarComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(res => {
       console.log(res);
-
     });
   }
 
