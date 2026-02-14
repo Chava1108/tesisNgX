@@ -21,20 +21,14 @@
           <div class="form-group my-3">
             <input type="text" class="form-control" placeholder="Username" required="required"
               formControlName="usrName" />
-            <div class="error" *ngIf="
-                  logIn.get('usrName').hasError('required') &&
-                  logIn.get('usrName').touched
-                ">
+            <div class="error" *ngIf="f['usrName'].errors?.['required'] && f['usrName'].touched">
               <p class="errorMsg">*Coloca el nombre del usuario</p>
             </div>
           </div>
           <div class="form-group my-3">
             <input type="password" class="form-control" placeholder="Password" required="required"
               formControlName="passwd" />
-            <div class="error" *ngIf="
-                  logIn.get('passwd').hasError('required') &&
-                  logIn.get('passwd').touched
-                ">
+            <div class="error" *ngIf="f['passwd'].errors?.['required'] && f['passwd'].touched">
               <p class="errorMsg">*Coloca la contraseña</p>
             </div>
           </div>

@@ -16,13 +16,14 @@ export class FormProyectComponent implements OnInit {
   bandPost:boolean = false;
   nameProject=""
   formularioProyecto = new FormGroup({
-    nombreProyecto: new FormControl('', Validators.required)
+    nombreProyecto: new FormControl('', Validators.required),
+    lenguaje: new FormControl('java', [Validators.required])
   })
   
   constructor(public dialgRef: MatDialogRef<FormProyectComponent>,private api: PoryectosService, private router:Router, public dialog: MatDialog) { }
 
   ngOnInit(): void {
-     this.idUsr = localStorage.getItem('Usrid')
+     this.idUsr = sessionStorage.getItem('Usrid')
   }
 
   obtenerProyecto(nombre:any, id:any){
@@ -37,9 +38,9 @@ export class FormProyectComponent implements OnInit {
  
 
   crearProyecto(){
-    const { nombreProyecto } = this.formularioProyecto.value
+    const { nombreProyecto, lenguaje } = this.formularioProyecto.value
 
-    this.api.postProyectos(nombreProyecto, this.idUsr).subscribe({
+    this.api.postProyectos(nombreProyecto, this.idUsr, lenguaje).subscribe({
       next: (res:any)=>{
         this.obtenerProyecto(nombreProyecto, this.idUsr)
         this.dialog.open(ConfirmComponent,{

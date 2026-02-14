@@ -12,8 +12,8 @@ export class PoryectosService {
     return this.httpClient.get(`${this.servidor}proyecto/${id}`)
   }
 
-  postProyectos(nombre:any, id_usr:any){
-    const body={nombre:nombre,id_usr:id_usr}
+  postProyectos(nombre:any, id_usr:any, lenguaje:any){
+    const body={nombre:nombre,id_usr:id_usr, lenguaje:lenguaje}
     return this.httpClient.post(`${this.servidor}proyecto`,body);
   }
 

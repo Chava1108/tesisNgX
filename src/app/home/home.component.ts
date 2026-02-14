@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormProyectComponent } from '../dialogs/form-proyect/form-proyect.component';
 import { PoryectosService } from '../services/poryectos.service';
+import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -10,14 +11,27 @@ import { PoryectosService } from '../services/poryectos.service';
 })
 export class HomeComponent implements OnInit {
 
-  constructor(public dialog: MatDialog, private apis: PoryectosService, private router: Router) { }
+constructor(
+    public dialog: MatDialog, 
+    private apis: PoryectosService, 
+    private router: Router,
+    private authService: AuthService 
+  ) { }
   username:any
   id:any
   proyectos:any
-  ngOnInit(): void {
-   this.username= localStorage.getItem("usrTmp")
-   this.id=localStorage.getItem("Usrid");
-   this.obtenerProyectos()
+ngOnInit(): void {
+    // Verificamos sesión (por seguridad extra)
+    if (!this.authService.estaAutenticado()) {
+      this.authService.logout(); // Si no hay datos, lo saca
+      return;
+    }
+
+    const user = this.authService.obtenerUsuarioActual();
+    this.username = user.username;
+    this.id = user.id;
+
+    this.obtenerProyectos();
   }
 
   obtenerProyectos(){
@@ -28,11 +42,10 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  openProyect(proyect: any){
-    console.log(proyect)
-    localStorage.setItem("Id_Proyecto", proyect.id)
-    localStorage.setItem("Nombre_Proyecto", proyect.nombre)
-    document.location.href = "../area-de-trabajo.component"
+openProyect(proyect: any) {
+    sessionStorage.setItem("Id_Proyecto", proyect.id);
+    sessionStorage.setItem("Nombre_Proyecto", proyect.nombre);
+    this.router.navigate(['/area-de-trabajo.component']); 
   }
 
   openDialog(){

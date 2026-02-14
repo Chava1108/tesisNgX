@@ -1,10 +1,7 @@
-import { UsuariosService } from './../services/usuarios.service';
-import { Component, OnInit, Inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { FormGroup, FormControl } from '@angular/forms';
-import { DOCUMENT } from '@angular/common';
-import * as CryptoJS from 'crypto-js';
-import { Router,ActivatedRoute, ParamMap } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service'; // Importamos el nuevo servicio
 
 @Component({
   selector: 'app-login',
@@ -12,16 +9,12 @@ import { Router,ActivatedRoute, ParamMap } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  user: any;
-  bandLogin: boolean = false;
-  userID: number = 0
+  logIn: FormGroup;
   bandError: boolean = false;
-  logIn: any;
-  constructor(private api: UsuariosService, @Inject(DOCUMENT) private document:any,private router: Router) { }
+  errorMessage: string = '';
 
-  ngOnInit(): void {
-    this.logIn = new FormGroup({
-      usrName: new FormControl('', [
+  constructor(private authService: AuthService, private router: Router) {
+    this.logIn = new FormGroup({usrName: new FormControl('', [
         Validators.required,
         Validators.minLength(4),
         Validators.pattern('^[a-zA-Z0-9_.-]*$'),
@@ -34,54 +27,37 @@ export class LoginComponent implements OnInit {
     });
   }
 
-   validateUser(){
-    const values = this.logIn.getRawValue();
-    var passDesncypt= ""
-     this.api.getUsuarios().subscribe({
-       next: (res:any)=>{
-         console.log(res);
-         res.forEach((element: {id:any, username:any , password:any}) => {
-          passDesncypt = CryptoJS.AES.decrypt(element.password,"POOGraph").toString(CryptoJS.enc.Utf8)
-          console.log("Usuario: "+element+"passw: "+passDesncypt)
-          if(values.usrName == element.username && values.passwd == passDesncypt){
-              this.bandLogin = true
-              this.userID = element.id
-            }
-         });
-
-        if(this.bandLogin){
-          localStorage.clear();
-          this.guardarEnStorage(values)
-        }else{
-         this.bandError = true
-        }
-
-       },
-
-       error: ()=>{
-       }
-     })
-
-    
+  ngOnInit(): void {
+    // Si ya está logueado, lo mandamos al home directo
+    if (this.authService.estaAutenticado()) {
+      this.router.navigate(['/home']);
+    }
   }
 
-  guardarEnStorage(values: any){
-    if(localStorage.getItem('usrTmp')) {
-      localStorage.removeItem('usrTmp'); 
-      localStorage.setItem('usrTmp', values.usrName);
-    } else {
-      localStorage.setItem('usrTmp', values.usrName);
-    }
+  validateUser() {
+    if (this.logIn.invalid) return;
 
-    if(localStorage.getItem('Usrid')) {
-      localStorage.removeItem('Usrid'); 
-      localStorage.setItem('Usrid', this.userID.toString());
-    } else {
-      localStorage.setItem('Usrid', this.userID.toString());
-    }
+    const credentials = {
+      username: this.logIn.value.usrName,
+      password: this.logIn.value.passwd
+    };
 
-    document.location.href="../home"
-
+    // Llamamos al servicio. Ya NO desencriptamos aquí.
+    this.authService.login(credentials).subscribe({
+      next: (res) => {
+        // El servicio ya guardó la sesión en sessionStorage con el 'tap'
+        // Usamos el Router de Angular, NO document.location
+        this.router.navigate(['/home']);
+      },
+      error: (err) => {
+        console.error('Error login', err);
+        this.bandError = true;
+        this.errorMessage = 'Usuario o contraseña incorrectos';
+      }
+    });
   }
 
+  get f() { 
+  return this.logIn.controls; 
+}
 }

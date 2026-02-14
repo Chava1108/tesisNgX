@@ -58,7 +58,7 @@ export class FormularioComponent implements OnInit {
   }
 
   obtenerClases() {
-    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
+    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
     this.api.getClasesProyectId(idProyect).subscribe({
       next: (res: any) => {
         this.clases = res;
@@ -74,9 +74,9 @@ export class FormularioComponent implements OnInit {
   }
 
   crearClase() {
-    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
-    var usrTemp = localStorage.getItem("usrTmp")+""
-    var usrId = Number(localStorage.getItem("Usrid"))
+    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
+    var usrTemp = sessionStorage.getItem("usrTmp")+""
+    var usrId = Number(sessionStorage.getItem("Usrid"))
     this.bandClase = false
     const {nivelClase, nombre } = this.formularioClase.value
     this.nameClase = nombre
@@ -84,12 +84,13 @@ export class FormularioComponent implements OnInit {
     this.bandExistClass = false;
     this.api.postClase(nivelClase, nombre, nameFile, idProyect, usrId).subscribe({
       next: (res: any) => {
+        
         const body=new FormData();
         body.append('myFile',this.fileTemp.fileRaw,nameFile)
         this.restService.sendPost(body).subscribe(res=>console.log(res))
       },
-      error: () => {
-
+      error: (err:any) => {
+console.log (err)
       }
     })
   }
@@ -103,7 +104,7 @@ export class FormularioComponent implements OnInit {
   }
 
   agregarAtributo() {
-    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
+    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
     const {nivelAtributo, tipoAtributo, atributo, nombre } = this.formularioAtributo.value
     this.atributos.push(nivelAtributo + " " + tipoAtributo + " " + atributo)
     this.api.getClasesId(this.nameClase, idProyect).subscribe({
@@ -122,7 +123,7 @@ export class FormularioComponent implements OnInit {
   }
 
   agregarFuncion() {
-    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
+    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
     const {nivelFuncion, tipoFuncion, funcion, nombre } = this.formularioFuncion.value
     this.funciones.push(nivelFuncion + " " + tipoFuncion + " " + funcion)
     this.api.getClasesId(this.nameClase, idProyect).subscribe({
@@ -139,7 +140,7 @@ export class FormularioComponent implements OnInit {
   }
 
   agregarHerencia() {
-    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
+    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
     const { clases } = this.formularioHerencia.value
     this.api.getClasesId(clases,idProyect).subscribe({
       next: (res: any) => {

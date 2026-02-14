@@ -46,10 +46,11 @@ export class CodeService {
     });
   }
 
-  guardarArchivo(rutaRelativa: string, contenido: string) {
+  guardarArchivo(rutaRelativa: string, contenido: string, id_proyecto:number) {
     return this.httpClient.post(`${this.servidorPython}/guardar-archivo`, {
       ruta_relativa: rutaRelativa,
       codigo: contenido,
+      id_proyecto: id_proyecto
     });
   }
 }

@@ -5,13 +5,14 @@ import { AgregarComponentComponent } from './agregar-component/agregar-component
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
-  { path: 'area-de-trabajo.component',component:AreaDeTrabajoComponent},
+  { path: 'area-de-trabajo.component',component:AreaDeTrabajoComponent, canActivate: [AuthGuard]},
   { path: 'agregar-componente.component',component:AgregarComponentComponent},
   { path: 'register', component:RegisterComponent },
   { path: 'login', component: LoginComponent},
-  { path: 'home', component: HomeComponent},
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
   { path: '', pathMatch: 'full', redirectTo: 'login' }
 ];
 

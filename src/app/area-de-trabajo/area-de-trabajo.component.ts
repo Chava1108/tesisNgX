@@ -1,6 +1,5 @@
 import { PrismService } from './../service/prism.service';
 import {
-  AfterContentInit,
   Component,
   ElementRef,
   OnInit,
@@ -11,14 +10,14 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { BaseDeDatosService } from '../services/base-de-datos.service';
+import { PoryectosService } from '../services/poryectos.service';
 import { CodeService } from '../services/code.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ShowclassComponent } from '../dialogs/showclass/showclass.component';
-import { Node, Edge, ClusterNode } from '@swimlane/ngx-graph';
-import { ThisReceiver } from '@angular/compiler';
-import { fromEvent, Subscription } from 'rxjs';
-import { catchError, tap, map, switchMap } from 'rxjs/operators';
-import { Observable, of, forkJoin } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
+import {  Subscription } from 'rxjs';
+import {  map, switchMap } from 'rxjs/operators'
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-area-de-trabajo',
@@ -26,7 +25,6 @@ import { Observable, of, forkJoin } from 'rxjs';
   styleUrls: ['./area-detrabajo-component.scss'],
 })
 export class AreaDeTrabajoComponent implements OnInit {
-
   @ViewChild('codeContent', { static: true })
   codeContent!: ElementRef;
   @ViewChild('pre', { static: true })
@@ -38,30 +36,30 @@ export class AreaDeTrabajoComponent implements OnInit {
 
     // Definimos el tema "StackBlitz-Like"
     monaco.editor.defineTheme('my-dark-theme', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [
-            { token: 'comment', foreground: '6A9955' },
-            { token: 'keyword', foreground: '569CD6' },
-            { token: 'identifier', foreground: '9CDCFE' },
-            { token: 'string', foreground: 'CE9178' },
-            { token: 'number', foreground: 'B5CEA8' },
-            { token: 'type', foreground: '4EC9B0' },
-        ],
-        colors: {
-            'editor.background': '#1e1e1e', 
-            'editor.foreground': '#d4d4d4',
-            'editorCursor.foreground': '#A79696',
-            'editor.lineHighlightBackground': '#2F3337',
-            'editorLineNumber.foreground': '#858585',
-            'editorIndentGuide.background': '#404040',
-            'editor.selectionBackground': '#264F78',
-        }
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'comment', foreground: '6A9955' },
+        { token: 'keyword', foreground: '569CD6' },
+        { token: 'identifier', foreground: '9CDCFE' },
+        { token: 'string', foreground: 'CE9178' },
+        { token: 'number', foreground: 'B5CEA8' },
+        { token: 'type', foreground: '4EC9B0' },
+      ],
+      colors: {
+        'editor.background': '#1e1e1e',
+        'editor.foreground': '#d4d4d4',
+        'editorCursor.foreground': '#A79696',
+        'editor.lineHighlightBackground': '#2F3337',
+        'editorLineNumber.foreground': '#858585',
+        'editorIndentGuide.background': '#404040',
+        'editor.selectionBackground': '#264F78',
+      },
     });
 
     // Aplicamos el tema
     monaco.editor.setTheme('my-dark-theme');
-}
+  }
 
   sub!: Subscription;
   highlighted = false;
@@ -71,7 +69,7 @@ export class AreaDeTrabajoComponent implements OnInit {
     clase: new FormControl('', Validators.required),
   });
 
- editorOptions = {
+  editorOptions = {
     theme: 'vs-dark', // El que creamos arriba
     language: 'java',
     fontFamily: "'Fira Code', 'Consolas', monospace", // Usar Fira Code
@@ -79,15 +77,15 @@ export class AreaDeTrabajoComponent implements OnInit {
     fontSize: 14,
     lineHeight: 24, // Un poco más de aire entre líneas se ve mejor
     minimap: {
-        enabled: true // El mapa pequeño a la derecha
+      enabled: true, // El mapa pequeño a la derecha
     },
     scrollBeyondLastLine: false, // Para que no scrollee al infinito abajo
     automaticLayout: true,
     renderLineHighlight: 'all', // Resaltar toda la línea actual
     smoothScrolling: true,
     cursorBlinking: 'smooth', // Cursor suave tipo fase
-    padding: { top: 15, bottom: 15 } // Margen interno para que no pegue al borde
-};
+    padding: { top: 15, bottom: 15 }, // Margen interno para que no pegue al borde
+  };
 
   code: string = 'public class MiClase {\n    // Escribe tu código aquí\n}';
   mostrarEditor: boolean = false;
@@ -105,14 +103,14 @@ export class AreaDeTrabajoComponent implements OnInit {
   };
 
   constructor(
+    private router: Router,
     private renderer: Renderer2,
-    private ElementRef: ElementRef,
     private apis: BaseDeDatosService,
-    private apiCode: CodeService,
+    private proyectosService: PoryectosService,
     public dialog: MatDialog,
     private primsmService: PrismService,
     private fb: FormBuilder,
-    private codeService: CodeService
+    private codeService: CodeService,
   ) {}
   nombrePadre = '';
   nombreHijo = '';
@@ -125,7 +123,7 @@ export class AreaDeTrabajoComponent implements OnInit {
   calculo = 12;
   i = 0;
   imagenes: any = [];
-  entradasUsuario: any = "";
+  entradasUsuario: any = '';
 
   //valores del proyecto
   idProyect: number = 0;
@@ -145,63 +143,76 @@ export class AreaDeTrabajoComponent implements OnInit {
   text =
     ' Bienvenidos a POOGraph \n La Programación Orientada a objetos permite que el \n código sea reutilizable, organizado y fácil de mantener \n  En este sitio podras personalizar tus diagramas para \n trabajar con POO, es ideal por si';
   aributosHeredados: any = [];
-
+  lenguajeActual: string = 'java';
   ngOnInit(): void {
-    this.idProyect = Number(localStorage.getItem('Id_Proyecto'));
-    this.nameProyect = localStorage.getItem('Nombre_Proyecto');
-
+    this.idProyect = Number(sessionStorage.getItem('Id_Proyecto'));
+    this.nameProyect = sessionStorage.getItem('Nombre_Proyecto');
+    this.proyectosService
+      .getProyectoIndividual(
+        this.nameProyect,
+        Number(sessionStorage.getItem('Usrid')),
+      )
+      .subscribe((res: any) => {
+        console.log('proyecto individuL');
+        console.log(res);
+        this.lenguajeActual = res[0].lenguaje || 'java';
+        // 2. ACTUALIZAR LAS OPCIONES DE MONACO
+        this.actualizarEditorOptions();
+      });
     this.nodos = [];
     this.links = [];
     this.getClase();
     this.listenForm();
   }
 
+  getClase() {
+    this.nodos = [];
+    this.links = [];
+    this.apis
+      .getClasesProyectId(this.idProyect)
+      .pipe(
+        switchMap((clases: any[]) => {
+          this.clases = clases;
+          if (clases.length === 0) {
+            return [];
+          }
+          const peticionesPorClase = clases.map((clase: any) => {
+            return forkJoin({
+              atributosData: this.getAtributos(clase.id),
+              funcionesData: this.getFunciones(clase.id),
+            }).pipe(
+              map((detalles: any) => {
+                return {
+                  ...clase,
+                  listadoAtributos: detalles.atributosData,
+                  listadoFunciones: detalles.funcionesData,
+                };
+              }),
+            );
+          });
+          return forkJoin(peticionesPorClase);
+        }),
+      )
+      .subscribe({
+        next: (clasesCompletas: any) => {
+          this.nodos = [];
+          clasesCompletas.forEach((element: any) => {
+            this.nodos.push({
+              id: element.nombre,
+              label: element.nombre,
+              imagen: 'http://127.0.0.1:8000/archivos/' + element.imagen,
+              atributos: element.listadoAtributos,
+              funciones: element.listadoFunciones,
+              identificador: element.id,
+            });
+          });
 
-getClase() {
-  this.nodos = []; 
-  this.links = [];
-  this.apis.getClasesProyectId(this.idProyect).pipe(
-    switchMap((clases: any[]) => {
-      this.clases = clases;
-      if (clases.length === 0) {
-        return []; 
-      }
-      const peticionesPorClase = clases.map((clase: any) => {
-        return forkJoin({
-          atributosData: this.getAtributos(clase.id), 
-          funcionesData: this.getFunciones(clase.id)  
-        }).pipe(
-          map((detalles: any) => {
-            return {
-              ...clase,
-              listadoAtributos: detalles.atributosData,
-              listadoFunciones: detalles.funcionesData
-            };
-          })
-        );
+          this.updateChart();
+          this.getHerencia();
+        },
+        error: (err: any) => console.error('Error cargando clases:', err),
       });
-      return forkJoin(peticionesPorClase);
-    })
-  ).subscribe({
-    next: (clasesCompletas: any) => {
-      this.nodos = []; 
-      clasesCompletas.forEach((element: any) => {
-        this.nodos.push({
-          id: element.nombre,
-          label: element.nombre,
-          imagen: 'http://127.0.0.1:8000/archivos/' + element.imagen,
-          atributos: element.listadoAtributos, 
-          funciones: element.listadoFunciones, 
-          identificador: element.id,
-        });
-      });
-
-      this.updateChart();
-      this.getHerencia();
-    },
-    error: (err: any) => console.error("Error cargando clases:", err),
-  });
-}
+  }
 
   getHerencia() {
     this.apis.getHerencia(this.idProyect).subscribe({
@@ -252,8 +263,8 @@ getClase() {
       data: node,
     });
     dialogRef.afterClosed().subscribe((res) => {
-      console.log("Diálogo cerrado, recargando diagrama...");
-      this.getClase()
+      console.log('Diálogo cerrado, recargando diagrama...');
+      this.getClase();
     });
   }
 
@@ -275,13 +286,13 @@ getClase() {
   private listenForm() {
     this.sub = this.form.valueChanges.subscribe((val) => {
       const modifiedContent = this.primsmService.convertHtmlIntoString(
-        val.content
+        val.content,
       );
 
       this.renderer.setProperty(
         this.codeContent.nativeElement,
         'innerHTML',
-        modifiedContent
+        modifiedContent,
       );
 
       this.highlighted = true;
@@ -344,9 +355,6 @@ getClase() {
   // Esta función se llama al dar clic en "Ver código"
   reinicio(id: any, node: any) {
     this.cargarArchivosProyecto();
-    console.log('Solicitando código para la clase:', node.label, ' ...');
-    console.log(node);
-    console.log(id);
     this.codeService.obtenerCodigoFuente(id).subscribe({
       next: (res: any) => {
         this.code = res.codigo;
@@ -367,7 +375,8 @@ getClase() {
 
   cargarArchivosProyecto() {
     // Asumiendo que tienes el ID del proyecto en una variable
-    var idProyect = Number(localStorage.getItem('Id_Proyecto'));
+    var idProyect = Number(sessionStorage.getItem('Id_Proyecto'));
+    console.log('entra extraer archivos' + this.idProyect);
     if (!idProyect) return;
 
     this.codeService.listarArchivos(idProyect).subscribe((res: any) => {
@@ -383,7 +392,7 @@ getClase() {
 
   abrirArchivo(archivo: any) {
     this.archivoActivo = archivo;
-
+    console.log(this.archivoActivo);
     // Pedimos el contenido al backend
     this.codeService
       .leerArchivoPorRuta(archivo.ruta_relativa)
@@ -392,23 +401,24 @@ getClase() {
       });
   }
 
-  // 3. Ejecutar Proyecto (Siempre compila y ejecuta Main)
-  // 3. ACCIÓN DEL BOTÓN "EJECUTAR" (Guarda -> Luego Compila)
   ejecutarProyecto() {
+    if (!this.archivoActivo) {
+      this.salidaTerminal.push({
+        texto: '⚠️ Selecciona un archivo o el Main antes de ejecutar.',
+        tipo: 'error',
+      });
+      return;
+    }
     this.salidaTerminal = []; // Limpiamos terminal
     this.salidaTerminal.push({
       texto: '> Preparando ejecución...',
       tipo: 'info',
     });
-
-    // PRIMERO GUARDAMOS
     this.guardarCambios().subscribe({
       next: () => {
-        // SI GUARDÓ BIEN (O no había nada que guardar), COMPILAMOS
         this.iniciarCompilacionReal();
       },
       error: (err) => {
-        // SI FALLA EL GUARDADO, NO COMPILAMOS
         this.salidaTerminal.push({
           texto: '❌ Error crítico al guardar. Se canceló la compilación.',
           tipo: 'error',
@@ -417,44 +427,48 @@ getClase() {
     });
   }
 
-  // (Tu función de compilación se mantiene igual)
   iniciarCompilacionReal() {
-    var idProyect = Number(localStorage.getItem('Id_Proyecto'));
+    var idProyect = Number(sessionStorage.getItem('Id_Proyecto'));
     this.salidaTerminal.push({
       texto: '> Compilando y Ejecutando...',
       tipo: 'info',
     });
-
-    this.codeService.compilarProyecto(this.idProyect, this.entradasUsuario).subscribe({
-      next: (res: any) => {
-        if (res.exito) {
-          this.salidaTerminal.push({ texto: res.mensaje, tipo: 'info' });
-        } else {
-          this.salidaTerminal.push({ texto: res.mensaje, tipo: 'error' });
-        }
-      },
-      error: (err) =>
-        this.salidaTerminal.push({
-          texto: 'Error de conexión con el servidor',
-          tipo: 'error',
-        }),
-    });
+    this.codeService
+      .compilarProyecto(this.idProyect, this.entradasUsuario)
+      .subscribe({
+        next: (res: any) => {
+          if (res.exito) {
+            this.salidaTerminal.push({ texto: res.mensaje, tipo: 'info' });
+          } else {
+            this.salidaTerminal.push({ texto: res.mensaje, tipo: 'error' });
+          }
+        },
+        error: (err) =>
+          this.salidaTerminal.push({
+            texto: 'Error de conexión con el servidor',
+            tipo: 'error',
+          }),
+      });
   }
 
-  guardarCambios(): Observable<any>{
-    if (!this.archivoActivo) {
-      // Si no hay archivo, retornamos un observable vacío para no romper el flujo
-      return of(null);
-    }
-    console.log(this.archivoActivo)
+  guardarCambios(): Observable<any> {
     // Retornamos la petición del servicio directamente
     return this.codeService.guardarArchivo(
       this.archivoActivo.ruta_relativa,
-      this.code
+      this.code,
+      this.idProyect,
     );
   }
 
   btnGuardar() {
+    if (!this.archivoActivo) {
+      this.salidaTerminal.push({
+        texto: '⚠️ No hay ningún archivo seleccionado para guardar.',
+        tipo: 'error',
+      });
+      return; // Detiene la función aquí
+    }
+
     this.salidaTerminal.push({ texto: '> Guardando...', tipo: 'info' });
 
     this.guardarCambios().subscribe({
@@ -474,8 +488,21 @@ getClase() {
   }
 
   limpiarTerminal() {
-    this.entradasUsuario = "";
+    this.entradasUsuario = '';
+    this.salidaTerminal = [];
+  }
 
-    this.salidaTerminal  = [];
+  actualizarEditorOptions() {
+    const lenguajeMonaco = this.lenguajeActual === 'cpp' ? 'cpp' : 'java';
+    this.editorOptions = {
+      ...this.editorOptions,
+      language: lenguajeMonaco,
+    };
+  }
+
+  irAlHome() {
+    if (confirm('¿Deseas salir? Asegúrate de haber guardado.')) {
+      this.router.navigate(['/home']);
+    }
   }
 }
