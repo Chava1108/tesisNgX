@@ -58,7 +58,7 @@ export class BaseDeDatosService {
   }
 
   postHerencia(id_clasePadre:number, id_claseHijo:number):any{
-    const body={id_clasepadre:id_clasePadre,id_clasehijo:id_claseHijo}
+    const body={id_clasePadre:id_clasePadre,id_claseHijo:id_claseHijo}
     return this.httpClient.post(`${this.servidor}herencia`,body);
   }
 
