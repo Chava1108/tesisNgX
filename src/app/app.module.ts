@@ -24,7 +24,9 @@ import { HomeComponent } from './home/home.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { FormProyectComponent } from './dialogs/form-proyect/form-proyect.component';
 import { ConfirmComponent } from './dialogs/confirm/confirm.component';
-import { ErrorComponent } from './dialogs/error/error.component'; 
+import { ErrorComponent } from './dialogs/error/error.component';
+import { RealizarTestComponent } from './realizar-test/realizar-test.component';
+import { HacerExamenComponent } from './hacer-examen/hacer-examen.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { FormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
@@ -44,6 +46,8 @@ import { AngularSplitModule } from 'angular-split';
    FormProyectComponent,
    ConfirmComponent,
    ErrorComponent,
+   RealizarTestComponent,
+   HacerExamenComponent,
   ],
   imports: [
     BrowserModule,

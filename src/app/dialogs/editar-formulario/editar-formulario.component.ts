@@ -28,8 +28,8 @@ export class EditarFormularioComponent implements OnInit {
     tipoFuncion: new FormControl(this.data.item.tipo, Validators.required),
     funcion: new FormControl(this.data.item.nombre, Validators.required)
   });
-  list = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "String"]
-  list2 = ["void", "int", "float", "char", "byte", "boolean", "double", "long", "short", "String"]
+  list: string[] = []
+  list2: string[] = []
   listNivel = ["public", "private", "protected"]
   listNivel2 = ["public", "private"]
   bandAtributos = false;
@@ -38,7 +38,16 @@ export class EditarFormularioComponent implements OnInit {
   idClase: number=0
   clases: any
   datos: any = []
+  lenguaje: string = 'java';
+
+  private tiposJava = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "String"];
+  private tiposJava2 = ["void", "int", "float", "char", "byte", "boolean", "double", "long", "short", "String"];
+  private tiposCpp = ["int", "float", "char", "bool", "double", "long", "short", "string", "unsigned int", "long long", "auto"];
+  private tiposCpp2 = ["void", "int", "float", "char", "bool", "double", "long", "short", "string", "unsigned int", "long long", "auto"];
+
   ngOnInit(): void {
+    this.lenguaje = sessionStorage.getItem('lenguajeActual') || 'java';
+    this.actualizarTipos();
     this.datos = this.data.item
     console.log(this.datos)
     if ('tipoAgregar' in  this.data) {
@@ -118,7 +127,7 @@ export class EditarFormularioComponent implements OnInit {
   }
 
   obtenerClases() {
-    var idProyect = Number(localStorage.getItem("Id_Proyecto"))
+    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
     this.api.getClasesProyectId(idProyect).subscribe({
       next: (res: any) => {
         this.clases = res;
@@ -133,6 +142,16 @@ export class EditarFormularioComponent implements OnInit {
 
       }
     });
+  }
+
+  actualizarTipos() {
+    if (this.lenguaje === 'cpp') {
+      this.list = [...this.tiposCpp];
+      this.list2 = [...this.tiposCpp2];
+    } else {
+      this.list = [...this.tiposJava];
+      this.list2 = [...this.tiposJava2];
+    }
   }
 
   eliminarFunciones(){

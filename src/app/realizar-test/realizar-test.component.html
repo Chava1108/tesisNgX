@@ -1,0 +1,149 @@
+<div class="test-container">
+
+  <!-- Encabezado -->
+  <div class="test-header">
+    <mat-icon class="header-icon">quiz</mat-icon>
+    <h2>Crear Examen</h2>
+    <p class="subtitle">Configura tu examen, agrega preguntas con 4 opciones y marca la respuesta correcta</p>
+  </div>
+
+  <!-- Configuración del examen -->
+  <div class="form-card config-card">
+    <div class="config-titulo">
+      <mat-icon class="label-icon">settings</mat-icon>
+      Configuración del examen
+    </div>
+
+    <div class="campo">
+      <label for="titulo">
+        <mat-icon class="label-icon">title</mat-icon>
+        Título del examen
+      </label>
+      <input
+        id="titulo"
+        type="text"
+        [(ngModel)]="tituloExamen"
+        placeholder="Ej: Examen de Herencia y Polimorfismo"
+        class="input-texto"
+      />
+    </div>
+
+    <div class="config-grid">
+      <div class="campo">
+        <label for="fecha">
+          <mat-icon class="label-icon">event</mat-icon>
+          Fecha disponible
+        </label>
+        <input
+          id="fecha"
+          type="datetime-local"
+          [(ngModel)]="fechaDisponible"
+          class="input-texto"
+        />
+      </div>
+      <div class="campo">
+        <label for="duracion">
+          <mat-icon class="label-icon">timer</mat-icon>
+          Duración (minutos)
+        </label>
+        <input
+          id="duracion"
+          type="number"
+          [(ngModel)]="duracionMinutos"
+          min="5"
+          max="180"
+          class="input-texto"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de pregunta -->
+  <div class="form-card">
+
+    <div class="pregunta-numero">
+      Pregunta #{{ preguntas.length + 1 }}
+    </div>
+
+    <!-- Input de la pregunta -->
+    <div class="campo">
+      <label for="pregunta">
+        <mat-icon class="label-icon">help_outline</mat-icon>
+        Pregunta
+      </label>
+      <input
+        id="pregunta"
+        type="text"
+        [(ngModel)]="preguntaActual"
+        placeholder="Escribe aquí tu pregunta..."
+        class="input-texto"
+      />
+    </div>
+
+    <!-- Opciones de respuesta -->
+    <div class="opciones-grid">
+      <div *ngFor="let opcion of opciones; let i = index" class="opcion-item">
+        <div class="opcion-header">
+          <span class="opcion-letra" [class.correcta]="respuestaSeleccionada === i">
+            {{ letraOpcion[i] }}
+          </span>
+          <label class="check-label">
+            <input
+              type="radio"
+              name="respuestaCorrecta"
+              [value]="i"
+              [(ngModel)]="respuestaSeleccionada"
+            />
+            <span class="check-text">Correcta</span>
+          </label>
+        </div>
+        <input
+          type="text"
+          [(ngModel)]="opciones[i]"
+          [placeholder]="'Opción ' + letraOpcion[i]"
+          class="input-texto input-opcion"
+        />
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="acciones">
+      <button class="btn-agregar" (click)="agregarPregunta()">
+        <mat-icon>add_circle</mat-icon>
+        Agregar pregunta
+      </button>
+      <button class="btn-finalizar" (click)="finalizarTest()" [disabled]="preguntas.length === 0 || guardando">
+        <mat-icon>{{ guardando ? 'hourglass_empty' : 'check_circle' }}</mat-icon>
+        {{ guardando ? 'Guardando...' : 'Finalizar y guardar' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista de preguntas agregadas -->
+  <div class="preguntas-lista" *ngIf="preguntas.length > 0">
+    <h3>
+      <mat-icon>list</mat-icon>
+      Preguntas agregadas ({{ preguntas.length }})
+    </h3>
+
+    <div *ngFor="let p of preguntas; let i = index" class="pregunta-card">
+      <div class="pregunta-card-header">
+        <span class="pregunta-card-numero">{{ i + 1 }}</span>
+        <span class="pregunta-card-texto">{{ p.texto }}</span>
+        <button class="btn-eliminar" (click)="eliminarPregunta(i)" title="Eliminar pregunta">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+      <div class="pregunta-card-opciones">
+        <span
+          *ngFor="let op of p.opciones; let j = index"
+          class="mini-opcion"
+          [class.mini-correcta]="j === p.respuestaCorrecta"
+        >
+          {{ letraOpcion[j] }}. {{ op }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>

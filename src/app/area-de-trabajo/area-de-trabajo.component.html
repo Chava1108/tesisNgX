@@ -88,7 +88,7 @@
                         <div *ngFor="let archivo of listaArchivos" (click)="abrirArchivo(archivo)"
                             [style.background-color]="archivoActivo?.nombre === archivo.nombre ? '#37373d' : 'transparent'"
                             style="padding: 5px 15px; cursor: pointer; font-size: 13px; display: flex; align-items: center;">
-                           <img src="assets/imgs/java-icon.svg" width="16" style="margin-right: 8px;">
+                           <img [src]="lenguajeActual === 'cpp' ? 'assets/imgs/cpp-icon.svg' : 'assets/imgs/java-icon.svg'" width="16" style="margin-right: 8px;">
                             {{ archivo.nombre }}
                         </div>
                         </div>

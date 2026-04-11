@@ -14,9 +14,7 @@ import { PoryectosService } from '../services/poryectos.service';
 import { CodeService } from '../services/code.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ShowclassComponent } from '../dialogs/showclass/showclass.component';
-import { Observable, forkJoin } from 'rxjs';
-import {  Subscription } from 'rxjs';
-import {  map, switchMap } from 'rxjs/operators'
+import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Component({
@@ -30,35 +28,85 @@ export class AreaDeTrabajoComponent implements OnInit {
   @ViewChild('pre', { static: true })
   pre!: ElementRef;
 
+  editorInstance: any = null;
+
   onInitEditor(editor: any) {
-    // Accedemos a la variable global monaco
+    this.editorInstance = editor;
     const monaco = (window as any).monaco;
 
-    // Definimos el tema "StackBlitz-Like"
-    monaco.editor.defineTheme('my-dark-theme', {
+    // Tema profesional inspirado en One Dark Pro
+    monaco.editor.defineTheme('poograph-dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [
-        { token: 'comment', foreground: '6A9955' },
-        { token: 'keyword', foreground: '569CD6' },
+        { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+        { token: 'comment.doc', foreground: '6A9955', fontStyle: 'italic' },
+        { token: 'keyword', foreground: 'C586C0' },
+        { token: 'keyword.control', foreground: 'C586C0' },
+        { token: 'keyword.operator', foreground: 'C586C0' },
+        { token: 'storage', foreground: '569CD6' },
+        { token: 'storage.type', foreground: '569CD6' },
+        { token: 'storage.modifier', foreground: '569CD6' },
         { token: 'identifier', foreground: '9CDCFE' },
-        { token: 'string', foreground: 'CE9178' },
-        { token: 'number', foreground: 'B5CEA8' },
         { token: 'type', foreground: '4EC9B0' },
+        { token: 'type.identifier', foreground: '4EC9B0' },
+        { token: 'string', foreground: 'CE9178' },
+        { token: 'string.escape', foreground: 'D7BA7D' },
+        { token: 'number', foreground: 'B5CEA8' },
+        { token: 'number.float', foreground: 'B5CEA8' },
+        { token: 'number.hex', foreground: 'B5CEA8' },
+        { token: 'delimiter', foreground: 'D4D4D4' },
+        { token: 'delimiter.bracket', foreground: 'FFD700' },
+        { token: 'delimiter.parenthesis', foreground: 'DA70D6' },
+        { token: 'delimiter.square', foreground: '179FFF' },
+        { token: 'operator', foreground: 'D4D4D4' },
+        { token: 'annotation', foreground: 'DCDCAA' },
+        { token: 'variable', foreground: '9CDCFE' },
+        { token: 'variable.predefined', foreground: '4FC1FF' },
+        { token: 'constant', foreground: '4FC1FF' },
+        { token: 'tag', foreground: '569CD6' },
+        { token: 'attribute.name', foreground: '9CDCFE' },
+        { token: 'attribute.value', foreground: 'CE9178' },
       ],
       colors: {
-        'editor.background': '#1e1e1e',
-        'editor.foreground': '#d4d4d4',
-        'editorCursor.foreground': '#A79696',
-        'editor.lineHighlightBackground': '#2F3337',
-        'editorLineNumber.foreground': '#858585',
-        'editorIndentGuide.background': '#404040',
-        'editor.selectionBackground': '#264F78',
+        'editor.background': '#1E1E2E',
+        'editor.foreground': '#CDD6F4',
+        'editorCursor.foreground': '#F5E0DC',
+        'editor.lineHighlightBackground': '#2A2B3D',
+        'editor.lineHighlightBorder': '#2A2B3D00',
+        'editorLineNumber.foreground': '#6C7086',
+        'editorLineNumber.activeForeground': '#CDD6F4',
+        'editorIndentGuide.background1': '#313244',
+        'editorIndentGuide.activeBackground1': '#45475A',
+        'editor.selectionBackground': '#45475A80',
+        'editor.selectionHighlightBackground': '#45475A40',
+        'editor.wordHighlightBackground': '#45475A60',
+        'editorBracketMatch.background': '#45475A80',
+        'editorBracketMatch.border': '#F5C2E7',
+        'editorGutter.background': '#1E1E2E',
+        'editorOverviewRuler.border': '#1E1E2E',
+        'scrollbar.shadow': '#11111B',
+        'scrollbarSlider.background': '#45475A40',
+        'scrollbarSlider.hoverBackground': '#45475A80',
+        'scrollbarSlider.activeBackground': '#585B70',
+        'editorWidget.background': '#1E1E2E',
+        'editorWidget.border': '#313244',
+        'editorSuggestWidget.background': '#1E1E2E',
+        'editorSuggestWidget.border': '#313244',
+        'editorSuggestWidget.selectedBackground': '#45475A',
+        'editorHoverWidget.background': '#1E1E2E',
+        'editorHoverWidget.border': '#313244',
+        'minimap.background': '#1E1E2E',
       },
     });
 
-    // Aplicamos el tema
-    monaco.editor.setTheme('my-dark-theme');
+    monaco.editor.setTheme('poograph-dark');
+
+    // Tooltip educativo solo al hacer doble clic (se registra automáticamente)
+    this.registrarDobleClicTooltip(editor, monaco);
+
+    // Bloquear pegado de código y registrar el intento
+    this.bloquearPegado(editor, monaco);
   }
 
   sub!: Subscription;
@@ -69,22 +117,62 @@ export class AreaDeTrabajoComponent implements OnInit {
     clase: new FormControl('', Validators.required),
   });
 
-  editorOptions = {
-    theme: 'vs-dark', // El que creamos arriba
+  editorOptions: any = {
+    theme: 'vs-dark',
     language: 'java',
-    fontFamily: "'Fira Code', 'Consolas', monospace", // Usar Fira Code
-    fontLigatures: true, // ¡ACTIVAR LIGADURAS! (La magia visual)
+    fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace",
+    fontLigatures: true,
     fontSize: 14,
-    lineHeight: 24, // Un poco más de aire entre líneas se ve mejor
+    lineHeight: 22,
+    letterSpacing: 0.3,
     minimap: {
-      enabled: true, // El mapa pequeño a la derecha
+      enabled: true,
+      maxColumn: 80,
+      renderCharacters: false,
+      showSlider: 'mouseover',
     },
-    scrollBeyondLastLine: false, // Para que no scrollee al infinito abajo
+    scrollBeyondLastLine: false,
     automaticLayout: true,
-    renderLineHighlight: 'all', // Resaltar toda la línea actual
+    renderLineHighlight: 'all',
     smoothScrolling: true,
-    cursorBlinking: 'smooth', // Cursor suave tipo fase
-    padding: { top: 15, bottom: 15 }, // Margen interno para que no pegue al borde
+    cursorBlinking: 'smooth',
+    cursorSmoothCaretAnimation: 'on',
+    cursorStyle: 'line',
+    cursorWidth: 2,
+    padding: { top: 15, bottom: 15 },
+    bracketPairColorization: { enabled: true },
+    guides: {
+      bracketPairs: true,
+      indentation: true,
+      highlightActiveIndentation: true,
+    },
+    suggest: {
+      showKeywords: true,
+      showSnippets: true,
+      preview: true,
+      showIcons: true,
+    },
+    autoClosingBrackets: 'always',
+    autoClosingQuotes: 'always',
+    autoIndent: 'full',
+    formatOnPaste: true,
+    formatOnType: true,
+    tabSize: 4,
+    insertSpaces: true,
+    wordWrap: 'off',
+    folding: true,
+    foldingHighlight: true,
+    showFoldingControls: 'mouseover',
+    renderWhitespace: 'selection',
+    scrollbar: {
+      verticalScrollbarSize: 10,
+      horizontalScrollbarSize: 10,
+      verticalSliderSize: 6,
+      horizontalSliderSize: 6,
+    },
+    overviewRulerLanes: 0,
+    hideCursorInOverviewRuler: true,
+    glyphMargin: false,
   };
 
   code: string = 'public class MiClase {\n    // Escribe tu código aquí\n}';
@@ -136,10 +224,6 @@ export class AreaDeTrabajoComponent implements OnInit {
     content: '',
   });
 
-  get contentControl() {
-    return this.form.get('content');
-  }
-
   text =
     ' Bienvenidos a POOGraph \n La Programación Orientada a objetos permite que el \n código sea reutilizable, organizado y fácil de mantener \n  En este sitio podras personalizar tus diagramas para \n trabajar con POO, es ideal por si';
   aributosHeredados: any = [];
@@ -156,6 +240,7 @@ export class AreaDeTrabajoComponent implements OnInit {
         console.log('proyecto individuL');
         console.log(res);
         this.lenguajeActual = res[0].lenguaje || 'java';
+        sessionStorage.setItem('lenguajeActual', this.lenguajeActual);
         // 2. ACTUALIZAR LAS OPCIONES DE MONACO
         this.actualizarEditorOptions();
       });
@@ -166,90 +251,46 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   getClase() {
-    this.nodos = [];
-    this.links = [];
-    this.apis
-      .getClasesProyectId(this.idProyect)
-      .pipe(
-        switchMap((clases: any[]) => {
-          this.clases = clases;
-          if (clases.length === 0) {
-            return [];
-          }
-          const peticionesPorClase = clases.map((clase: any) => {
-            return forkJoin({
-              atributosData: this.getAtributos(clase.id),
-              funcionesData: this.getFunciones(clase.id),
-            }).pipe(
-              map((detalles: any) => {
-                return {
-                  ...clase,
-                  listadoAtributos: detalles.atributosData,
-                  listadoFunciones: detalles.funcionesData,
-                };
-              }),
-            );
-          });
-          return forkJoin(peticionesPorClase);
-        }),
-      )
-      .subscribe({
-        next: (clasesCompletas: any) => {
-          this.nodos = [];
-          clasesCompletas.forEach((element: any) => {
-            this.nodos.push({
-              id: element.nombre,
-              label: element.nombre,
-              imagen: 'http://127.0.0.1:8000/archivos/' + element.imagen,
-              atributos: element.listadoAtributos,
-              funciones: element.listadoFunciones,
-              identificador: element.id,
-            });
-          });
+  this.nodos = [];
+  this.links = [];
+  this.apis
+    .getClasesProyectId(this.idProyect)
+    .subscribe({
+      next: (clases: any[]) => {
+        this.clases = clases;
+        
+        // Mapeo directo de clases a nodos sin peticiones extra
+        this.nodos = clases.map((element: any) => ({
+          id: element.nombre,
+          label: element.nombre,
+          //imagen: 'http://127.0.0.1:8000/archivos/' + element.imagen,
+          atributos: [], // Se llenarán después mediante el Parser si lo deseas
+          funciones: [], 
+          identificador: element.id,
+          nombrePadre: element.nombre_padre // El backend nos enviará esto ahora
+        }));
 
-          this.updateChart();
-          this.getHerencia();
-        },
-        error: (err: any) => console.error('Error cargando clases:', err),
-      });
-  }
-
-  getHerencia() {
-    this.apis.getHerencia(this.idProyect).subscribe({
-      next: (res: any) => {
-        this.herencia = res;
-        this.herencia.forEach((element: { Padre: any; Hijo: any }) => {
-          var bandF = true;
-          if (this.clases.length > 0) {
-            this.clases.forEach((element2: { nombre: any }) => {
-              if (
-                (element2.nombre == element.Padre ||
-                  element2.nombre == element.Hijo) &&
-                bandF
-              ) {
-                bandF = false;
-                this.links.push({
-                  id: element.Padre + element.Hijo,
-                  source: element.Padre,
-                  target: element.Hijo,
-                  label: 'Es padre de',
-                });
-              }
-            });
-          }
-        });
         this.updateChart();
+        this.construirHerenciaDesdeNodos(); // Nuevo método local
       },
-      error: () => {},
+      error: (err: any) => console.error('Error cargando clases:', err),
     });
-  }
+}
 
-  getAtributos(idClase: number) {
-    return this.apis.getAtributosClase(idClase);
-  }
-
-  getFunciones(idClase: number) {
-    return this.apis.getFuncionesClase(idClase);
+  construirHerenciaDesdeNodos() {
+    this.links = [];
+    this.nodos.forEach((nodo: { nombrePadre: any; id: any; }) => {
+      console.log(nodo)
+      if (nodo.nombrePadre) {
+        this.links.push({
+          id: `link-${nodo.nombrePadre}-${nodo.id}`,
+          source: nodo.nombrePadre,
+          target: nodo.id,
+          label: 'Herencia'
+        });
+      }
+    });
+    this.updateChart(); // Refresca el diagrama con las flechas
   }
 
   updateChart() {
@@ -296,59 +337,6 @@ export class AreaDeTrabajoComponent implements OnInit {
       );
 
       this.highlighted = true;
-    });
-  }
-
-  onCodeChange(value: string) {
-    console.log('Código actual:', value);
-  }
-
-  sincronizarDiagrama() {
-    console.log('Enviando código a Python...');
-
-    // ID temporal, luego usaremos el real del login
-    const usuarioId = 1;
-
-    this.codeService.analizarCodigo(this.code, usuarioId).subscribe({
-      next: (res: any) => {
-        console.log('Respuesta Python:', res);
-
-        if (res.errores && res.errores.length > 0) {
-          alert('Errores de sintaxis: ' + res.errores[0]);
-          return;
-        }
-
-        // LIMPIEZA Y LLENADO DEL DIAGRAMA
-        this.nodos = [];
-        this.links = [];
-
-        // Convertir Clases -> Nodos
-        res.clases.forEach((clase: any) => {
-          this.nodos.push({
-            id: clase.nombre,
-            label: clase.nombre,
-            imagen: 'assets/monaco/min/vs/editor/editor.main.css', // Imagen temporal
-            dimension: { width: 150, height: 200 },
-            data: clase, // Guardamos todo el objeto por si acaso
-          });
-
-          // Convertir Herencia -> Links
-          if (clase.padre) {
-            this.links.push({
-              id: `link-${clase.padre}-${clase.nombre}`,
-              source: clase.padre,
-              target: clase.nombre,
-              label: 'extends',
-            });
-          }
-        });
-
-        this.update$.next(true);
-      },
-      error: (err: any) => {
-        console.error('Error conectando con el parser:', err);
-        alert('Error al conectar con el servidor Python');
-      },
     });
   }
 
@@ -498,6 +486,224 @@ export class AreaDeTrabajoComponent implements OnInit {
       ...this.editorOptions,
       language: lenguajeMonaco,
     };
+  }
+
+  private tooltipKeywords: { [key: string]: { java?: string; cpp?: string; ambos?: string } } = {
+    // Modificadores de acceso
+    'public': { ambos: '**public** — Modificador de acceso que permite que un miembro sea accesible desde cualquier clase o archivo.' },
+    'private': { ambos: '**private** — Modificador de acceso que restringe el acceso solo a la clase que lo define. Uso: encapsulamiento de datos.' },
+    'protected': { ambos: '**protected** — Modificador de acceso que permite el acceso desde la clase, sus subclases y (en Java) el mismo paquete.' },
+    // POO
+    'class': { ambos: '**class** — Define una nueva clase. Una clase es un plano/plantilla para crear objetos con atributos y métodos.' },
+    'extends': { java: '**extends** — Indica que una clase hereda de otra (clase padre). Java solo permite herencia simple.' },
+    'implements': { java: '**implements** — Indica que una clase cumple con un contrato definido por una interfaz.' },
+    'interface': { java: '**interface** — Define un contrato: un conjunto de métodos que las clases deben implementar.' },
+    'abstract': { java: '**abstract** — Una clase abstracta no puede instanciarse directamente. Un método abstracto debe ser implementado por las subclases.' },
+    'super': { java: '**super** — Referencia a la clase padre. Se usa para llamar constructores o métodos del padre: `super()`, `super.metodo()`.' },
+    'this': { java: '**this** — Referencia al objeto actual. Se usa para distinguir atributos de parámetros con el mismo nombre.' },
+    'new': { java: '**new** — Crea una nueva instancia (objeto) de una clase, llamando a su constructor.' },
+    'static': { java: '**static** — Pertenece a la clase, no a una instancia. Se comparte entre todos los objetos de la clase.', cpp: '**static** — Variable o método que pertenece a la clase en lugar de a un objeto. Conserva su valor entre llamadas.' },
+    'final': { java: '**final** — Hace que una variable sea constante, un método no pueda ser sobrescrito, o una clase no pueda ser heredada.' },
+    'void': { ambos: '**void** — Tipo de retorno que indica que un método/función no devuelve ningún valor.' },
+    'return': { ambos: '**return** — Finaliza la ejecución de un método/función y opcionalmente devuelve un valor.' },
+    'override': { cpp: '**override** — Especifica que una función virtual redefine la implementación del padre. Ayuda al compilador a verificar.' },
+    'virtual': { cpp: '**virtual** — Permite que un método sea redefinido (polimorfismo) en las clases derivadas.' },
+    'Override': { java: '**@Override** — Anotación que indica que un método sobrescribe uno de la clase padre. El compilador verifica la firma.' },
+    // Control de flujo
+    'if': { ambos: '**if** — Estructura de control condicional. Ejecuta un bloque de código solo si la condición es verdadera.' },
+    'else': { ambos: '**else** — Bloque alternativo que se ejecuta si la condición del `if` es falsa.' },
+    'for': { ambos: '**for** — Bucle que repite un bloque de código un número determinado de veces. Sintaxis: `for(inicio; condición; incremento)`.' },
+    'while': { ambos: '**while** — Bucle que se ejecuta mientras la condición sea verdadera. Cuidado: puede generar bucles infinitos.' },
+    'do': { ambos: '**do** — Parte de `do...while`. Garantiza que el bloque se ejecute al menos una vez.' },
+    'switch': { ambos: '**switch** — Estructura de selección múltiple. Evalúa una expresión y ejecuta el caso (`case`) que coincida.' },
+    'case': { ambos: '**case** — Define un caso dentro de un `switch`. Se ejecuta si coincide con el valor evaluado.' },
+    'break': { ambos: '**break** — Sale inmediatamente de un bucle (`for`, `while`) o de un `switch`.' },
+    'continue': { ambos: '**continue** — Salta la iteración actual de un bucle y pasa a la siguiente.' },
+    // Tipos de datos
+    'int': { ambos: '**int** — Tipo de dato entero (números sin decimales). En Java: 32 bits. En C++: mínimo 16 bits.' },
+    'float': { ambos: '**float** — Tipo de dato para números decimales de precisión simple (32 bits).' },
+    'double': { ambos: '**double** — Tipo de dato para números decimales de doble precisión (64 bits). Más preciso que float.' },
+    'char': { java: '**char** — Tipo de dato para un solo carácter Unicode (16 bits en Java).', cpp: '**char** — Tipo de dato para un carácter ASCII (8 bits en C++).' },
+    'boolean': { java: '**boolean** — Tipo de dato lógico. Solo puede ser `true` o `false`.' },
+    'bool': { cpp: '**bool** — Tipo de dato lógico. Solo puede ser `true` o `false`.' },
+    'String': { java: '**String** — Clase que representa cadenas de texto. Es inmutable: cada modificación crea un nuevo objeto.' },
+    'string': { cpp: '**string** — Clase de la librería estándar para manejar cadenas de texto. Requiere `#include <string>`.' },
+    'long': { ambos: '**long** — Tipo entero de mayor rango. En Java: 64 bits. En C++: mínimo 32 bits.' },
+    'short': { ambos: '**short** — Tipo entero de rango reducido (16 bits). Usa menos memoria que `int`.' },
+    'byte': { java: '**byte** — Tipo entero de 8 bits (-128 a 127). Útil para ahorrar memoria en arreglos grandes.' },
+    'auto': { cpp: '**auto** — Deduce automáticamente el tipo de una variable a partir de su valor inicial. C++11+.' },
+    // Manejo de errores
+    'try': { ambos: '**try** — Bloque para capturar excepciones. El código que puede fallar va dentro del `try`.' },
+    'catch': { ambos: '**catch** — Captura y maneja una excepción lanzada dentro del bloque `try`.' },
+    'throw': { ambos: '**throw** — Lanza una excepción manualmente. Útil para señalar errores personalizados.' },
+    'finally': { java: '**finally** — Bloque que se ejecuta SIEMPRE, sin importar si hubo excepción o no. Útil para liberar recursos.' },
+    // C++ específicos
+    'cout': { cpp: '**cout** — Objeto de salida estándar. Se usa con `<<` para imprimir en consola: `cout << "Hola";`.' },
+    'cin': { cpp: '**cin** — Objeto de entrada estándar. Se usa con `>>` para leer desde teclado: `cin >> variable;`.' },
+    'endl': { cpp: '**endl** — Inserta un salto de línea y limpia el buffer de salida.' },
+    'include': { cpp: '**#include** — Directiva del preprocesador que incluye el contenido de un archivo de cabecera.' },
+    'namespace': { cpp: '**namespace** — Agrupa declaraciones bajo un nombre para evitar conflictos. Ej: `std::cout`.' },
+    'using': { cpp: '**using** — Permite usar nombres de un namespace sin escribir el prefijo. Ej: `using namespace std;`.' },
+    'nullptr': { cpp: '**nullptr** — Valor nulo para punteros en C++11+. Más seguro que usar `NULL` o `0`.' },
+    'const': { cpp: '**const** — Declara una variable como constante. Su valor no puede cambiar después de la inicialización.' },
+    'template': { cpp: '**template** — Permite escribir código genérico que funciona con diferentes tipos de datos (programación genérica).' },
+    'vector': { cpp: '**vector** — Contenedor dinámico de la STL. Similar a un arreglo pero con tamaño variable. Requiere `#include <vector>`.' },
+    // Java específicos  
+    'System': { java: '**System** — Clase del sistema. `System.out.println()` imprime en consola. `System.in` lee del teclado.' },
+    'println': { java: '**println** — Método que imprime texto en consola seguido de un salto de línea.' },
+    'Scanner': { java: '**Scanner** — Clase para leer entrada del usuario. Se crea con `new Scanner(System.in)`.' },
+    'null': { java: '**null** — Representa la ausencia de un objeto. Una referencia que no apunta a ningún objeto.' },
+    'true': { ambos: '**true** — Valor booleano verdadero.' },
+    'false': { ambos: '**false** — Valor booleano falso.' },
+    'import': { java: '**import** — Permite usar clases de otros paquetes sin escribir la ruta completa.' },
+    'package': { java: '**package** — Define a qué paquete pertenece la clase. Organiza el código en módulos.' },
+  };
+
+  private tooltipWidget: any = null;
+
+  registrarDobleClicTooltip(editor: any, monaco: any) {
+    editor.onMouseDown((e: any) => {
+      // detail === 2 significa doble clic
+      if (e.event.detail !== 2) return;
+      const position = e.target?.position;
+      if (!position) return;
+
+      const model = editor.getModel();
+      if (!model) return;
+
+      const word = model.getWordAtPosition(position);
+      if (!word) return;
+
+      const keyword = word.word;
+      const tooltipData = this.tooltipKeywords[keyword];
+      if (!tooltipData) return;
+
+      const currentLang = this.lenguajeActual === 'cpp' ? 'cpp' : 'java';
+      const contenido = tooltipData.ambos || (currentLang === 'cpp' ? tooltipData.cpp : tooltipData.java);
+      if (!contenido) return;
+
+      // Mostrar tooltip como widget overlay en el editor
+      this.mostrarTooltipWidget(editor, position, keyword, contenido);
+
+      // Registrar automáticamente en logs
+      const userId = Number(sessionStorage.getItem('Usrid'));
+      if (userId) {
+        this.codeService.registrarTooltip(userId, keyword, currentLang).subscribe({
+          error: (err: any) => console.error('Error registrando tooltip:', err)
+        });
+      }
+    });
+  }
+
+  mostrarTooltipWidget(editor: any, position: any, keyword: string, contenido: string) {
+    // Remover widget anterior si existe
+    if (this.tooltipWidget) {
+      editor.removeContentWidget(this.tooltipWidget);
+      this.tooltipWidget = null;
+    }
+
+    const widgetId = 'poograph.tooltip.' + Date.now();
+    const domNode = document.createElement('div');
+    domNode.style.cssText = `
+      background: #1E1E2E;
+      border: 1px solid #45475A;
+      border-radius: 6px;
+      padding: 10px 14px;
+      width: 400px;
+      color: #CDD6F4;
+      font-size: 13px;
+      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 9999;
+    `;
+    domNode.innerHTML = `
+      <div style="font-weight:bold; color:#89B4FA; margin-bottom:6px;">📘 POOGraph - Ayuda</div>
+      <div style="margin-bottom:6px;"><strong style="color:#F5C2E7;">${keyword}</strong></div>
+      <div>${contenido.replace(/\*\*/g, '').replace(/`([^`]+)`/g, '<code style="background:#313244;padding:1px 4px;border-radius:3px;">$1</code>')}</div>
+    `;
+
+    const widget = {
+      getId: () => widgetId,
+      getDomNode: () => domNode,
+      getPosition: () => ({
+        position: { lineNumber: position.lineNumber, column: position.column },
+        preference: [1, 2] // ABOVE, BELOW
+      })
+    };
+
+    this.tooltipWidget = widget;
+    editor.addContentWidget(widget);
+
+    // Cerrar al hacer clic en cualquier lugar o al presionar Escape
+    const closeTooltip = () => {
+      if (this.tooltipWidget === widget) {
+        editor.removeContentWidget(widget);
+        this.tooltipWidget = null;
+      }
+      disposeClic.dispose();
+      disposeKey.dispose();
+    };
+
+    const disposeClic = editor.onMouseDown((evt: any) => {
+      // Si hace clic fuera del tooltip, cerrarlo
+      if (evt.event.detail !== 2) {
+        closeTooltip();
+      }
+    });
+
+    const disposeKey = editor.onKeyDown(() => {
+      closeTooltip();
+    });
+
+    // Auto-cerrar después de 8 segundos
+    setTimeout(() => closeTooltip(), 8000);
+  }
+
+  bloquearPegado(editor: any, monaco: any) {
+    // Sobrescribir la acción de pegar para bloquearla
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV, () => {
+      // Bloquear y registrar intento
+      const userId = Number(sessionStorage.getItem('Usrid'));
+      if (userId) {
+        this.codeService.registrarTooltip(userId, 'INTENTO_PEGAR', this.lenguajeActual).subscribe({
+          error: (err: any) => console.error('Error registrando intento de pegado:', err)
+        });
+      }
+      this.salidaTerminal.push({
+        texto: '⚠️ Pegar código está deshabilitado. Escribe tu código manualmente.',
+        tipo: 'error',
+      });
+    });
+
+    // También bloquear Shift+Insert (alternativa de pegar)
+    editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Insert, () => {
+      const userId = Number(sessionStorage.getItem('Usrid'));
+      if (userId) {
+        this.codeService.registrarTooltip(userId, 'INTENTO_PEGAR', this.lenguajeActual).subscribe({
+          error: (err: any) => console.error('Error registrando intento de pegado:', err)
+        });
+      }
+      this.salidaTerminal.push({
+        texto: '⚠️ Pegar código está deshabilitado. Escribe tu código manualmente.',
+        tipo: 'error',
+      });
+    });
+
+    // Bloquear menú contextual de pegar
+    editor.onDidPaste(() => {
+      // Si de alguna forma logró pegar (ej. menú contextual del navegador), deshacer
+      editor.trigger('poograph', 'undo', null);
+      const userId = Number(sessionStorage.getItem('Usrid'));
+      if (userId) {
+        this.codeService.registrarTooltip(userId, 'INTENTO_PEGAR', this.lenguajeActual).subscribe({
+          error: (err: any) => console.error('Error registrando intento de pegado:', err)
+        });
+      }
+      this.salidaTerminal.push({
+        texto: '⚠️ Pegar código está deshabilitado. Escribe tu código manualmente.',
+        tipo: 'error',
+      });
+    });
   }
 
   irAlHome() {

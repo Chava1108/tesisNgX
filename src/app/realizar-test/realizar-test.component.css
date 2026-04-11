@@ -1,0 +1,327 @@
+/* ── Contenedor principal ── */
+.test-container {
+  max-width: 750px;
+  margin: 40px auto;
+  padding: 0 20px 60px;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* ── Encabezado ── */
+.test-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.test-header .header-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #42a5f5;
+}
+
+.test-header h2 {
+  margin: 8px 0 4px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #263238;
+}
+
+.subtitle {
+  color: #78909c;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ── Tarjeta del formulario ── */
+.form-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.config-card {
+  margin-bottom: 20px;
+}
+
+.config-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #37474f;
+  margin-bottom: 18px;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pregunta-numero {
+  font-size: 13px;
+  font-weight: 600;
+  color: #42a5f5;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+/* ── Campos ── */
+.campo {
+  margin-bottom: 20px;
+}
+
+.campo label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #455a64;
+  margin-bottom: 8px;
+}
+
+.label-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #90a4ae;
+}
+
+.input-texto {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.input-texto:focus {
+  border-color: #42a5f5;
+}
+
+/* ── Grid de opciones ── */
+.opciones-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.opcion-item {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #eeeeee;
+  transition: border-color 0.2s;
+}
+
+.opcion-item:has(input[type="radio"]:checked) {
+  border-color: #66bb6a;
+  background: #f1f8e9;
+}
+
+.opcion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.opcion-letra {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  font-weight: 700;
+  font-size: 13px;
+  color: #546e7a;
+  transition: all 0.2s;
+}
+
+.opcion-letra.correcta {
+  background: #66bb6a;
+  color: #fff;
+}
+
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #78909c;
+}
+
+.check-label input[type="radio"] {
+  accent-color: #66bb6a;
+}
+
+.check-text {
+  user-select: none;
+}
+
+.input-opcion {
+  font-size: 14px;
+  padding: 10px 12px;
+}
+
+/* ── Botones ── */
+.acciones {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-agregar,
+.btn-finalizar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-agregar:active,
+.btn-finalizar:active {
+  transform: scale(0.97);
+}
+
+.btn-agregar {
+  background: #42a5f5;
+  color: #fff;
+}
+
+.btn-agregar:hover {
+  background: #1e88e5;
+}
+
+.btn-finalizar {
+  background: #66bb6a;
+  color: #fff;
+}
+
+.btn-finalizar:hover {
+  background: #43a047;
+}
+
+.btn-finalizar:disabled {
+  background: #c8e6c9;
+  cursor: not-allowed;
+}
+
+/* ── Lista de preguntas ── */
+.preguntas-lista {
+  margin-top: 36px;
+}
+
+.preguntas-lista h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  color: #37474f;
+  margin-bottom: 16px;
+}
+
+.pregunta-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+
+.pregunta-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pregunta-card-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #42a5f5;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pregunta-card-texto {
+  flex-grow: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: #263238;
+}
+
+.btn-eliminar {
+  background: none;
+  border: none;
+  color: #ef5350;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-eliminar:hover {
+  background: #ffebee;
+}
+
+/* ── Mini opciones ── */
+.pregunta-card-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mini-opcion {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #f5f5f5;
+  color: #546e7a;
+}
+
+.mini-correcta {
+  background: #c8e6c9;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .opciones-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  .btn-agregar,
+  .btn-finalizar {
+    justify-content: center;
+    width: 100%;
+  }
+}

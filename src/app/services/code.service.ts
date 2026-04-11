@@ -53,4 +53,12 @@ export class CodeService {
       id_proyecto: id_proyecto
     });
   }
+
+  registrarTooltip(idUsuario: number, palabra: string, lenguaje: string) {
+    return this.httpClient.post(`${this.servidorPython}/api/tooltip-log`, {
+      id_usuario: idUsuario,
+      palabra: palabra,
+      lenguaje: lenguaje
+    });
+  }
 }

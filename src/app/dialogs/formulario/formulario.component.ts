@@ -35,8 +35,8 @@ export class FormularioComponent implements OnInit {
   formularioHerencia = new FormGroup({
     clases: new FormControl('', Validators.required),
   })
-  list = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "String"]
-  list2 = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "void", "String"]
+  list: string[] = []
+  list2: string[] = []
   listNivel = ["public", "private", "protected"]
   listNivel2 = ["public", "private"]
   clases: any = []
@@ -49,8 +49,27 @@ export class FormularioComponent implements OnInit {
   nameClase = ""
   idClase: number = 0
   idClasePadre: number = 0;
+  lenguaje: string = 'java';
+
+  private tiposJava = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "String"];
+  private tiposJava2 = ["int", "float", "char", "byte", "boolean", "double", "long", "short", "void", "String"];
+  private tiposCpp = ["int", "float", "char", "bool", "double", "long", "short", "string", "unsigned int", "long long", "auto"];
+  private tiposCpp2 = ["void", "int", "float", "char", "bool", "double", "long", "short", "string", "unsigned int", "long long", "auto"];
+
   ngOnInit(): void {
-    this.obtenerClases()
+    this.lenguaje = sessionStorage.getItem('lenguajeActual') || 'java';
+    this.actualizarTipos();
+    this.obtenerClases();
+  }
+
+  actualizarTipos() {
+    if (this.lenguaje === 'cpp') {
+      this.list = [...this.tiposCpp];
+      this.list2 = [...this.tiposCpp2];
+    } else {
+      this.list = [...this.tiposJava];
+      this.list2 = [...this.tiposJava2];
+    }
   }
 
   onClickNo() {
