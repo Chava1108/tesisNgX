@@ -1,0 +1,121 @@
+<div class="examen-container">
+
+  <!-- ===================== VISTA: LISTA DE EXÁMENES ===================== -->
+  <div *ngIf="vista === 'lista'">
+    <div class="header">
+      <mat-icon class="header-icon">assignment</mat-icon>
+      <h2>Exámenes Disponibles</h2>
+      <p class="subtitle">Selecciona un examen para comenzar</p>
+    </div>
+
+    <div *ngIf="examenesDisponibles.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">inbox</mat-icon>
+      <p>No hay exámenes disponibles en este momento.</p>
+      <button class="btn-secundario" (click)="irAlHome()">
+        <mat-icon>arrow_back</mat-icon> Volver al inicio
+      </button>
+    </div>
+
+    <div *ngFor="let ex of examenesDisponibles" class="examen-card" (click)="iniciarExamen(ex)">
+      <div class="examen-card-left">
+        <mat-icon class="examen-card-icon">description</mat-icon>
+        <div>
+          <h3>{{ ex.titulo }}</h3>
+          <span class="examen-meta">
+            <mat-icon class="meta-icon">help_outline</mat-icon> {{ ex.total_preguntas }} preguntas
+            &nbsp;·&nbsp;
+            <mat-icon class="meta-icon">timer</mat-icon> {{ ex.duracion_minutos }} min
+          </span>
+        </div>
+      </div>
+      <button class="btn-iniciar">
+        <mat-icon>play_arrow</mat-icon> Comenzar
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== VISTA: EXAMEN EN CURSO ===================== -->
+  <div *ngIf="vista === 'examen' && examen">
+
+    <!-- Barra superior fija -->
+    <div class="exam-topbar">
+      <div class="exam-topbar-left">
+        <h3>{{ examen.titulo }}</h3>
+        <span class="badge-progreso">{{ preguntasRespondidas }}/{{ examen.preguntas.length }}</span>
+      </div>
+      <div class="exam-topbar-right">
+        <div class="timer" [class.timer-warning]="tiempoRestante <= 60">
+          <mat-icon>timer</mat-icon>
+          {{ tiempoFormateado }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Preguntas -->
+    <div class="preguntas-scroll">
+      <div *ngFor="let pregunta of examen.preguntas; let i = index" class="pregunta-bloque"
+        [class.respondida]="respuestas[pregunta.id]">
+
+        <div class="pregunta-header-exam">
+          <span class="pregunta-num">{{ i + 1 }}</span>
+          <span class="pregunta-texto-exam">{{ pregunta.texto }}</span>
+        </div>
+
+        <div class="opciones-exam">
+          <div *ngFor="let opcion of pregunta.opciones"
+            class="opcion-exam"
+            [class.seleccionada]="respuestas[pregunta.id] === opcion.id"
+            (click)="seleccionarOpcion(pregunta.id, opcion.id)">
+            <span class="opcion-letra-exam" [class.active]="respuestas[pregunta.id] === opcion.id">
+              {{ opcion.letra }}
+            </span>
+            <span class="opcion-texto-exam">{{ opcion.texto }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón enviar -->
+    <div class="exam-footer">
+      <button class="btn-enviar" (click)="enviarExamen()" [disabled]="enviando">
+        <mat-icon>{{ enviando ? 'hourglass_empty' : 'send' }}</mat-icon>
+        {{ enviando ? 'Enviando...' : 'Enviar examen' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== VISTA: RESULTADO ===================== -->
+  <div *ngIf="vista === 'resultado' && resultado">
+    <div class="resultado-card">
+      <mat-icon class="resultado-icon" [class.aprobado]="resultado.calificacion >= 60">
+        {{ resultado.calificacion >= 60 ? 'emoji_events' : 'sentiment_dissatisfied' }}
+      </mat-icon>
+      <h2>Examen Finalizado</h2>
+
+      <div class="resultado-score">
+        <span class="score-numero" [class.aprobado]="resultado.calificacion >= 60">
+          {{ resultado.calificacion }}%
+        </span>
+        <span class="score-detalle">{{ resultado.correctas }}/{{ resultado.total }} correctas</span>
+      </div>
+
+      <div class="resultado-barra-container">
+        <div class="resultado-barra"
+          [style.width.%]="resultado.calificacion"
+          [class.barra-aprobado]="resultado.calificacion >= 60"
+          [class.barra-reprobado]="resultado.calificacion < 60">
+        </div>
+      </div>
+
+      <div class="resultado-acciones">
+        <button class="btn-secundario" (click)="volverALista()">
+          <mat-icon>list</mat-icon> Ver más exámenes
+        </button>
+        <button class="btn-primario" (click)="irAlHome()">
+          <mat-icon>home</mat-icon> Ir al inicio
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
