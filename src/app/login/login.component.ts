@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service'; // Importamos el nuevo servicio
+import { AuthService } from '../services/auth.service';
+import { SecureStorageService } from '../services/secure-storage.service';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,7 @@ export class LoginComponent implements OnInit {
   bandError: boolean = false;
   errorMessage: string = '';
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService, private router: Router, private storage: SecureStorageService) {
     this.logIn = new FormGroup({usrName: new FormControl('', [
         Validators.required,
         Validators.minLength(4),
@@ -46,8 +47,8 @@ export class LoginComponent implements OnInit {
     this.authService.login(credentials).subscribe({
       next: (res) => {
         // El servicio ya guardó la sesión en sessionStorage con el 'tap'
-        // Usamos el Router de Angular, NO document.location
-        this.router.navigate(['/home']);
+        const destino = this.storage.getItem('is_admin') === '1' ? '/visor-codigo' : '/home';
+        this.router.navigate([destino]);
       },
       error: (err) => {
         console.error('Error login', err);

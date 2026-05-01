@@ -1,55 +1,51 @@
-<div class="bodyLogIn container-fluid">
-  <div class="row">
-    <div class="col-6 m-5">
-      <div class="container-fluid">
-        <div class="p-5 bgAblack">
-          <h1 class="aling-center">Proyecto POO-Graph</h1>
-          <br>
-          <img src="../../assets/imgs/medusaasLogo.png" height="100%" alt="">
-
-        </div>
-      </div>
+<div class="login-page">
+  <div class="login-container">
+    <div class="login-brand">
+      <img src="../../assets/imgs/medusaasLogo.png" alt="POOGraph" class="brand-logo">
+      <h1 class="brand-title">POOGraph</h1>
+      <p class="brand-subtitle">Aprende Programaci&#243;n Orientada a Objetos de forma visual e interactiva</p>
     </div>
 
-    <div class="col-5">
-      <div class="login-form">
-        <form novalidate [formGroup]="logIn" (ngSubmit)="validateUser()">
-          <h2 class="text-center titleOR">
-            Log in <i class="fa fa-user-graduate mx-2"></i>
-          </h2>
+    <div class="login-card">
+      <form novalidate [formGroup]="logIn" (ngSubmit)="validateUser()">
+        <h2 class="login-heading">
+          <mat-icon style="vertical-align: middle; margin-right: 8px;">account_circle</mat-icon>Iniciar Sesi&#243;n
+        </h2>
 
-          <div class="form-group my-3">
-            <input type="text" class="form-control" placeholder="Username" required="required"
-              formControlName="usrName" />
-            <div class="error" *ngIf="f['usrName'].errors?.['required'] && f['usrName'].touched">
-              <p class="errorMsg">*Coloca el nombre del usuario</p>
-            </div>
-          </div>
-          <div class="form-group my-3">
-            <input type="password" class="form-control" placeholder="Password" required="required"
-              formControlName="passwd" />
-            <div class="error" *ngIf="f['passwd'].errors?.['required'] && f['passwd'].touched">
-              <p class="errorMsg">*Coloca la contraseña</p>
-            </div>
-          </div>
+        <div class="field-group">
+          <label class="field-label">Usuario</label>
+          <input type="text" class="poo-input field-input" placeholder="Nombre de usuario" required="required"
+            formControlName="usrName" />
+          <p class="field-error" *ngIf="f['usrName'].errors?.['required'] && f['usrName'].touched">
+            *Coloca el nombre del usuario
+          </p>
+        </div>
 
-          <div class="error" *ngIf="bandError">
-            <p class="errorMsg">*Usuario y/o contraseña incorreta, intentalo de nuevo...</p>
-          </div>
+        <div class="field-group">
+          <label class="field-label">Contrase&#241;a</label>
+          <input type="password" class="poo-input field-input" placeholder="Contrase&#241;a" required="required"
+            formControlName="passwd" />
+          <p class="field-error" *ngIf="f['passwd'].errors?.['required'] && f['passwd'].touched">
+            *Coloca la contrase&#241;a
+          </p>
+        </div>
 
-          <div class="form-group mb-3 d-grid gap-2">
-            <button type="submit" class="btn" [disabled]="logIn.invalid">
-              <i class="fas fa-door-open mx-2"></i>Log in
-            </button>
-            <button type="button" class="btn" mat-raised-button routerLink="/register">
-              <i class="fas fa-person-booth mx-2"></i>Crear cuenta
-            </button>
-            <div class="clearfix my-3">
-              <label class="pull-left checkbox-inline d-block text-center"><input type="checkbox" /> recuerdame</label>
-            </div>
-          </div>
-        </form>
-      </div>
+        <p class="field-error" *ngIf="bandError" style="text-align: center;">
+          *Usuario y/o contrase&#241;a incorrecta, int&#233;ntalo de nuevo...
+        </p>
+
+        <button type="submit" class="btn-poo btn-poo-primary login-btn" [disabled]="logIn.invalid">
+          <mat-icon style="font-size: 18px; height: 18px; width: 18px;">login</mat-icon> Ingresar
+        </button>
+
+        <div class="login-divider">
+          <span>&#191;No tienes cuenta?</span>
+        </div>
+
+        <button type="button" class="btn-poo btn-poo-ghost login-btn" routerLink="/register">
+          <mat-icon style="font-size: 18px; height: 18px; width: 18px;">person_add</mat-icon> Crear cuenta
+        </button>
+      </form>
     </div>
   </div>
 </div>

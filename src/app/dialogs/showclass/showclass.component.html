@@ -1,44 +1,161 @@
-<div class="cuerpo">
-    <h1>Informacion de la clase</h1>
-    <div style="width: 300px;">
-        <table class="table table-dark">
-            <thead>
-                <tr >
-                  <th scope="col" colspan="4" class="bg-success">{{data.label}}</th>
-                 
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="4" class="bg-danger">Atributos</td>
-                    
-                </tr> 
-                <tr *ngFor="let item of data.atributos">
-                    <td colspan="2">{{item.nivel + " " + item.tipo + " "+ item.nombre}}</td>
-                    <td><button *ngIf="bandEditar" (click)="editar(item, 'Atributos')" style="margin-left: 10px;"  class="btn btn-primary">Editar</button></td>
-                    <td><button *ngIf="bandEditar" (click)="eliminar(item,'Atributos')" style="margin-left: 10px;" class="btn btn-danger">Eliminar</button></td>
-                </tr>
-                <tr *ngIf="bandEditar">
-                    <td colspan="4"><button style="margin-left: 10px;" class="btn btn-success" (click)="agregarAtributo()">Agregar Atributo</button></td>
-                </tr> 
-                <tr>
-                    <td colspan="4" class="bg-danger">Funciones</td>
-                    
-                </tr>  
-                <tr *ngFor="let item of data.funciones">
-                    <td colspan="2">{{item.nivel + " " +item.tipo +" "+item.nombre}}</td>
-                    <td><button *ngIf="bandEditar" (click)="editar(item,'Funciones')" style="margin-left: 10px;" class="btn btn-primary">Editar</button></td>
-                    <td><button *ngIf="bandEditar" (click)="eliminar(item,'Funciones')" style="margin-left: 10px;" class="btn btn-danger">Eliminar</button></td>
-                </tr>
-                <tr *ngIf="bandEditar">
-                    <td colspan="4"><button  style="margin-left: 10px;" class="btn btn-success" (click)="agregarFuncion()">Agregar Funcion</button></td>
-                </tr> 
-            </tbody>
-        </table>
+<div class="showclass-container" (click)="cerrarTooltip()">
+  <!-- Header -->
+  <div class="header-bar">
+    <div class="header-actions">
+      <button class="btn btn-sm btn-outline-success" (click)="editarClase(); $event.stopPropagation()">
+        <i class="fas fa-edit"></i> Editar
+      </button>
+      <button class="btn btn-sm btn-outline-primary" (click)="agregarHerencia(); $event.stopPropagation()">
+        <i class="fas fa-sitemap"></i> Herencia
+      </button>
+      <button class="btn btn-sm btn-outline-danger" (click)="eliminarClase(); $event.stopPropagation()">
+        <i class="fas fa-trash"></i> Eliminar
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== VISTA GRÁFICA ========== -->
+  <div class="graph-view">
+
+    <!-- Columna izquierda: Propios (azul) -->
+    <div class="column column-left">
+      <!-- Atributos propios -->
+      <div class="section-header blue">
+        <i class="fas fa-cube"></i> Atributos propios
+        <button *ngIf="bandEditar" class="btn-add" (click)="agregarAtributo(); $event.stopPropagation()" title="Agregar atributo">
+          <i class="fas fa-plus"></i>
+        </button>
       </div>
+      <div class="cards-container">
+        <div class="member-card blue" *ngFor="let attr of atributosPropios">
+          <span class="badge-nivel">{{ attr.nivel }}</span>
+          <span class="member-info">{{ attr.tipo }} <strong>{{ attr.nombre }}</strong></span>
+        </div>
+        <div class="empty-msg" *ngIf="atributosPropios.length === 0">Sin atributos propios</div>
+      </div>
+
+      <!-- Funciones propias -->
+      <div class="section-header blue" style="margin-top: 12px;">
+        <i class="fas fa-cog"></i> Funciones propias
+        <button *ngIf="bandEditar" class="btn-add" (click)="agregarFuncion(); $event.stopPropagation()" title="Agregar función">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div class="cards-container">
+        <div class="member-card blue" *ngFor="let func of funcionesPropias">
+          <span class="badge-nivel">{{ func.nivel }}</span>
+          <span class="member-info">{{ func.tipo }} <strong>{{ func.nombre }}()</strong></span>
+        </div>
+        <div class="empty-msg" *ngIf="funcionesPropias.length === 0">Sin funciones propias</div>
+      </div>
+    </div>
+
+    <!-- Centro: Clase con imagen -->
+    <div class="column column-center">
+      <div class="class-node">
+        <div class="class-image-placeholder">
+          <img  [src]="imagenClase" alt="Imagen de la clase" class="class-image">
+        </div>
+        <div class="class-name">{{ data.label }}</div>
+        <div class="class-parents" *ngIf="clasesPadre.length > 0">
+          <span class="parent-badge" *ngFor="let p of clasesPadre">
+            <i class="fas fa-arrow-up"></i> {{ p.nombre }}
+          </span>
+        </div>
+      </div>
+      <div class="connector-lines">
+        <div class="line-left" *ngIf="atributosPropios.length > 0 || funcionesPropias.length > 0"></div>
+        <div class="line-right" *ngIf="atributosHeredados.length > 0 || funcionesHeredadas.length > 0 || atributosNoAccesibles.length > 0 || funcionesNoAccesibles.length > 0"></div>
+      </div>
+    </div>
+
+    <!-- Columna derecha: Heredados (verde) -->
+    <div class="column column-right">
+      <!-- Atributos heredados (public/protected) -->
+      <div class="section-header green">
+        <i class="fas fa-share-alt"></i> Atributos heredados
+      </div>
+      <div class="cards-container">
+        <div class="member-card green" *ngFor="let attr of atributosHeredados">
+          <span class="badge-nivel">{{ attr.nivel }}</span>
+          <span class="member-info">{{ attr.tipo }} <strong>{{ attr.nombre }}</strong></span>
+          <span class="origin-badge">De: {{ attr.clase_origen }}</span>
+        </div>
+        <div class="empty-msg" *ngIf="atributosHeredados.length === 0">Sin atributos heredados</div>
+      </div>
+
+      <!-- Atributos NO accesibles (private del padre) -->
+      <div class="section-header red" style="margin-top: 12px;" *ngIf="atributosNoAccesibles.length > 0">
+        <i class="fas fa-lock"></i> Atributos no accesibles
+      </div>
+      <div class="cards-container" *ngIf="atributosNoAccesibles.length > 0">
+        <div class="member-card red" *ngFor="let attr of atributosNoAccesibles">
+          <span class="badge-nivel">{{ attr.nivel }}</span>
+          <span class="member-info">{{ attr.tipo }} <strong>{{ attr.nombre }}</strong></span>
+          <span class="origin-badge red-origin">De: {{ attr.clase_origen }}</span>
+          <span class="private-note">
+            <i class="fas fa-info-circle"></i> Los miembros private no se heredan — esta clase no puede acceder a ellos
+          </span>
+        </div>
+      </div>
+
+      <!-- Funciones heredadas (public/protected) -->
+      <div class="section-header green" style="margin-top: 12px;">
+        <i class="fas fa-share-alt"></i> Funciones heredadas
+      </div>
+      <div class="cards-container">
+        <div class="member-card green func-heredada"
+             *ngFor="let func of funcionesHeredadas"
+             (dblclick)="mostrarCodigo($event, func); $event.stopPropagation()">
+          <span class="badge-nivel">{{ func.nivel }}</span>
+          <span class="member-info">{{ func.tipo }} <strong>{{ func.nombre }}()</strong></span>
+          <span class="origin-badge">De: {{ func.clase_origen }}</span>
+          <span class="override-badge">
+            <i class="fas fa-bolt"></i> Sobreescribible — doble clic para ver código
+          </span>
+        </div>
+        <div class="empty-msg" *ngIf="funcionesHeredadas.length === 0">Sin funciones heredadas</div>
+      </div>
+
+      <!-- Funciones NO accesibles (private del padre) -->
+      <div class="section-header red" style="margin-top: 12px;" *ngIf="funcionesNoAccesibles.length > 0">
+        <i class="fas fa-lock"></i> Funciones no accesibles
+      </div>
+      <div class="cards-container" *ngIf="funcionesNoAccesibles.length > 0">
+        <div class="member-card red" *ngFor="let func of funcionesNoAccesibles">
+          <span class="badge-nivel">{{ func.nivel }}</span>
+          <span class="member-info">{{ func.tipo }} <strong>{{ func.nombre }}()</strong></span>
+          <span class="origin-badge red-origin">De: {{ func.clase_origen }}</span>
+          <span class="private-note">
+            <i class="fas fa-info-circle"></i> Los miembros private no se heredan — esta clase no puede acceder a ellos
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tooltip flotante de código -->
+  <div class="code-tooltip" *ngIf="tooltipVisible"
+    [style.left.px]="tooltipX" [style.top.px]="tooltipY"
+    (click)="$event.stopPropagation()">
+    <div class="tooltip-header">
+      <span>Código de la función</span>
+      <button class="tooltip-close" (click)="cerrarTooltip()">✕</button>
+    </div>
+    <pre class="tooltip-code">{{ tooltipContent || 'Sin código disponible' }}</pre>
+  </div>
+
+  <!-- Leyenda -->
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot blue"></span> Propios</span>
+    <span class="legend-item"><span class="legend-dot green"></span> Heredados (public/protected)</span>
+    <span class="legend-item"><span class="legend-dot red"></span> No accesibles (private del padre)</span>
+    <span class="legend-item"><i class="fas fa-mouse-pointer" style="color:#aaa; font-size:0.7rem;"></i> Doble clic en función heredada para ver código</span>
+  </div>
 </div>
-<div mat-dialog-actions >
-    <button class="btn btn-primary" mat-button [mat-dialog-close]="false">Cerrar</button>
-    <button style="margin-left: 10px;" (click)="editarClase()" class="btn btn-primary">Editar</button>
-    <button style="margin-left: 10px;" (click)="eliminarClase()" class="btn btn-danger">Eliminar</button>
+
+<div mat-dialog-actions class="dialog-actions">
+  <button class="btn btn-secondary" mat-button [mat-dialog-close]="false">
+    <i class="fas fa-times mx-1"></i>Cerrar
+  </button>
 </div>

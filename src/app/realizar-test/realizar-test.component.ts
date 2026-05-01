@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ExamenService } from '../services/examen.service';
+import { SecureStorageService } from '../services/secure-storage.service';
 
 interface Pregunta {
   texto: string;
@@ -24,7 +25,7 @@ export class RealizarTestComponent implements OnInit {
   preguntas: Pregunta[] = [];
   guardando: boolean = false;
 
-  constructor(private router: Router, private examenService: ExamenService) {}
+  constructor(private router: Router, private examenService: ExamenService, private storage: SecureStorageService) {}
 
   ngOnInit(): void {}
 
@@ -76,7 +77,7 @@ export class RealizarTestComponent implements OnInit {
       titulo: this.tituloExamen.trim(),
       fecha_disponible: this.fechaDisponible,
       duracion_minutos: this.duracionMinutos,
-      creado_por: Number(sessionStorage.getItem('Usrid')),
+      creado_por: Number(this.storage.getItem('Usrid')),
       preguntas: this.preguntas.map((p, i) => ({
         texto: p.texto,
         orden: i + 1,
@@ -102,7 +103,9 @@ export class RealizarTestComponent implements OnInit {
     });
   }
 
-  get letraOpcion(): string[] {
-    return ['A', 'B', 'C', 'D'];
+  letraOpcion: string[] = ['A', 'B', 'C', 'D'];
+
+  trackByIndex(index: number): number {
+    return index;
   }
 }

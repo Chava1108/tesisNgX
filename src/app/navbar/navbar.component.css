@@ -1,20 +1,58 @@
-.btn-cerrar{
-    width: 100%;
-    text-align: end;
+.poo-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 20px;
+  background: #181825;
+  border-bottom: 1px solid #313244;
+  position: relative;
 }
-
-.navbar-nav{
-    width: 100%;
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-
-.boton{
-    margin-right: 10px;
-    padding: 10px;
-    font-size: 15px;
-    font-weight: bold;
-    color: black;    
+.nav-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
-
-.boton:hover{
-    background-color: rgba(255, 255, 255, 0.4);
+.nav-title {
+  color: #585b70;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.nav-brand {
+  color: #cdd6f4;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: default;
+}
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: #a6adc8;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.nav-btn:hover {
+  background: #313244;
+  color: #cdd6f4;
+}
+.nav-btn-danger {
+  color: #f38ba8;
+}
+.nav-btn-danger:hover {
+  background: rgba(243,139,168,0.1);
+  color: #f38ba8;
 }

@@ -1,67 +1,116 @@
-<div class="bodyLogIn">
-    <div class="row">
-        <div class="col-4 m-5">
-            <div class="container">
-                <div class="p-5 bgAblack">
-                    <h3>¿Qué es PooGraph?</h3>
-                    <ul>
-                        <li>
-                            PooGraph es una herramienta la cual te permite poder realizar tus clases
-                            y ver el código inicial de las mismas, esto te ayudara a comprender de manera
-                            gráfica como es que se relacionan entre sí.
-                        </li>
-                        <br>
-                        <li>Para hacer uso de esta herreamienta solo tienes que crear tu cuenta, o si ya 
-                            cuentas con una basta con iniciar sesion para que aproveches las caracteristicas
-                            que ofrecemos.
-                        </li>
-                        <br>
-                        <li>
-                            Además contamos con una interfaz intuitiva que te permitira trabajar aunque no
-                            tengas mucha experiencia en el mundo de la programación.
-                        </li>
-                    </ul>
+<div class="register-page">
+    <div class="register-container">
+        <div class="register-info">
+            <h2 class="info-title">&#191;Qu&#233; es POOGraph?</h2>
+            <div class="info-items">
+                <div class="info-item">
+                    <mat-icon class="info-icon">schema</mat-icon>
+                    <p>Crea diagramas de clases interactivos y visualiza c&#243;mo se relacionan entre s&#237;.</p>
+                </div>
+                <div class="info-item">
+                    <mat-icon class="info-icon">code</mat-icon>
+                    <p>Escribe y ejecuta c&#243;digo Java o C++ directamente en el navegador.</p>
+                </div>
+                <div class="info-item">
+                    <mat-icon class="info-icon">school</mat-icon>
+                    <p>Interfaz intuitiva dise&#241;ada para aprender POO de manera visual.</p>
                 </div>
             </div>
         </div>
-        <div class="col-7">
-            <div class="login-form">
-                <form novalidate [formGroup]="horizontalStepperForm">
-                    <h2 class="text-center titleOR">
-                        Registro<i class="fa fa-user-graduate mx-2"></i>
-                    </h2>
-                    <div class="form-group my-3">
-                        <input type="text" class="form-control" placeholder="Nombre" required="required"
-                            formControlName="nombre" />
+
+        <div class="register-card">
+            <form novalidate [formGroup]="horizontalStepperForm">
+                <h2 class="register-heading">
+                    <mat-icon style="vertical-align: middle; margin-right: 8px;">person_add</mat-icon>Crear Cuenta
+                </h2>
+
+                <div class="form-grid">
+                    <div class="field-group full-width">
+                        <label class="field-label">Nombre completo</label>
+                        <input type="text" class="poo-input field-input" placeholder="Tu nombre completo"
+                            required="required" formControlName="nombre" />
                     </div>
-                    <div class="form-group my-3">
-                        <input type="text" class="form-control" placeholder="correo@gmail.com" required="required"
-                            formControlName="correo" />
+
+                    <div class="field-group full-width">
+                        <label class="field-label">Correo institucional</label>
+                        <input type="text" class="poo-input field-input" placeholder="al000000@edu.uaa.mx"
+                            required="required" formControlName="correo" />
+                        <p class="field-error" *ngIf="f['correo'].touched && f['correo'].hasError('pattern')">Formato
+                            inv&#225;lido</p>
+                        <p class="field-error" *ngIf="invalidEmail">Este correo ya est&#225; registrado</p>
                     </div>
-                    <div class="form-group my-3">
-                        <input type="text" class="form-control" (change)="comprobarUsuario()" placeholder="Nombre de usuario" required="required"
-                            formControlName="usuario" />
-                            <label *ngIf="invalidUsername" class="errorMsg">El nombre de usuario ya existe</label>
+
+                    <div class="field-group full-width">
+                        <label class="field-label">Nombre de usuario</label>
+                        <input type="text" class="poo-input field-input" (change)="comprobarUsuario()"
+                            placeholder="Elige un nombre de usuario" required="required" formControlName="usuario" />
+                        <p class="field-error" *ngIf="invalidUsername">El nombre de usuario ya existe</p>
                     </div>
-                    <div class="form-group my-3">
-                        <input type="password" class="form-control" placeholder="Contraseña" required="required"
-                            formControlName="password" />
+
+                    <div class="field-group">
+                        <label class="field-label">Contrase&#241;a</label>
+                        <input type="password" class="poo-input field-input" placeholder="Contrase&#241;a"
+                            required="required" formControlName="password" />
                     </div>
-                    <div class="form-group my-3">
-                        <input type="password" class="form-control" (change)="comprobarPassword()" placeholder="Vuelva a escribir su contraseña" required="required"
-                            formControlName="password2" />
-                        <label *ngIf="invalidPassword" class="errorMsg">La contraseña no coincide</label>
+
+                    <div class="field-group">
+                        <label class="field-label">Confirmar contrase&#241;a</label>
+                        <input type="password" class="poo-input field-input" (change)="comprobarPassword()"
+                            placeholder="Repite la contrase&#241;a" required="required" formControlName="password2" />
+                        <p class="field-error" *ngIf="invalidPassword">La contrase&#241;a no coincide</p>
                     </div>
-                    <div class="form-group mb-3 d-grid gap-2">
-                        <button type="submit" class="btn " (click)="crearUsuario()" [disabled]="horizontalStepperForm.invalid||invalidPassword||invalidUsername">
-                            <i class="fas fa-door-open mx-2"></i>Crear mi cuenta
-                        </button>
-                        <button type="button" class="btn" routerLink="/" mat-raised-button>
-                            <i class="fas fa-person-booth mx-2" ></i>Ya tengo cuenta
-                        </button>
+
+                    <div class="section-divider full-width">
+                        <span>Datos acad&#233;micos</span>
                     </div>
-                </form>
-            </div>
+
+                    <div class="field-group">
+                        <label class="field-label">G&#233;nero</label>
+                        <select class="poo-input field-input" formControlName="genero">
+                            <option value="" disabled>Seleccionar</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                            <option value="O">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Edad</label>
+                        <input type="number" class="poo-input field-input" placeholder="Edad" required="required"
+                            formControlName="edad" min="15" max="99" />
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Nivel socioecon&#243;mico</label>
+                        <select class="poo-input field-input" formControlName="nivel_socioeconomico">
+                            <option value="" disabled>Seleccionar</option>
+                            <option value="bajo">Bajo</option>
+                            <option value="medio_bajo">Medio-Bajo</option>
+                            <option value="medio">Medio</option>
+                            <option value="medio_alto">Medio-Alto</option>
+                            <option value="alto">Alto</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Semestre</label>
+                        <input type="number" class="poo-input field-input" placeholder="1-12" required="required"
+                            formControlName="semestre" min="1" max="12" />
+                    </div>
+                </div>
+
+                <p class="field-error" *ngIf="errorMsg" style="text-align:center; margin-top: 12px;">{{ errorMsg }}</p>
+
+                <button type="submit" class="btn-poo btn-poo-primary register-btn" (click)="crearUsuario()"
+                    [disabled]="horizontalStepperForm.invalid || invalidPassword || invalidUsername">
+                    <mat-icon style="font-size: 18px; height: 18px; width: 18px;">how_to_reg</mat-icon> Crear mi cuenta
+                </button>
+
+                <div class="login-link">
+                    <span>&#191;Ya tienes cuenta?</span>
+                    <a routerLink="/" class="link">Iniciar sesi&#243;n</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>

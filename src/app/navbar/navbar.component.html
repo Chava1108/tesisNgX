@@ -1,29 +1,32 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark menu">
-  <div class="container-fluid ">
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-      aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+<nav class="poo-navbar">
+  <div class="nav-left">
+    <span class="nav-brand" *ngIf="!bandLogeo">
+      <mat-icon style="vertical-align: middle; margin-right: 6px;">schema</mat-icon>POOGraph
+    </span>
+    <button *ngIf="bandLogeo" (click)="irAlHome()" class="nav-btn" title="Inicio">
+      <mat-icon>home</mat-icon>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav" >
-        <button type="button" class="btn btn-light home boton" mat-raised-button  *ngIf="bandLogeo" (click)="irAlHome()" routerLinkActive="active" aria-current="page">
-          <i class="fas fa-home mx-2"></i>
-        </button>
-        <button type ="button" style="width: 20%;" class="btn btn-light boton" mat-raised-button  (click)="abrirCrearClase()" routerLinkActive="active"  aria-current="page" *ngIf="bandLogeo && bandAreaTrabajo">
-          Crear clase
-          </button>
-        <li class="nav-item" *ngIf="!bandLogeo">
-          <a routerLink="/" routerLinkActive="active" class="nav-link active" aria-current="page">PooGraph</a>
-        </li>
-        <button  routerLink="/" routerLinkActive="active" class="btn btn-light boton" mat-raised-button aria-current="page" *ngIf="!bandLogeo">
-          <a>Iniciar Sesion</a>
-        </button>
-        <li  class="nav-item btn-cerrar" style="justify-content: end;" *ngIf="bandLogeo">
-          <button (click)="cerrarSesion()" routerLinkActive="active" class="btn btn-danger" aria-current="page">Cerrar
-            Sesion</button>
-        </li>
-      </ul>
-    </div>
+    <button *ngIf="bandLogeo && bandAreaTrabajo" (click)="abrirCrearClase()" class="nav-btn">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; vertical-align: middle;">add_circle</mat-icon>
+      <span>Crear clase</span>
+    </button>
+    <button *ngIf="bandLogeo && esAdmin" routerLink="/dashboard" class="nav-btn">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; vertical-align: middle;">analytics</mat-icon>
+      <span>Monitoreo</span>
+    </button>
+  </div>
+
+  <div class="nav-center">
+    <span class="nav-title">POOGraph</span>
+  </div>
+
+  <div class="nav-right">
+    <button *ngIf="!bandLogeo" routerLink="/" class="nav-btn">
+      Iniciar Sesi&#243;n
+    </button>
+    <button *ngIf="bandLogeo" (click)="cerrarSesion()" class="nav-btn nav-btn-danger">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; vertical-align: middle;">logout</mat-icon>
+      <span>Salir</span>
+    </button>
   </div>
 </nav>

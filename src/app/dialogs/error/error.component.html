@@ -1,12 +1,7 @@
-<div mat-dialog-content ><h1 mat-dialog-title>{{message}}</h1></div>
-<div mat-dialog-actions>
-    <div class="row">
-        <div class="col-8">
-            <img src="../../../assets/imgs/tacha.png" alt="" height="100px" width="100px">
-        </div>
-        <div class="col-4" style="margin-top: 50px;">
-            <button class="btn btn-secondary" mat-button mat-dialog-close style="text-align: end;">Aceptar</button>
-        </div>
-    </div>
-    
+<div class="dialog-container">
+  <div class="dialog-icon error">
+    <mat-icon>error</mat-icon>
+  </div>
+  <h2 class="dialog-message">{{message}}</h2>
+  <button class="btn-poo btn-poo-danger dialog-btn" mat-dialog-close>Aceptar</button>
 </div>

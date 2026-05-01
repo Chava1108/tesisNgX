@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+﻿import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Validators } from '@angular/forms';
@@ -6,6 +6,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { BaseDeDatosService } from 'src/app/services/base-de-datos.service';
 import { RestService } from 'src/app/services/rest.service';
 import { Subject } from "rxjs";
+import { SecureStorageService } from 'src/app/services/secure-storage.service';
 @Component({
   selector: 'app-formulario',
   templateUrl: './formulario.component.html',
@@ -15,7 +16,7 @@ export class FormularioComponent implements OnInit {
 
   constructor(public dialgRef: MatDialogRef<FormularioComponent>,
     @Inject(MAT_DIALOG_DATA) public message: string,
-    private api: BaseDeDatosService, private restService:RestService) { }
+    private api: BaseDeDatosService, private restService:RestService, private storage: SecureStorageService) { }
 
   formularioAtributo = new FormGroup({
     tipoAtributo: new FormControl('', Validators.required),
@@ -38,7 +39,7 @@ export class FormularioComponent implements OnInit {
   list: string[] = []
   list2: string[] = []
   listNivel = ["public", "private", "protected"]
-  listNivel2 = ["public", "private"]
+  listNivel2 = ["public", "private", "protected"]
   clases: any = []
   private fileTemp: any;
   atributos: any = []
@@ -57,7 +58,7 @@ export class FormularioComponent implements OnInit {
   private tiposCpp2 = ["void", "int", "float", "char", "bool", "double", "long", "short", "string", "unsigned int", "long long", "auto"];
 
   ngOnInit(): void {
-    this.lenguaje = sessionStorage.getItem('lenguajeActual') || 'java';
+    this.lenguaje = this.storage.getItem('lenguajeActual') || 'java';
     this.actualizarTipos();
     this.obtenerClases();
   }
@@ -77,7 +78,7 @@ export class FormularioComponent implements OnInit {
   }
 
   obtenerClases() {
-    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
+    var idProyect = Number(this.storage.getItem("Id_Proyecto"))
     this.api.getClasesProyectId(idProyect).subscribe({
       next: (res: any) => {
         this.clases = res;
@@ -93,23 +94,23 @@ export class FormularioComponent implements OnInit {
   }
 
   crearClase() {
-    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
-    var usrTemp = sessionStorage.getItem("usrTmp")+""
-    var usrId = Number(sessionStorage.getItem("Usrid"))
-    this.bandClase = false
+    var idProyect = Number(this.storage.getItem("Id_Proyecto"))
+    var usrTemp = this.storage.getItem("usrTmp")+""
+    var usrId = Number(this.storage.getItem("Usrid"))
     const {nivelClase, nombre } = this.formularioClase.value
     this.nameClase = nombre
     var nameFile=nombre+usrTemp+idProyect+"."+this.fileTemp.fileName.split('.').pop();
     this.bandExistClass = false;
     this.api.postClase(nivelClase, nombre, nameFile, idProyect, usrId).subscribe({
       next: (res: any) => {
-        
+        this.idClase = res.id;
+        this.bandClase = false;
         const body=new FormData();
         body.append('myFile',this.fileTemp.fileRaw,nameFile)
         this.restService.sendPost(body).subscribe(res=>console.log(res))
       },
       error: (err:any) => {
-console.log (err)
+        console.log(err)
       }
     })
   }
@@ -123,56 +124,38 @@ console.log (err)
   }
 
   agregarAtributo() {
-    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
-    const {nivelAtributo, tipoAtributo, atributo, nombre } = this.formularioAtributo.value
+    const {nivelAtributo, tipoAtributo, atributo } = this.formularioAtributo.value
     this.atributos.push(nivelAtributo + " " + tipoAtributo + " " + atributo)
-    this.api.getClasesId(this.nameClase, idProyect).subscribe({
-      next: (res: any) => {
-        this.idClase = res[0].id
-        console.log("clase:" + this.idClase)
-        this.api.postAtributos(nivelAtributo, atributo, tipoAtributo, this.idClase).subscribe({
-          next: (res: any) => { },
-          error: () => { }
-        })
-      },
-      error: () => { }
-    })
-
+    this.api.postAtributos(nivelAtributo, atributo, tipoAtributo, this.idClase).subscribe({
+      next: (res: any) => { console.log('Atributo agregado:', res); },
+      error: (err: any) => { console.error('Error agregando atributo:', err); }
+    });
     this.formularioAtributo.reset();
   }
 
   agregarFuncion() {
-    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
-    const {nivelFuncion, tipoFuncion, funcion, nombre } = this.formularioFuncion.value
+    const {nivelFuncion, tipoFuncion, funcion } = this.formularioFuncion.value
     this.funciones.push(nivelFuncion + " " + tipoFuncion + " " + funcion)
-    this.api.getClasesId(this.nameClase, idProyect).subscribe({
-      next: (res: any) => {
-        this.idClase = res[0].id
-        this.api.postFunciones(nivelFuncion, funcion, tipoFuncion, this.idClase).subscribe({
-          next: (res: any) => { },
-          error: () => { }
-        })
-      },
-      error: () => { }
-    })
+    this.api.postFunciones(nivelFuncion, funcion, tipoFuncion, this.idClase).subscribe({
+      next: (res: any) => { console.log('Función agregada:', res); },
+      error: (err: any) => { console.error('Error agregando función:', err); }
+    });
     this.formularioFuncion.reset();
   }
 
   agregarHerencia() {
-    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
-    const { clases } = this.formularioHerencia.value
-    this.api.getClasesId(clases,idProyect).subscribe({
+    const { clases } = this.formularioHerencia.value;
+    if (!clases || !this.idClase) return;
+    this.api.postHerencia(this.idClase, clases).subscribe({
       next: (res: any) => {
-        this.idClasePadre= res[0].id
-        this.api.postHerencia(this.idClasePadre,this.idClase).subscribe({
-          next:(res:any)=>{
-            this.dialgRef.close
-          },
-          error:()=>{}
-        })
+        console.log('Herencia agregada:', res);
+        this.dialgRef.close();
       },
-      error: () => { }
-    })
+      error: (err: any) => {
+        console.error('Error agregando herencia:', err);
+        this.dialgRef.close();
+      }
+    });
   }
 
   reiniciar(){

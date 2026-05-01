@@ -82,7 +82,7 @@
 
     <!-- Opciones de respuesta -->
     <div class="opciones-grid">
-      <div *ngFor="let opcion of opciones; let i = index" class="opcion-item">
+      <div *ngFor="let opcion of opciones; let i = index; trackBy: trackByIndex" class="opcion-item">
         <div class="opcion-header">
           <span class="opcion-letra" [class.correcta]="respuestaSeleccionada === i">
             {{ letraOpcion[i] }}

@@ -2,6 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { SecureStorageService } from './secure-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class AutoLogoutService {
     private authService: AuthService,
     private router: Router,
     private ngZone: NgZone,
-    private http: HttpClient
+    private http: HttpClient,
+    private storage: SecureStorageService
   ) { }
 
   startMonitoring() {
@@ -81,7 +83,7 @@ export class AutoLogoutService {
   private logoutPorInactividad() {
     console.log("Cerrando sesión por inactividad...");
     
-    const token = sessionStorage.getItem('token');
+    const token = this.storage.getItem('token');
     
     // Si no hay token, no tiene caso llamar a la API, solo limpiamos local
     if (!token) {

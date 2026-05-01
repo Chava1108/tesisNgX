@@ -1,0 +1,26 @@
+.dialog-container {
+  text-align: center;
+  padding: 24px 16px;
+}
+.dialog-icon {
+  margin-bottom: 16px;
+}
+.dialog-icon mat-icon {
+  font-size: 56px;
+  height: 56px;
+  width: 56px;
+}
+.dialog-icon.error mat-icon {
+  color: #f38ba8;
+}
+.dialog-message {
+  color: #cdd6f4;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 24px;
+  line-height: 1.4;
+}
+.dialog-btn {
+  min-width: 120px;
+  justify-content: center;
+}

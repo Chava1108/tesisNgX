@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ExamenService } from '../services/examen.service';
+import { SecureStorageService } from '../services/secure-storage.service';
 
 @Component({
   selector: 'app-hacer-examen',
@@ -29,10 +30,10 @@ export class HacerExamenComponent implements OnInit, OnDestroy {
 
   idEstudiante: number = 0;
 
-  constructor(private router: Router, private examenService: ExamenService) {}
+  constructor(private router: Router, private examenService: ExamenService, private storage: SecureStorageService) {}
 
   ngOnInit(): void {
-    this.idEstudiante = Number(sessionStorage.getItem('Usrid'));
+    this.idEstudiante = Number(this.storage.getItem('Usrid'));
     this.cargarExamenesDisponibles();
   }
 

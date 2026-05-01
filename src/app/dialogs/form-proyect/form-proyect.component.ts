@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ConfirmComponent } from '../confirm/confirm.component';
+import { SecureStorageService } from 'src/app/services/secure-storage.service';
 @Component({
   selector: 'app-form-proyect',
   templateUrl: './form-proyect.component.html',
@@ -20,10 +21,10 @@ export class FormProyectComponent implements OnInit {
     lenguaje: new FormControl('java', [Validators.required])
   })
   
-  constructor(public dialgRef: MatDialogRef<FormProyectComponent>,private api: PoryectosService, private router:Router, public dialog: MatDialog) { }
+  constructor(public dialgRef: MatDialogRef<FormProyectComponent>,private api: PoryectosService, private router:Router, public dialog: MatDialog, private storage: SecureStorageService) { }
 
   ngOnInit(): void {
-     this.idUsr = sessionStorage.getItem('Usrid')
+     this.idUsr = this.storage.getItem('Usrid')
   }
 
   obtenerProyecto(nombre:any, id:any){

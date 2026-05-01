@@ -1,69 +1,30 @@
-<div class="app-body pattern-grid-lg bg-custom-white principal" style="height: 100vh; overflow: hidden; width: 100%;">
+<div class="app-body principal" style="height: 100vh; overflow: hidden; width: 100%;">
 
   <as-split direction="horizontal" [gutterSize]="2">
 
-    <as-split-area [size]="mostrarEditor ? 55 : 100">
-      <div class="zona-diagrama" style="position: relative; height: 100%; overflow: hidden;">
-        
-        <ngx-graph class="chart-container" [links]="links" [nodes]="nodos" [update$]="update$" layout="dagreCluster"
-          [layoutSettings]="layoutSettings" style="width: 100%; height: 100%; display: block;">
-          
-          <ng-template #defsTemplate>
-                <svg:marker fill="aqua" id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4"
-                orient="auto">
-                <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
-                </svg:marker>
-            </ng-template>
-        
-            <ng-template #clusterTemplate let-cluster>
-                <svg:g class="node cluster">
-                <svg:rect rx="5" ry="5" [attr.width]="cluster.dimension.width" [attr.height]="cluster.dimension.height"
-                    fill="aqua" />
-                </svg:g>
-            </ng-template>
-        
-            <ng-template #nodeTemplate let-node>
-                <svg:g class="node">
-                <svg:foreignObject width="130" height="200" class="tarjeta">
-                    <xhtml:div xmlns="http://www.w3.org/1999/xhtml">
-                    <div style="text-align: center; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 8px;">
-                        <img [attr.src]="(node.label === 'Main' || node.label === 'main')  ? 'assets/imgs/claseMain.png' : node.imagen" alt="img" height="52" width="90" />
-                        <h1 style="font-size: 14px; margin: 5px 0; color: black;">{{node.label}}</h1>
-                        <button class="btn btn-info btn-sm" (click)="Showclass(node)">Ver clase</button>
-                        <button class="btn btn-info btn-sm" style="margin-top: 5px;"
-                        (click)="reinicio(node.identificador,node)">Ver código</button>
-                    </div>
-                    </xhtml:div>
-                </svg:foreignObject>
-                </svg:g>
-            </ng-template>
-        
-            <ng-template #linkTemplate let-link>
-                <svg:g class="edge">
-                <svg:path stroke="aqua" class="line" stroke-width="6" marker-end="url(#arrow)"></svg:path>
-                <svg:text class="edge-label" text-anchor="middle">
-                    <textPath style="font-size: 15px; font-weight: bold;" [attr.href]="'#' + link.id" startOffset="40%">
-                    {{link.label}}
-                    </textPath>
-                </svg:text>
-                </svg:g>
-            </ng-template>
-
-        </ngx-graph>
-      </div>
-    </as-split-area>
-
-
-    <as-split-area [size]="45" *ngIf="mostrarEditor" [minSize]="20">
+    <!-- EDITOR (izquierda) -->
+    <as-split-area [size]="mostrarDiagrama ? 55 : 100" *ngIf="mostrarEditor" [minSize]="20">
       
-      <div class="zona-editor" style="height: 100%; display: flex; flex-direction: column; background-color: #1e1e1e; border-left: 2px solid #444;">
+      <div class="zona-editor" style="height: 100%; display: flex; flex-direction: column; background-color: #1e1e2e; border-right: 2px solid #313244;">
 
-        <div class="editor-header" style="height: 40px; background: #252526; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; border-bottom: 1px solid #333; flex-shrink: 0;">
-            <button (click)="irAlHome()" class="btn btn-sm btn-dark" style="margin-right: 10px; padding: 2px 8px;" title="Volver a Mis Proyectos">
-                <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: text-bottom;">arrow_back</mat-icon>
-                <span style="font-size: 12px; margin-left: 4px;">Atrás</span>
-            </button>
-          <span style="color: #ccc; font-size: 13px;">Explorador de proyecto</span>
+        <div class="editor-header" style="height: 40px; background: #181825; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; border-bottom: 1px solid #313244; flex-shrink: 0;">
+            <div style="display: flex; align-items: center;">
+              <button (click)="irAlHome()" class="btn btn-sm btn-dark" style="margin-right: 10px; padding: 2px 8px;" title="Volver a Mis Proyectos">
+                  <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: text-bottom;">arrow_back</mat-icon>
+                  <span style="font-size: 12px; margin-left: 4px;">Atr&#225;s</span>
+              </button>
+              <button *ngIf="!mostrarDiagrama" (click)="toggleDiagrama()" class="btn btn-sm btn-outline-info" style="margin-right: 10px; padding: 2px 8px;" title="Mostrar diagrama">
+                  <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: text-bottom;">account_tree</mat-icon>
+                  <span style="font-size: 12px; margin-left: 4px;">Diagrama</span>
+              </button>
+              <button (click)="mostrarExplorador = !mostrarExplorador" class="btn btn-sm btn-outline-secondary" style="margin-right: 10px; padding: 2px 8px;" title="Mostrar/ocultar explorador">
+                  <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: text-bottom;">folder</mat-icon>
+              </button>
+              <button (click)="mostrarConsola = !mostrarConsola" class="btn btn-sm" [ngClass]="mostrarConsola ? 'btn-outline-warning' : 'btn-outline-secondary'" style="margin-right: 10px; padding: 2px 8px;" title="Mostrar/ocultar consola">
+                  <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: text-bottom;">terminal</mat-icon>
+              </button>
+            </div>
+          <span style="color: #a6adc8; font-size: 13px; font-weight: 500;">{{ archivoActivo?.nombre || 'Explorador de proyecto' }}</span>
           <div>
         <button (click)="ejecutarProyecto()" [disabled]="!archivoActivo" class="btn btn-sm btn-success" title="Ejecutar Proyecto">
         <mat-icon>play_arrow</mat-icon> Run
@@ -72,29 +33,29 @@
         <button (click)="btnGuardar()" [disabled]="!archivoActivo" class="btn btn-sm btn-primary" style="margin: 0 5px;" title="Guardar">
         <mat-icon>save</mat-icon>
         </button>
-            <button (click)="toggleEditor()" class="btn btn-sm btn-danger ml-2"><mat-icon>close</mat-icon></button>
+            <button (click)="toggleEditor()" class="btn btn-sm btn-outline-danger ml-2"><mat-icon>close</mat-icon></button>
           </div>
         </div>
 
         <div style="flex-grow: 1; overflow: hidden;"> <as-split direction="vertical" [gutterSize]="2">
             
-                <as-split-area [size]="70">
+                <as-split-area [size]="mostrarConsola ? 70 : 100">
                     <div style="display: flex; flex-direction: row; height: 100%;">
                     
-                    <div class="file-sidebar" style="width: 180px; background: #252526; color: #cccccc; border-right: 1px solid #333; display: flex; flex-direction: column;">
-                        <div style="padding: 10px; font-size: 11px; font-weight: bold; text-transform: uppercase;">ARCHIVOS {{lenguajeActual}}</div>
+                    <div *ngIf="mostrarExplorador" class="file-sidebar" style="width: 180px; background: #181825; color: #cdd6f4; border-right: 1px solid #313244; display: flex; flex-direction: column;">
+                        <div style="padding: 10px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: #a6adc8;">ARCHIVOS {{lenguajeActual}}</div>
                         
                         <div class="lista-archivos" style="overflow-y: auto; flex-grow: 1;">
                         <div *ngFor="let archivo of listaArchivos" (click)="abrirArchivo(archivo)"
-                            [style.background-color]="archivoActivo?.nombre === archivo.nombre ? '#37373d' : 'transparent'"
+                            [style.background-color]="archivoActivo?.nombre === archivo.nombre ? '#45475a' : 'transparent'"
                             style="padding: 5px 15px; cursor: pointer; font-size: 13px; display: flex; align-items: center;">
                            <img [src]="lenguajeActual === 'cpp' ? 'assets/imgs/cpp-icon.svg' : 'assets/imgs/java-icon.svg'" width="16" style="margin-right: 8px;">
                             {{ archivo.nombre }}
                         </div>
                         </div>
                         
-                        <button (click)="cargarArchivosProyecto()" style="margin: 10px; background: #444; color: white; border: none; padding: 5px; cursor: pointer; font-size: 11px;">
-                        <mat-icon>refresh</mat-icon> Refrescar Lista
+                        <button (click)="cargarArchivosProyecto()" style="margin: 10px; background: #313244; color: #cdd6f4; border: none; padding: 5px; cursor: pointer; font-size: 11px; border-radius: 4px;">
+                        <mat-icon style="font-size: 14px; height: 14px; width: 14px; vertical-align: middle;">refresh</mat-icon> Refrescar
                         </button>
                     </div>
 
@@ -107,24 +68,29 @@
                     </div>
                 </as-split-area>
 
-                <as-split-area [size]="30" [minSize]="10">
-                    <div class="terminal-container" style="height: 100%; background-color: #1e1e1e; border-top: 2px solid #444; color: white; display: flex; flex-direction: row;">
+                <as-split-area [size]="30" [minSize]="10" [visible]="mostrarConsola">
+                    <div class="terminal-container" style="height: 100%; background-color: #11111b; border-top: 2px solid #313244; color: #cdd6f4; display: flex; flex-direction: row;">
                     
-                    <div style="width: 30%; border-right: 1px solid #444; display: flex; flex-direction: column;">
-                        <div style="padding: 5px; background: #2d2d2d; font-size: 11px; font-weight: bold;">ENTRADA (Scanner)</div>
-                        <textarea [(ngModel)]="entradasUsuario" placeholder="Escribe aquí..."
-                        style="flex-grow: 1; background: #252526; color: white; border: none; resize: none; padding: 10px; font-family: 'Consolas', monospace; outline: none;">
+                    <div style="width: 30%; border-right: 1px solid #313244; display: flex; flex-direction: column;">
+                        <div style="padding: 5px; background: #181825; font-size: 11px; font-weight: bold; color: #a6adc8;">ENTRADA (Scanner)</div>
+                        <textarea [(ngModel)]="entradasUsuario" placeholder="Escribe aqu&#237;..."
+                        style="flex-grow: 1; background: #1e1e2e; color: #cdd6f4; border: none; resize: none; padding: 10px; font-family: 'Consolas', monospace; outline: none;">
                         </textarea>
                     </div>
 
                     <div style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;">
-                        <div style="padding: 5px; background: #2d2d2d; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between;">
+                        <div style="padding: 5px; background: #181825; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; color: #a6adc8;">
                         <span>SALIDA / CONSOLA</span>
-                        <button (click)="limpiarTerminal()" style="background:none; border:none; color:#ccc; cursor:pointer;">LIMPIAR</button>
+                        <div>
+                          <button (click)="limpiarTerminal()" style="background:none; border:none; color:#a6adc8; cursor:pointer; font-size: 11px;">LIMPIAR</button>
+                          <button (click)="mostrarConsola = false" style="background:none; border:none; color:#a6adc8; cursor:pointer; font-size: 11px; margin-left: 6px;" title="Ocultar consola">
+                            <mat-icon style="font-size: 14px; height: 14px; width: 14px;">expand_more</mat-icon>
+                          </button>
+                        </div>
                         </div>
                         <div style="padding: 10px; overflow-y: auto; font-family: 'Consolas', monospace; font-size: 13px; flex-grow: 1;">
                         <div *ngFor="let linea of salidaTerminal">
-                            <span [style.color]="linea.tipo === 'error' ? '#ff6b6b' : '#51cf66'">{{ linea.texto }}</span>
+                            <span [style.color]="linea.tipo === 'error' ? '#f38ba8' : '#a6e3a1'">{{ linea.texto }}</span>
                         </div>
                         </div>
                     </div>
@@ -135,6 +101,76 @@
             </as-split>
         
         </div>
+      </div>
+    </as-split-area>
+
+    <!-- DIAGRAMA (derecha, siempre) -->
+    <as-split-area [size]="mostrarEditor ? (mostrarDiagrama ? 45 : 0) : 100" [visible]="!mostrarEditor || mostrarDiagrama">
+      <div class="zona-diagrama" style="position: relative; height: 100%; overflow: hidden; background: #1e1e2e;">
+        
+        <button *ngIf="mostrarEditor" (click)="toggleDiagrama()"
+          style="position: absolute; top: 8px; left: 8px; z-index: 10; background: rgba(17,17,27,0.8); color: #cdd6f4; border: 1px solid #313244; border-radius: 6px; cursor: pointer; padding: 4px 8px; font-size: 12px; display: flex; align-items: center; gap: 4px;"
+          title="Minimizar diagrama">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px;">visibility_off</mat-icon>
+          <span>Ocultar</span>
+        </button>
+
+        <button (click)="recargarDiagrama()"
+          style="position: absolute; top: 8px; right: 8px; z-index: 10; background: rgba(17,17,27,0.8); color: #89b4fa; border: 1px solid #313244; border-radius: 6px; cursor: pointer; padding: 4px 8px; font-size: 12px; display: flex; align-items: center; gap: 4px;"
+          title="Recargar diagrama desde los archivos fuente">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px;">refresh</mat-icon>
+          <span>Recargar</span>
+        </button>
+        
+        <ngx-graph class="chart-container" [links]="links" [nodes]="nodos" [update$]="update$" layout="dagreCluster"
+          [layoutSettings]="layoutSettings" style="width: 100%; height: 100%; display: block;">
+          
+          <ng-template #defsTemplate>
+                <svg:marker fill="#89b4fa" id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4"
+                orient="auto">
+                <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+                </svg:marker>
+            </ng-template>
+        
+            <ng-template #clusterTemplate let-cluster>
+                <svg:g class="node cluster">
+                <svg:rect rx="5" ry="5" [attr.width]="cluster.dimension.width" [attr.height]="cluster.dimension.height"
+                    fill="#89b4fa" />
+                </svg:g>
+            </ng-template>
+        
+            <ng-template #nodeTemplate let-node>
+                <svg:g class="node">
+                <svg:foreignObject width="140" height="200" class="tarjeta">
+                    <xhtml:div xmlns="http://www.w3.org/1999/xhtml">
+                    <div class="node-card">
+                        <img [attr.src]="(node.label === 'Main' || node.label === 'main') ? 'assets/imgs/claseMain.png' : node.imagen" alt="img" height="48" width="80" style="border-radius: 6px; object-fit: cover;" />
+                        <h1 style="font-size: 13px; margin: 6px 0 8px; color: #cdd6f4; font-weight: 600;">{{node.label}}</h1>
+                        <button class="node-btn" (click)="Showclass(node)">
+                          <mat-icon style="font-size: 14px; height: 14px; width: 14px; vertical-align: middle;">visibility</mat-icon> Ver clase
+                        </button>
+                        <button class="node-btn node-btn-code" style="margin-top: 4px;"
+                        (click)="reinicio(node.identificador,node)">
+                          <mat-icon style="font-size: 14px; height: 14px; width: 14px; vertical-align: middle;">code</mat-icon> C&#243;digo
+                        </button>
+                    </div>
+                    </xhtml:div>
+                </svg:foreignObject>
+                </svg:g>
+            </ng-template>
+        
+            <ng-template #linkTemplate let-link>
+                <svg:g class="edge">
+                <svg:path stroke="#89b4fa" class="line" stroke-width="4" marker-end="url(#arrow)"></svg:path>
+                <svg:text class="edge-label" text-anchor="middle">
+                    <textPath style="font-size: 12px; font-weight: 600; fill: #a6adc8;" [attr.href]="'#' + link.id" startOffset="40%">
+                    {{link.label}}
+                    </textPath>
+                </svg:text>
+                </svg:g>
+            </ng-template>
+
+        </ngx-graph>
       </div>
     </as-split-area>
 

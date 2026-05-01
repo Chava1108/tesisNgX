@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FormProyectComponent } from '../dialogs/form-proyect/form-proyect.component';
 import { PoryectosService } from '../services/poryectos.service';
 import { AuthService } from '../services/auth.service';
+import { SecureStorageService } from '../services/secure-storage.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -15,11 +16,13 @@ constructor(
     public dialog: MatDialog, 
     private apis: PoryectosService, 
     private router: Router,
-    private authService: AuthService 
+    private authService: AuthService,
+    private storage: SecureStorageService
   ) { }
   username:any
   id:any
   proyectos:any
+  esAdmin: boolean = false;
 ngOnInit(): void {
     // Verificamos sesión (por seguridad extra)
     if (!this.authService.estaAutenticado()) {
@@ -30,6 +33,7 @@ ngOnInit(): void {
     const user = this.authService.obtenerUsuarioActual();
     this.username = user.username;
     this.id = user.id;
+    this.esAdmin = this.storage.getItem('is_admin') === '1';
 
     this.obtenerProyectos();
   }
@@ -43,8 +47,8 @@ ngOnInit(): void {
   }
 
 openProyect(proyect: any) {
-    sessionStorage.setItem("Id_Proyecto", proyect.id);
-    sessionStorage.setItem("Nombre_Proyecto", proyect.nombre);
+    this.storage.setItem("Id_Proyecto", proyect.id);
+    this.storage.setItem("Nombre_Proyecto", proyect.nombre);
     this.router.navigate(['/area-de-trabajo.component']); 
   }
 

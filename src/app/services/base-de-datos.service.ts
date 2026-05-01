@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { SecureStorageService } from './secure-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,10 +9,14 @@ import { HttpClient } from '@angular/common/http';
 export class BaseDeDatosService {
 
   servidor='http://127.0.0.1:8000/';
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private storage: SecureStorageService) { }
   
   getClases(): any{
     return this.httpClient.get(`${this.servidor}clases`);
+  }
+
+  getUsuarios(): any {
+    return this.httpClient.get(`${this.servidor}usuario`);
   }
 
   getClasesProyectId(id:number): any{
@@ -20,26 +25,6 @@ export class BaseDeDatosService {
 
   getClasesId(nombre:string, id:number): any{
     return this.httpClient.get(`${this.servidor}clasesId?n1=${id}&n2=${nombre}`);
-  }
-
-  getAtributos(): any{
-    return this.httpClient.get(`${this.servidor}atributos`);
-  }
-
-  getAtributosClase(idClase:number): any{
-    return this.httpClient.get(`${this.servidor}atributosClases/${idClase}`);
-  }
-
-  getFunciones(): any{
-    return this.httpClient.get(`${this.servidor}funciones`);
-  }
-
-  getFuncionesClase(idClase:number): any{
-    return this.httpClient.get(`${this.servidor}funcionesClases/${idClase}`);
-  }
-
-  getHerencia(id_proyecto:any): any{
-    return this.httpClient.get(`${this.servidor}herencia/${id_proyecto}`);
   }
   
   postClase(nivel: String, clase:string, imagen:string, id_proyecto:number, id_usuario:number):any{
@@ -53,46 +38,28 @@ export class BaseDeDatosService {
   }
 
   postFunciones(nivel:string, nombre:string, tipo:string, id_clase:number):any{
-    const body={nivel:nivel,nombre:nombre,tipo:tipo,id_clase:id_clase}
+    const body={nivel:nivel,nombre:nombre,tipo:tipo,id_clase:id_clase, es_metodo:true}
     return this.httpClient.post(`${this.servidor}funciones`,body);
   }
 
-  postHerencia(id_clasePadre:number, id_claseHijo:number):any{
-    const body={id_clasePadre:id_clasePadre,id_claseHijo:id_claseHijo}
-    return this.httpClient.post(`${this.servidor}herencia`,body);
+  postHerencia(idClaseHija: number, nombrePadre: string): any {
+    const body = { id_clase_hija: idClaseHija, nombre_padre: nombrePadre };
+    return this.httpClient.post(`${this.servidor}herencia`, body);
   }
 
   deleteClase(id:number){
     return this.httpClient.delete(`${this.servidor}clase/${id}`);
   }
 
-  deleteAtributos(id:number){
-    return this.httpClient.delete(`${this.servidor}atributos/${id}`);
+  getInfoCompletaClase(idClase: number) {
+    const userId = this.storage.getItem('Usrid') || '0';
+    return this.httpClient.get(`${this.servidor}clase-info/${idClase}?user_id=${userId}`);
   }
 
-  deleteFunciones(id:number){
-    return this.httpClient.delete(`${this.servidor}funciones/${id}`);
-  }
-
-  deleteHerencia(id:number){
-    return this.httpClient.delete(`${this.servidor}herencia/${id}`);
-  }
-
-  deleteHerenciaPadre(id:number){
-    return this.httpClient.delete(`${this.servidor}herenciaP/${id}`);
-  }
-
-  putAtributos(nivel:String, tipo:string, nombre:string, id:any):any{
-    const body = {nivel:nivel, nombre:nombre, tipo:tipo}
-    return this.httpClient.put(`${this.servidor}atributos/${id}`,body);
-  }
-
-  putFunciones(nivel:String, tipo:string,nombre:string, id:any):any{
-    const body = {nivel:nivel, nombre:nombre, tipo:tipo}
-    return this.httpClient.put(`${this.servidor}funciones/${id}`,body);
-  }
-
-  getAtributosHeredos(id:number){
-    return this.httpClient.get(`${this.servidor}atributosHeredados/${id}`);
+  getCodigoFuncion(idClase: number, nombreFuncion: string, tipoRetorno: string) {
+    const userId = this.storage.getItem('Usrid') || '0';
+    return this.httpClient.get(
+      `${this.servidor}clase-info/${idClase}/codigo-funcion?nombre=${encodeURIComponent(nombreFuncion)}&tipo=${encodeURIComponent(tipoRetorno)}&user_id=${userId}`
+    );
   }
 }

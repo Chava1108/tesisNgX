@@ -16,4 +16,8 @@ export class UsuariosService {
     const body={name:name, email:email, username:username, password:password}
     return this.httpClient.post(`${this.servidor}usuario`,body);
   }
+
+  registrar(data: any): any {
+    return this.httpClient.post(`${this.servidor}api/register/`, data);
+  }
 }

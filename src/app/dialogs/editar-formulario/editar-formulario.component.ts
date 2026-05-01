@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+﻿import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Validators } from '@angular/forms';
@@ -6,6 +6,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { BaseDeDatosService } from 'src/app/services/base-de-datos.service';
 import { RestService } from 'src/app/services/rest.service';
 import { MatDialog } from '@angular/material/dialog';
+import { SecureStorageService } from 'src/app/services/secure-storage.service';
 
 @Component({
   selector: 'app-editar-formulario',
@@ -16,7 +17,7 @@ export class EditarFormularioComponent implements OnInit {
 
   constructor(public dialgRef: MatDialogRef<EditarFormularioComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, @Inject(MAT_DIALOG_DATA) public id: any,
-    private api: BaseDeDatosService, private restService: RestService) { }
+    private api: BaseDeDatosService, private restService: RestService, private storage: SecureStorageService) { }
 
   formulario = new FormGroup({
     nivelAtributo: new FormControl(this.data.item.nivel, Validators.required),
@@ -28,12 +29,16 @@ export class EditarFormularioComponent implements OnInit {
     tipoFuncion: new FormControl(this.data.item.tipo, Validators.required),
     funcion: new FormControl(this.data.item.nombre, Validators.required)
   });
+  formularioHerencia = new FormGroup({
+    clasePadre: new FormControl('', Validators.required),
+  });
   list: string[] = []
   list2: string[] = []
   listNivel = ["public", "private", "protected"]
-  listNivel2 = ["public", "private"]
+  listNivel2 = ["public", "private", "protected"]
   bandAtributos = false;
   bandFunciones = false;
+  bandHerencia = false;
   boton: string = ""
   idClase: number=0
   clases: any
@@ -46,31 +51,23 @@ export class EditarFormularioComponent implements OnInit {
   private tiposCpp2 = ["void", "int", "float", "char", "bool", "double", "long", "short", "string", "unsigned int", "long long", "auto"];
 
   ngOnInit(): void {
-    this.lenguaje = sessionStorage.getItem('lenguajeActual') || 'java';
+    this.lenguaje = this.storage.getItem('lenguajeActual') || 'java';
     this.actualizarTipos();
     this.datos = this.data.item
-    console.log(this.datos)
-    if ('tipoAgregar' in  this.data) {
+    this.boton = "Agregar"
+    if ('tipoAgregar' in this.data) {
       if (this.data.tipoAgregar == "Funcion") {
         this.bandFunciones = true;
-        this.boton = "Agregar"
-        this.idClase=this.datos.identificador
+        this.idClase = this.datos.identificador;
       } else if (this.data.tipoAgregar == "Atributo") {
         this.bandAtributos = true;
-        this.boton = "Agregar"
-        this.idClase=this.datos.identificador
-      }
-    } else {
-      if (this.data.bandera == "Funciones") {
-        this.bandFunciones = true;
-        this.boton = "Actualizar"
-      } else {
-        this.bandAtributos = true;
-        this.boton = "Actualizar"
+        this.idClase = this.datos.identificador;
+      } else if (this.data.tipoAgregar == "Herencia") {
+        this.bandHerencia = true;
+        this.idClase = this.datos.identificador;
       }
     }
     this.obtenerClases()
-
   }
 
   onClickNo() {
@@ -79,58 +76,34 @@ export class EditarFormularioComponent implements OnInit {
 
   editarAtributos() {
     const {nivelAtributo, tipoAtributo, atributo } = this.formulario.value
-    console.log(this.idClase)
-    console.log(this.datos);
-   if (this.boton == "Actualizar") {
-      this.api.putAtributos(nivelAtributo, tipoAtributo, atributo, this.datos.id).subscribe({
-        next: (res: any) => {
-          this.dialgRef.close();
-        },
-        error: () => {
-        }
-      })
-    } else {
-      this.api.postAtributos(nivelAtributo, atributo, tipoAtributo, this.idClase).subscribe({
-        next: (res: any) => {
-          this.dialgRef.close();
-        },
-        error: () => {
-          console.log("Agregar Funcion ERROR")
-        }
-      })
-    }
-
+    this.api.postAtributos(nivelAtributo, atributo, tipoAtributo, this.idClase).subscribe({
+      next: (res: any) => {
+        this.dialgRef.close();
+      },
+      error: () => {
+        console.log("Agregar Atributo ERROR")
+      }
+    })
   }
 
   editarFunciones() {
     const {nivelFuncion, tipoFuncion, funcion } = this.formulario2.value
-    if (this.boton == "Actualizar") {
-      console.log(this.data)
-      this.api.putFunciones(nivelFuncion, tipoFuncion, funcion, this.datos.id).subscribe({
-        next: (res: any) => {
-          this.dialgRef.close();
-        },
-        error: () => {
-          this.dialgRef.close();
-        }
-      })
-    } else {
-      this.api.postFunciones(nivelFuncion, funcion, tipoFuncion, this.idClase).subscribe({
-        next: (res: any) => {
-          this.dialgRef.close();
-        },
-        error: () => {
-          this.dialgRef.close();
-        }
-      })
-    }
+    this.api.postFunciones(nivelFuncion, funcion, tipoFuncion, this.idClase).subscribe({
+      next: (res: any) => {
+        this.dialgRef.close();
+      },
+      error: () => {
+        this.dialgRef.close();
+      }
+    })
   }
 
   obtenerClases() {
-    var idProyect = Number(sessionStorage.getItem("Id_Proyecto"))
+    var idProyect = Number(this.storage.getItem("Id_Proyecto"))
     this.api.getClasesProyectId(idProyect).subscribe({
       next: (res: any) => {
-        this.clases = res;
+        // Filtrar la clase actual para no heredar de sí misma
+        this.clases = res.filter((c: any) => c.id !== this.idClase);
         
         console.log(this.clases)
         res.forEach((element: {nombre:any} )=> {
@@ -162,4 +135,18 @@ export class EditarFormularioComponent implements OnInit {
 
   }
 
+  agregarHerencia() {
+    const { clasePadre } = this.formularioHerencia.value;
+    if (!clasePadre || !this.idClase) return;
+    this.api.postHerencia(this.idClase, clasePadre).subscribe({
+      next: (res: any) => {
+        console.log('Herencia agregada:', res);
+        this.dialgRef.close();
+      },
+      error: (err: any) => {
+        console.error('Error agregando herencia:', err);
+        this.dialgRef.close();
+      }
+    });
+  }
 }

@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router'; // Importamos NavigationEnd
+import { Router, NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { FormularioComponent } from '../dialogs/formulario/formulario.component';
 import { AuthService } from '../services/auth.service';
-import { filter } from 'rxjs/operators'; // Necesario para filtrar eventos
+import { filter } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { SecureStorageService } from '../services/secure-storage.service';
 
 @Component({
   selector: 'app-navbar',
@@ -14,18 +15,21 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class NavbarComponent implements OnInit {
   bandLogeo: boolean = false;
   bandAreaTrabajo: boolean = false;
+  esAdmin: boolean = false;
   idProject: number = 0;
 
   constructor(
     private router: Router,
     public dialog: MatDialog,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private storage: SecureStorageService
   ) {}
 
   ngOnInit(): void {
     this.authService.isLoggedIn$.subscribe((status) => {
       this.bandLogeo = status;
+      this.esAdmin = this.storage.getItem('is_admin') === '1';
     });
 
     this.router.events
@@ -35,7 +39,7 @@ export class NavbarComponent implements OnInit {
         if (event.url.includes('area-de-trabajo')) {
           this.bandAreaTrabajo = true;
           // Leemos del sessionStorage (LO NUEVO)
-          const id = sessionStorage.getItem('Id_Proyecto');
+          const id = this.storage.getItem('Id_Proyecto');
           this.idProject = id ? Number(id) : 0;
         } else {
           this.bandAreaTrabajo = false;
@@ -44,7 +48,7 @@ export class NavbarComponent implements OnInit {
   }
 
   cerrarSesion() {
-    const token = sessionStorage.getItem('token');
+    const token = this.storage.getItem('token');
     
     // Preparamos la cabecera con la identificación
     const headers = new HttpHeaders({

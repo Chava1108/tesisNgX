@@ -1,0 +1,22 @@
+.dialog-container {
+  padding: 8px;
+}
+.dialog-title {
+  color: #cdd6f4;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+.section-label {
+  display: block;
+  font-size: 13px;
+  color: #89b4fa;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.inline-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}

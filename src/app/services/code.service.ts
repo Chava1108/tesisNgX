@@ -4,14 +4,15 @@ import {
   HttpClientModule,
   HttpHeaders,
 } from '@angular/common/http';
+import { SecureStorageService } from './secure-storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CodeService {
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient, private storage: SecureStorageService) {}
   servidor = 'http://hilite.me/api';
-  servidorPython = 'http://127.0.0.1:8000/';
+  servidorPython = 'http://127.0.0.1:8000';
   postCode(code: string, linenos: number, lexers: string, style: string) {
     const body = { code: code, linenos: linenos, lexers: lexers, style: style };
     return this.httpClient.post(`${this.servidor}`, body);
@@ -41,8 +42,9 @@ export class CodeService {
   }
 
   compilarProyecto(idProyecto: number, entradas: string = "") {
+    const idUsuarioActual = this.storage.getItem('Usrid');
     return this.httpClient.post(`${this.servidorPython}/compilar-proyecto`, {
-      id_proyecto: idProyecto, entradas: entradas
+      id_proyecto: idProyecto, entradas: entradas, id_usuario_actual: idUsuarioActual
     });
   }
 

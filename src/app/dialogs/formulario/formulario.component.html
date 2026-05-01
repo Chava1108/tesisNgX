@@ -1,133 +1,102 @@
-<div mat-dialog-content class="layout-row layout-align-end-end">
-    <h1>Crear clase</h1>
-</div>
-<div>
-    <div class="row">
-        <div class="col-5">
-            <div class="row formulario">
-                <div class="form-group row" *ngIf="bandClase">
-                    <form [formGroup]="formularioClase">
-                        <div class="col-12">
-                            <label for="exampleFormControlInput1">Nombre de la clase</label>
-                            <div class="col-7">
-                                <input class="form-control" type="text" formControlName="nombre" (change)="classExist()">
-                            </div>
-                            <div class="col-5">
-                                <label for="exampleFormControlInput2">Nivel de acceso</label>
-                                <select id="inputState" class="form-control" formControlName="nivelClase">
-                                    <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
-                                </select>
-                            </div>
-                            <div class="custom-file col-8">
-                                <label class="custom-file-label" for="customFileLang">Agregar imagen</label>
-                                <input formControlName="imagen" accept="image/*" (change)="capturarArchivo($event)" type="file" class="custom-file-input"
-                                    id="customFileLang" lang="es">
-                            </div>
-                            <div class="col-4">
-                                <button type="button" [disabled]="formularioClase.pristine || formularioClase.invalid && !bandExistClass"
-                                    class="btn btn-success" (click)="crearClase()">Crear Clase</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div *ngIf="!bandClase">
-                    <div class="form-group row">
-                        <form [formGroup]="formularioAtributo">
-                            <div class="row">
-                                <label for="exampleFormControlInput1">Atributos</label>
-                                <div class="col-3">
-                                    <select id="inputState" class="form-control" formControlName="nivelAtributo">
-                                        <option *ngFor="let item of listNivel" [value]="item">{{item}}</option>
-                                    </select>
-                                </div>
-                                <div class="col-3">
-                                    <select id="inputState" class="form-control" formControlName="tipoAtributo">
-                                        <option *ngFor="let item of list" [value]="item">{{item}}</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <input class="form-control" formControlName="atributo" type="text">
-                                </div>
-                                <div class="col">
-                                    <button type="button"
-                                        [disabled]="formularioAtributo.pristine || formularioAtributo.invalid"
-                                        class="btn btn-success" (click)="agregarAtributo()">Agregar</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="form-group row">
-                        <form [formGroup]="formularioFuncion">
-                            <div class="row">
-                                <label for="exampleFormControlInput1">Funciones</label>
-                                <div class="col-3">
-                                    <select id="inputState" class="form-control" formControlName="nivelFuncion">
-                                        <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
-                                    </select>
-                                </div>
-                                <div class="col-3">
-                                    <select id="inputState" class="form-control" formControlName="tipoFuncion">
-                                        <option *ngFor="let item of list2" [value]="item">{{item}}</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <input class="form-control" formControlName="funcion" type="text">
-                                </div>
-                                <div class="col">
-                                    <button type="button"
-                                        [disabled]="formularioFuncion.pristine || formularioFuncion.invalid"
-                                        class="btn btn-success" (click)="agregarFuncion()">Agregar</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="form-group row">
-                        <form [formGroup]="formularioHerencia">
-                            <label for="exampleFormControlInput1">Hereda de :</label>
-                            <div class="col-11">
-                                <select id="inputState" class="form-control" formControlName="clases">
-                                    <option *ngFor="let item of clases" [value]="item.nombre">{{item.nombre}}</option>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <button type="button"
-                                    [disabled]="formularioHerencia.pristine || formularioHerencia.invalid"
-                                    class="btn btn-success" (click)="agregarHerencia()">Crear
-                                    herencia</button>
-                            </div>
-                        </form>
+<div class="dialog-container">
+  <h2 class="dialog-title">
+    <mat-icon style="vertical-align: middle; margin-right: 8px;">class</mat-icon>Crear Clase
+  </h2>
 
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-2"></div>
-        <div class="col-5">
-            <h1>Informacion de la clase</h1>
-            <div style="width: 200px;">
-                <table class="table table-dark">
-                    <thead>
-                        <tr >
-                            <th scope="col" class="bg-primary"> {{nameClase}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="bg-danger">Atributos</td>
-                        </tr>
-                        <tr *ngFor="let item of atributos">
-                            <td>{{item}}</td>
-                        </tr>
-                        <tr>
-                            <td class="bg-danger">Funciones</td>
-                        </tr>
-                        <tr *ngFor="let item of funciones">
-                            <td>{{item}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <button mat-raised-button class="btn btn-primary" mat-button (click)="reiniciar()" >Cerrar</button>
-        </div>
+  <div class="dialog-body">
+    <div class="dialog-left">
+      <!-- Crear clase -->
+      <div class="section" *ngIf="bandClase">
+        <form [formGroup]="formularioClase">
+          <div class="field-group">
+            <label class="field-label">Nombre de la clase</label>
+            <input class="poo-input field-input" type="text" formControlName="nombre" (change)="classExist()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Nivel de acceso</label>
+            <select class="poo-input field-input" formControlName="nivelClase">
+              <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Imagen</label>
+            <input formControlName="imagen" accept="image/*" (change)="capturarArchivo($event)" type="file"
+              class="poo-input field-input" style="padding: 6px;">
+          </div>
+          <button type="button" class="btn-poo btn-poo-success"
+            [disabled]="formularioClase.pristine || formularioClase.invalid && !bandExistClass"
+            (click)="crearClase()">
+            <mat-icon style="font-size: 16px; height: 16px; width: 16px;">add</mat-icon> Crear Clase
+          </button>
+        </form>
+      </div>
+
+      <!-- Atributos / Funciones / Herencia -->
+      <div *ngIf="!bandClase" class="section">
+        <form [formGroup]="formularioAtributo">
+          <label class="section-label">Atributos</label>
+          <div class="inline-form">
+            <select class="poo-input" formControlName="nivelAtributo" style="width: 100px;">
+              <option *ngFor="let item of listNivel" [value]="item">{{item}}</option>
+            </select>
+            <select class="poo-input" formControlName="tipoAtributo" style="width: 100px;">
+              <option *ngFor="let item of list" [value]="item">{{item}}</option>
+            </select>
+            <input class="poo-input" formControlName="atributo" type="text" placeholder="Nombre" style="flex: 1;">
+            <button type="button" class="btn-poo btn-poo-success btn-sm"
+              [disabled]="formularioAtributo.pristine || formularioAtributo.invalid"
+              (click)="agregarAtributo()">Agregar</button>
+          </div>
+        </form>
+
+        <form [formGroup]="formularioFuncion" style="margin-top: 16px;">
+          <label class="section-label">Funciones</label>
+          <div class="inline-form">
+            <select class="poo-input" formControlName="nivelFuncion" style="width: 100px;">
+              <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
+            </select>
+            <select class="poo-input" formControlName="tipoFuncion" style="width: 100px;">
+              <option *ngFor="let item of list2" [value]="item">{{item}}</option>
+            </select>
+            <input class="poo-input" formControlName="funcion" type="text" placeholder="Nombre" style="flex: 1;">
+            <button type="button" class="btn-poo btn-poo-success btn-sm"
+              [disabled]="formularioFuncion.pristine || formularioFuncion.invalid"
+              (click)="agregarFuncion()">Agregar</button>
+          </div>
+        </form>
+
+        <form [formGroup]="formularioHerencia" style="margin-top: 16px;">
+          <label class="section-label">Herencia</label>
+          <div class="inline-form">
+            <select class="poo-input" formControlName="clases" style="flex: 1;">
+              <option *ngFor="let item of clases" [value]="item.nombre">{{item.nombre}}</option>
+            </select>
+            <button type="button" class="btn-poo btn-poo-primary btn-sm"
+              [disabled]="formularioHerencia.pristine || formularioHerencia.invalid"
+              (click)="agregarHerencia()">Crear herencia</button>
+          </div>
+        </form>
+      </div>
     </div>
+
+    <div class="dialog-right">
+      <h3 class="info-heading">Informaci&#243;n de la clase</h3>
+      <div class="class-preview">
+        <div class="class-header">{{nameClase}}</div>
+        <div class="class-section">
+          <div class="class-section-title">Atributos</div>
+          <div class="class-member" *ngFor="let item of atributos">{{item}}</div>
+          <div class="class-empty" *ngIf="atributos.length === 0">Sin atributos</div>
+        </div>
+        <div class="class-section">
+          <div class="class-section-title">Funciones</div>
+          <div class="class-member" *ngFor="let item of funciones">{{item}}</div>
+          <div class="class-empty" *ngIf="funciones.length === 0">Sin funciones</div>
+        </div>
+      </div>
+      <button class="btn-poo btn-poo-ghost" style="margin-top: 16px; width: 100%;" (click)="reiniciar()">
+        <mat-icon style="font-size: 16px; height: 16px; width: 16px;">close</mat-icon> Cerrar
+      </button>
+    </div>
+  </div>
 </div>

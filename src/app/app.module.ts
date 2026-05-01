@@ -27,9 +27,12 @@ import { ConfirmComponent } from './dialogs/confirm/confirm.component';
 import { ErrorComponent } from './dialogs/error/error.component';
 import { RealizarTestComponent } from './realizar-test/realizar-test.component';
 import { HacerExamenComponent } from './hacer-examen/hacer-examen.component';
+import { VisorCodigoComponent } from './visor-codigo/visor-codigo.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { FormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
+import { NgChartsModule } from 'ng2-charts';
 
 @NgModule({
   declarations: [
@@ -48,6 +51,8 @@ import { AngularSplitModule } from 'angular-split';
    ErrorComponent,
    RealizarTestComponent,
    HacerExamenComponent,
+   VisorCodigoComponent,
+   DashboardComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,6 +70,7 @@ import { AngularSplitModule } from 'angular-split';
     MatDialogModule,
     FormsModule,
     AngularSplitModule,
+    NgChartsModule,
     MonacoEditorModule.forRoot()
   ],
   providers: [

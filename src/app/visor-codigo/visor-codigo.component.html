@@ -1,0 +1,137 @@
+<div class="visor-container">
+
+  <!-- BARRA SUPERIOR -->
+  <div class="visor-header">
+    <div class="header-left">
+      <button *ngIf="vistaActual !== 'usuarios'" class="btn-back" (click)="vistaActual === 'proyectos' ? volverAUsuarios() : volverAProyectos()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <mat-icon class="header-icon">visibility</mat-icon>
+      <span class="header-title">Visor de Código de Estudiantes</span>
+    </div>
+    <div class="breadcrumb">
+      <span (click)="volverAUsuarios()" [class.active]="vistaActual === 'usuarios'">Estudiantes</span>
+      <span *ngIf="usuarioSeleccionado"> / </span>
+      <span *ngIf="usuarioSeleccionado" (click)="volverAProyectos()" [class.active]="vistaActual === 'proyectos'">
+        {{ usuarioSeleccionado.username }}
+      </span>
+      <span *ngIf="proyectoSeleccionado"> / </span>
+      <span *ngIf="proyectoSeleccionado" class="active">
+        {{ proyectoSeleccionado.nombre }}
+      </span>
+    </div>
+  </div>
+
+  <!-- VISTA: LISTA DE USUARIOS -->
+  <div *ngIf="vistaActual === 'usuarios'" class="vista-lista">
+    <h2 class="vista-titulo">
+      <mat-icon>people</mat-icon> Estudiantes Registrados
+    </h2>
+    <div class="cards-grid">
+      <div *ngFor="let usuario of usuarios" class="card-item" (click)="seleccionarUsuario(usuario)">
+        <div class="card-avatar">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="card-info">
+          <span class="card-name">{{ usuario.username }}</span>
+          <span class="card-detail">ID: {{ usuario.id }}</span>
+        </div>
+        <mat-icon class="card-arrow">chevron_right</mat-icon>
+      </div>
+    </div>
+    <div *ngIf="usuarios.length === 0" class="empty-state">
+      <mat-icon>person_off</mat-icon>
+      <p>No hay estudiantes registrados</p>
+    </div>
+  </div>
+
+  <!-- VISTA: LISTA DE PROYECTOS -->
+  <div *ngIf="vistaActual === 'proyectos'" class="vista-lista">
+    <h2 class="vista-titulo">
+      <mat-icon>folder</mat-icon> Proyectos de {{ usuarioSeleccionado?.username }}
+    </h2>
+    <div class="cards-grid">
+      <div *ngFor="let proyecto of proyectos" class="card-item" (click)="seleccionarProyecto(proyecto)">
+        <div class="card-avatar proyecto-avatar">
+          <img [src]="proyecto.lenguaje === 'cpp' ? 'assets/imgs/cpp-icon.svg' : 'assets/imgs/java-icon.svg'" width="28">
+        </div>
+        <div class="card-info">
+          <span class="card-name">{{ proyecto.nombre }}</span>
+          <span class="card-detail">
+            Lenguaje: {{ proyecto.lenguaje === 'cpp' ? 'C++' : 'Java' }}
+          </span>
+        </div>
+        <mat-icon class="card-arrow">chevron_right</mat-icon>
+      </div>
+    </div>
+    <div *ngIf="proyectos.length === 0" class="empty-state">
+      <mat-icon>folder_off</mat-icon>
+      <p>Este estudiante no tiene proyectos</p>
+    </div>
+  </div>
+
+  <!-- VISTA: CÓDIGO -->
+  <div *ngIf="vistaActual === 'codigo'" class="vista-codigo">
+    <div class="codigo-layout">
+
+      <!-- Sidebar de archivos -->
+      <div class="archivos-sidebar">
+        <div class="sidebar-header">
+          <mat-icon>description</mat-icon> ARCHIVOS
+        </div>
+        <div class="archivos-lista">
+          <div *ngFor="let archivo of listaArchivos"
+               class="archivo-item"
+               [class.activo]="archivoActivo?.nombre === archivo.nombre"
+               (click)="abrirArchivo(archivo)">
+            <img [src]="getIconoArchivo()" width="16" class="archivo-icono">
+            <span>{{ archivo.nombre }}</span>
+          </div>
+        </div>
+        <div *ngIf="listaArchivos.length === 0" class="sidebar-empty">
+          Sin archivos
+        </div>
+      </div>
+
+      <!-- Editor Monaco (solo lectura) -->
+      <div class="editor-panel">
+        <div class="editor-tab" *ngIf="archivoActivo">
+          <img [src]="getIconoArchivo()" width="14">
+          <span>{{ archivoActivo.nombre }}</span>
+          <span class="readonly-badge">SOLO LECTURA</span>
+          <button class="btn-compilar" (click)="ejecutarProyecto()" [disabled]="compilando" title="Compilar y ejecutar">
+            <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle;">play_arrow</mat-icon> Ejecutar
+          </button>
+        </div>
+        <ngx-monaco-editor
+          [style.height]="mostrarConsola ? 'calc(100% - 32px - 180px)' : 'calc(100% - 32px)'"
+          style="width: 100%;"
+          [options]="editorOptions"
+          [(ngModel)]="code"
+          (onInit)="onInitEditor($event)">
+        </ngx-monaco-editor>
+
+        <!-- Terminal / Consola -->
+        <div class="terminal-panel" *ngIf="mostrarConsola">
+          <div class="terminal-header">
+            <span><mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle;margin-right:4px;">terminal</mat-icon>Consola</span>
+            <button class="btn-terminal-close" (click)="limpiarTerminal(); mostrarConsola = false">
+              <mat-icon style="font-size:16px;height:16px;width:16px;">close</mat-icon>
+            </button>
+          </div>
+          <div class="terminal-body">
+            <div *ngFor="let msg of salidaTerminal" [class]="'terminal-line terminal-' + msg.tipo">
+              {{ msg.texto }}
+            </div>
+          </div>
+          <div class="terminal-input-row">
+            <span class="terminal-prompt">&gt;</span>
+            <input type="text" [(ngModel)]="entradasUsuario" placeholder="Entrada del programa..." class="terminal-input">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

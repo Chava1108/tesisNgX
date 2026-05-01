@@ -1,4 +1,4 @@
-import { PrismService } from './../service/prism.service';
+﻿import { PrismService } from './../service/prism.service';
 import {
   Component,
   ElementRef,
@@ -16,6 +16,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ShowclassComponent } from '../dialogs/showclass/showclass.component';
 import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { SecureStorageService } from '../services/secure-storage.service';
 
 @Component({
   selector: 'app-area-de-trabajo',
@@ -177,10 +178,34 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   code: string = 'public class MiClase {\n    // Escribe tu código aquí\n}';
   mostrarEditor: boolean = false;
+  mostrarExplorador: boolean = true;
+  mostrarDiagrama: boolean = true;
+  mostrarConsola: boolean = false;
   salidaTerminal: any = [];
+
+  pushTerminal(msg: { texto: string; tipo: string }) {
+    this.salidaTerminal.push(msg);
+    this.mostrarConsola = true;
+  }
+
   toggleEditor() {
     this.mostrarEditor = !this.mostrarEditor;
-    // Un pequeño hack para que la gráfica se redibuje bien al cambiar el tamaño del div
+    // Hack para que la gráfica se redibuje bien al cambiar el tamaño del div
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 300);
+  }
+
+  toggleDiagrama() {
+    this.mostrarDiagrama = !this.mostrarDiagrama;
+    // Registrar en log de actividad
+    const userId = Number(this.storage.getItem('Usrid'));
+    if (userId) {
+      const accion = this.mostrarDiagrama ? 'MOSTRAR_DIAGRAMA' : 'OCULTAR_DIAGRAMA';
+      this.codeService.registrarTooltip(userId, accion, this.lenguajeActual).subscribe({
+        error: (err: any) => console.error('Error registrando toggle diagrama:', err)
+      });
+    }
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 300);
@@ -199,6 +224,7 @@ export class AreaDeTrabajoComponent implements OnInit {
     private primsmService: PrismService,
     private fb: FormBuilder,
     private codeService: CodeService,
+    private storage: SecureStorageService,
   ) {}
   nombrePadre = '';
   nombreHijo = '';
@@ -229,18 +255,18 @@ export class AreaDeTrabajoComponent implements OnInit {
   aributosHeredados: any = [];
   lenguajeActual: string = 'java';
   ngOnInit(): void {
-    this.idProyect = Number(sessionStorage.getItem('Id_Proyecto'));
-    this.nameProyect = sessionStorage.getItem('Nombre_Proyecto');
+    this.idProyect = Number(this.storage.getItem('Id_Proyecto'));
+    this.nameProyect = this.storage.getItem('Nombre_Proyecto');
     this.proyectosService
       .getProyectoIndividual(
         this.nameProyect,
-        Number(sessionStorage.getItem('Usrid')),
+        Number(this.storage.getItem('Usrid')),
       )
       .subscribe((res: any) => {
         console.log('proyecto individuL');
         console.log(res);
         this.lenguajeActual = res[0].lenguaje || 'java';
-        sessionStorage.setItem('lenguajeActual', this.lenguajeActual);
+        this.storage.setItem('lenguajeActual', this.lenguajeActual);
         // 2. ACTUALIZAR LAS OPCIONES DE MONACO
         this.actualizarEditorOptions();
       });
@@ -263,7 +289,7 @@ export class AreaDeTrabajoComponent implements OnInit {
         this.nodos = clases.map((element: any) => ({
           id: element.nombre,
           label: element.nombre,
-          //imagen: 'http://127.0.0.1:8000/archivos/' + element.imagen,
+          imagen: 'http://127.0.0.1:8000/archivos/' + element.imagen,
           atributos: [], // Se llenarán después mediante el Parser si lo deseas
           funciones: [], 
           identificador: element.id,
@@ -299,13 +325,17 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   Showclass(node: any) {
     const dialogRef = this.dialog.open(ShowclassComponent, {
-      width: '40%',
-      height: '75%',
+      width: '80%',
+      height: '85%',
       data: node,
     });
     dialogRef.afterClosed().subscribe((res) => {
       console.log('Diálogo cerrado, recargando diagrama...');
       this.getClase();
+      this.cargarArchivosProyecto();
+      if (this.archivoActivo) {
+        this.abrirArchivo(this.archivoActivo);
+      }
     });
   }
 
@@ -363,7 +393,7 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   cargarArchivosProyecto() {
     // Asumiendo que tienes el ID del proyecto en una variable
-    var idProyect = Number(sessionStorage.getItem('Id_Proyecto'));
+    var idProyect = Number(this.storage.getItem('Id_Proyecto'));
     console.log('entra extraer archivos' + this.idProyect);
     if (!idProyect) return;
 
@@ -391,14 +421,14 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   ejecutarProyecto() {
     if (!this.archivoActivo) {
-      this.salidaTerminal.push({
+      this.pushTerminal({
         texto: '⚠️ Selecciona un archivo o el Main antes de ejecutar.',
         tipo: 'error',
       });
       return;
     }
     this.salidaTerminal = []; // Limpiamos terminal
-    this.salidaTerminal.push({
+    this.pushTerminal({
       texto: '> Preparando ejecución...',
       tipo: 'info',
     });
@@ -407,7 +437,7 @@ export class AreaDeTrabajoComponent implements OnInit {
         this.iniciarCompilacionReal();
       },
       error: (err) => {
-        this.salidaTerminal.push({
+        this.pushTerminal({
           texto: '❌ Error crítico al guardar. Se canceló la compilación.',
           tipo: 'error',
         });
@@ -416,8 +446,8 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   iniciarCompilacionReal() {
-    var idProyect = Number(sessionStorage.getItem('Id_Proyecto'));
-    this.salidaTerminal.push({
+    var idProyect = Number(this.storage.getItem('Id_Proyecto'));
+    this.pushTerminal({
       texto: '> Compilando y Ejecutando...',
       tipo: 'info',
     });
@@ -426,13 +456,13 @@ export class AreaDeTrabajoComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           if (res.exito) {
-            this.salidaTerminal.push({ texto: res.mensaje, tipo: 'info' });
+            this.pushTerminal({ texto: res.mensaje, tipo: 'info' });
           } else {
-            this.salidaTerminal.push({ texto: res.mensaje, tipo: 'error' });
+            this.pushTerminal({ texto: res.mensaje, tipo: 'error' });
           }
         },
         error: (err) =>
-          this.salidaTerminal.push({
+          this.pushTerminal({
             texto: 'Error de conexión con el servidor',
             tipo: 'error',
           }),
@@ -450,24 +480,24 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   btnGuardar() {
     if (!this.archivoActivo) {
-      this.salidaTerminal.push({
+      this.pushTerminal({
         texto: '⚠️ No hay ningún archivo seleccionado para guardar.',
         tipo: 'error',
       });
       return; // Detiene la función aquí
     }
 
-    this.salidaTerminal.push({ texto: '> Guardando...', tipo: 'info' });
+    this.pushTerminal({ texto: '> Guardando...', tipo: 'info' });
 
     this.guardarCambios().subscribe({
       next: () => {
-        this.salidaTerminal.push({
+        this.pushTerminal({
           texto: '✅ Archivo guardado correctamente.',
           tipo: 'info',
         });
       },
       error: (err) => {
-        this.salidaTerminal.push({
+        this.pushTerminal({
           texto: '❌ Error al guardar: ' + err.message,
           tipo: 'error',
         });
@@ -530,13 +560,13 @@ export class AreaDeTrabajoComponent implements OnInit {
     'string': { cpp: '**string** — Clase de la librería estándar para manejar cadenas de texto. Requiere `#include <string>`.' },
     'long': { ambos: '**long** — Tipo entero de mayor rango. En Java: 64 bits. En C++: mínimo 32 bits.' },
     'short': { ambos: '**short** — Tipo entero de rango reducido (16 bits). Usa menos memoria que `int`.' },
-    'byte': { java: '**byte** — Tipo entero de 8 bits (-128 a 127). Útil para ahorrar memoria en arreglos grandes.' },
+    'byte': { java: '**byte** — Tipo entero de 8 bits (-128 a 127). Ãštil para ahorrar memoria en arreglos grandes.' },
     'auto': { cpp: '**auto** — Deduce automáticamente el tipo de una variable a partir de su valor inicial. C++11+.' },
     // Manejo de errores
     'try': { ambos: '**try** — Bloque para capturar excepciones. El código que puede fallar va dentro del `try`.' },
     'catch': { ambos: '**catch** — Captura y maneja una excepción lanzada dentro del bloque `try`.' },
-    'throw': { ambos: '**throw** — Lanza una excepción manualmente. Útil para señalar errores personalizados.' },
-    'finally': { java: '**finally** — Bloque que se ejecuta SIEMPRE, sin importar si hubo excepción o no. Útil para liberar recursos.' },
+    'throw': { ambos: '**throw** — Lanza una excepción manualmente. Ãštil para señalar errores personalizados.' },
+    'finally': { java: '**finally** — Bloque que se ejecuta SIEMPRE, sin importar si hubo excepción o no. Ãštil para liberar recursos.' },
     // C++ específicos
     'cout': { cpp: '**cout** — Objeto de salida estándar. Se usa con `<<` para imprimir en consola: `cout << "Hola";`.' },
     'cin': { cpp: '**cin** — Objeto de entrada estándar. Se usa con `>>` para leer desde teclado: `cin >> variable;`.' },
@@ -586,7 +616,7 @@ export class AreaDeTrabajoComponent implements OnInit {
       this.mostrarTooltipWidget(editor, position, keyword, contenido);
 
       // Registrar automáticamente en logs
-      const userId = Number(sessionStorage.getItem('Usrid'));
+      const userId = Number(this.storage.getItem('Usrid'));
       if (userId) {
         this.codeService.registrarTooltip(userId, keyword, currentLang).subscribe({
           error: (err: any) => console.error('Error registrando tooltip:', err)
@@ -617,7 +647,7 @@ export class AreaDeTrabajoComponent implements OnInit {
       z-index: 9999;
     `;
     domNode.innerHTML = `
-      <div style="font-weight:bold; color:#89B4FA; margin-bottom:6px;">📘 POOGraph - Ayuda</div>
+      <div style="font-weight:bold; color:#89B4FA; margin-bottom:6px;"> POOGraph - Ayuda</div>
       <div style="margin-bottom:6px;"><strong style="color:#F5C2E7;">${keyword}</strong></div>
       <div>${contenido.replace(/\*\*/g, '').replace(/`([^`]+)`/g, '<code style="background:#313244;padding:1px 4px;border-radius:3px;">$1</code>')}</div>
     `;
@@ -663,13 +693,13 @@ export class AreaDeTrabajoComponent implements OnInit {
     // Sobrescribir la acción de pegar para bloquearla
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV, () => {
       // Bloquear y registrar intento
-      const userId = Number(sessionStorage.getItem('Usrid'));
+      const userId = Number(this.storage.getItem('Usrid'));
       if (userId) {
         this.codeService.registrarTooltip(userId, 'INTENTO_PEGAR', this.lenguajeActual).subscribe({
           error: (err: any) => console.error('Error registrando intento de pegado:', err)
         });
       }
-      this.salidaTerminal.push({
+      this.pushTerminal({
         texto: '⚠️ Pegar código está deshabilitado. Escribe tu código manualmente.',
         tipo: 'error',
       });
@@ -677,13 +707,13 @@ export class AreaDeTrabajoComponent implements OnInit {
 
     // También bloquear Shift+Insert (alternativa de pegar)
     editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Insert, () => {
-      const userId = Number(sessionStorage.getItem('Usrid'));
+      const userId = Number(this.storage.getItem('Usrid'));
       if (userId) {
         this.codeService.registrarTooltip(userId, 'INTENTO_PEGAR', this.lenguajeActual).subscribe({
           error: (err: any) => console.error('Error registrando intento de pegado:', err)
         });
       }
-      this.salidaTerminal.push({
+      this.pushTerminal({
         texto: '⚠️ Pegar código está deshabilitado. Escribe tu código manualmente.',
         tipo: 'error',
       });
@@ -693,13 +723,13 @@ export class AreaDeTrabajoComponent implements OnInit {
     editor.onDidPaste(() => {
       // Si de alguna forma logró pegar (ej. menú contextual del navegador), deshacer
       editor.trigger('poograph', 'undo', null);
-      const userId = Number(sessionStorage.getItem('Usrid'));
+      const userId = Number(this.storage.getItem('Usrid'));
       if (userId) {
         this.codeService.registrarTooltip(userId, 'INTENTO_PEGAR', this.lenguajeActual).subscribe({
           error: (err: any) => console.error('Error registrando intento de pegado:', err)
         });
       }
-      this.salidaTerminal.push({
+      this.pushTerminal({
         texto: '⚠️ Pegar código está deshabilitado. Escribe tu código manualmente.',
         tipo: 'error',
       });
@@ -710,5 +740,11 @@ export class AreaDeTrabajoComponent implements OnInit {
     if (confirm('¿Deseas salir? Asegúrate de haber guardado.')) {
       this.router.navigate(['/home']);
     }
+  }
+
+  recargarDiagrama() {
+    this.getClase();
+    this.cargarArchivosProyecto();
+    this.pushTerminal({ texto: '> Diagrama recargado.', tipo: 'info' });
   }
 }

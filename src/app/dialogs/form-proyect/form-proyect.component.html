@@ -1,57 +1,38 @@
-<div mat-dialog-content class="layout-row layout-align-end-end">
-    <h1>Crear Proyecto</h1>
-</div>
-<div>
-    <div class="row">
-        <div class="col-5">
-            <div class="row formulario">
-                <div class="form-group row">
-                    <form [formGroup]="formularioProyecto">
-                        <div class="col-12">
-                            <label style="margin-bottom: 4%;" for="exampleFormControlInput1">Nombre del proyecto</label>
-                            <div class="col-7">
-                                <input class="form-control" type="text" (change)="checkProyecto()"
-                                    formControlName="nombreProyecto">
-                            </div>
-                            <div class="form-group mt-3">
-                                <label style="font-weight: bold;">Lenguaje de Programación:</label>
-                                <div class="d-flex gap-4 mt-2">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" formControlName="lenguaje"
-                                            id="java" value="java">
-                                        <label class="form-check-label" for="java">
-                                            <img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg"
-                                                width="20" alt="Java">
-                                            Java (Estándar)
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" formControlName="lenguaje" id="cpp"
-                                            value="cpp">
-                                        <label class="form-check-label" for="cpp">
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/ISO_C%2B%2B_Logo.svg"
-                                                width="20" alt="C++">
-                                            C++ (G++)
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-6">
-            <img src="../../../assets/imgs/proyecto.PNG" width="100%">
-        </div>
+<div class="dialog-container">
+  <h2 class="dialog-title">
+    <mat-icon style="vertical-align: middle; margin-right: 8px;">create_new_folder</mat-icon>Crear Proyecto
+  </h2>
+
+  <form [formGroup]="formularioProyecto">
+    <div class="field-group">
+      <label class="field-label">Nombre del proyecto</label>
+      <input class="poo-input field-input" type="text" (change)="checkProyecto()"
+        formControlName="nombreProyecto" placeholder="Mi primer proyecto">
     </div>
-    <div class="row">
-        <div class="col-12">
-            <button style="margin-top: 5%; margin-bottom: 5%; width: 100%;" class="btn btn-success"
-                (click)="crearProyecto()" [disabled]="bandPost || formularioProyecto.invalid">Crear Proyecto</button>
-            <div *ngIf="bandPost" class="alert alert-danger" role="alert">
-                El proyecto "{{ nameProject }}" ya existe
-            </div>
-        </div>
+
+    <div class="field-group" style="margin-top: 20px;">
+      <label class="field-label">Lenguaje de Programaci&#243;n</label>
+      <div class="lang-options">
+        <label class="lang-option" [class.selected]="formularioProyecto.get('lenguaje')?.value === 'java'">
+          <input type="radio" formControlName="lenguaje" value="java">
+          <img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" width="24" alt="Java">
+          <span>Java</span>
+        </label>
+        <label class="lang-option" [class.selected]="formularioProyecto.get('lenguaje')?.value === 'cpp'">
+          <input type="radio" formControlName="lenguaje" value="cpp">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/ISO_C%2B%2B_Logo.svg" width="24" alt="C++">
+          <span>C++ (G++)</span>
+        </label>
+      </div>
     </div>
+
+    <button class="btn-poo btn-poo-success" style="width: 100%; margin-top: 24px; justify-content: center;"
+      (click)="crearProyecto()" [disabled]="bandPost || formularioProyecto.invalid">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px;">check</mat-icon> Crear Proyecto
+    </button>
+
+    <div *ngIf="bandPost" class="error-banner">
+      El proyecto "{{ nameProject }}" ya existe
+    </div>
+  </form>
 </div>

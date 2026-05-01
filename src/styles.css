@@ -27,13 +27,117 @@
 }
 
 :root {
-  --color-1: #FFFFFF;
-  --color-2: #2B2E50;
-  --color-3: #454B6B;
-  --color-4: #D3D5EB;
-  --text-color-1: #1A1A1A;
-  --text-color-2: #C5C5C5;
-  --font-family: 'Nunito', sans-serif;
-  --font-family-1: 'Architects Daughter', cursive;
-  --border-radius: .15rem
+  --bg-base: #1e1e2e;
+  --bg-mantle: #181825;
+  --bg-crust: #11111b;
+  --bg-surface0: #313244;
+  --bg-surface1: #45475a;
+  --bg-surface2: #585b70;
+  --text-main: #cdd6f4;
+  --text-sub: #a6adc8;
+  --text-overlay: #9399b2;
+  --accent-blue: #89b4fa;
+  --accent-sapphire: #74c7ec;
+  --accent-green: #a6e3a1;
+  --accent-red: #f38ba8;
+  --accent-peach: #fab387;
+  --accent-mauve: #cba6f7;
+  --accent-lavender: #b4befe;
+  --border: #313244;
+  --font-family: 'Fira Code', 'Segoe UI', sans-serif;
+  --border-radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-base);
+  color: var(--text-main);
+  font-family: var(--font-family);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-mantle); }
+::-webkit-scrollbar-thumb { background: var(--bg-surface1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--bg-surface2); }
+
+/* Material dialog overrides */
+.mat-dialog-container {
+  background: var(--bg-base) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(0,0,0,0.6) !important;
+}
+
+/* Global button styles */
+.btn-poo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-family);
+}
+.btn-poo-primary {
+  background: var(--accent-blue);
+  color: var(--bg-crust);
+}
+.btn-poo-primary:hover { background: #7ba8f0; }
+.btn-poo-success {
+  background: var(--accent-green);
+  color: var(--bg-crust);
+}
+.btn-poo-success:hover { background: #96d891; }
+.btn-poo-danger {
+  background: var(--accent-red);
+  color: var(--bg-crust);
+}
+.btn-poo-danger:hover { background: #e87c99; }
+.btn-poo-ghost {
+  background: transparent;
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+}
+.btn-poo-ghost:hover { background: var(--bg-surface0); color: var(--text-main); }
+
+/* Form inputs global dark */
+.poo-input {
+  background: var(--bg-mantle);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: var(--font-family);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.poo-input:focus {
+  border-color: var(--accent-blue);
+}
+.poo-input::placeholder {
+  color: var(--text-overlay);
+}
+
+/* Card component */
+.poo-card {
+  background: var(--bg-mantle);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius);
+  padding: 20px;
 }

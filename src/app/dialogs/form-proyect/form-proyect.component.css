@@ -1,0 +1,67 @@
+.dialog-container {
+  padding: 8px;
+}
+.dialog-title {
+  color: #cdd6f4;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 24px;
+}
+.field-group {
+  margin-bottom: 12px;
+}
+.field-label {
+  display: block;
+  font-size: 13px;
+  color: #a6adc8;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.field-input {
+  width: 100%;
+}
+.lang-options {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #181825;
+  border: 2px solid #313244;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex: 1;
+}
+.lang-option input[type="radio"] {
+  display: none;
+}
+.lang-option span {
+  color: #a6adc8;
+  font-size: 14px;
+  font-weight: 500;
+}
+.lang-option.selected {
+  border-color: #89b4fa;
+  background: rgba(137,180,250,0.08);
+}
+.lang-option.selected span {
+  color: #cdd6f4;
+}
+.lang-option:hover {
+  border-color: #45475a;
+}
+.error-banner {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(243,139,168,0.1);
+  border: 1px solid #f38ba8;
+  border-radius: 6px;
+  color: #f38ba8;
+  font-size: 13px;
+  text-align: center;
+}

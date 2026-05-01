@@ -1,50 +1,51 @@
-<div mat-dialog-content class="layout-row layout-align-end-end">
-    <h1>Editar {{data.bandera}}</h1>
-</div>
-<div class="container">
-    <form [formGroup]="formulario" *ngIf="bandAtributos">
-        <div class="row">
-            <label for="exampleFormControlInput1">Atributo</label>
-            <div class="col-3">
-                <select id="inputState" class="form-control" formControlName="nivelAtributo">
-                    <option *ngFor="let item of listNivel" [value]="item">{{item}}</option>
-                </select>
-            </div>
-            <div class="col-3">
-                <select id="inputState" class="form-control" formControlName="tipoAtributo">
-                    <option *ngFor="let item of list" [value]="item">{{item}}</option>
-                </select>
-            </div>
-            <div class="col-4">
-                <input class="form-control" formControlName="atributo" type="text">
-            </div>
-            <div class="col-2">
-                <button type="button"
-                    class="btn btn-success" [disabled]="formulario.pristine || formulario.invalid" (click)="editarAtributos()">{{boton}}</button>
-            </div>
-        </div>
-    </form>
-    <form [formGroup]="formulario2" *ngIf="bandFunciones">
-        <div class="row">
-            <label for="exampleFormControlInput1">Funcion</label>
-            <div class="col-3">
-                <select id="inputState" class="form-control" formControlName="nivelFuncion">
-                    <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
-                </select>
-            </div>
-            <div class="col-3">
-                <select id="inputState" class="form-control" formControlName="tipoFuncion">
-                    <option *ngFor="let item of list2" [value]="item">{{item}}</option>
-                </select>
-            </div>
-            <div class="col-4">
-                <input class="form-control" formControlName="funcion" type="text">
-            </div>
-            <div class="col-2">
-                <button type="button"
-                    class="btn btn-success" [disabled]="formulario2.pristine || formulario2.invalid" (click)="editarFunciones()">{{boton}}</button>
-            </div>
-        </div>
-    </form>
-    <button mat-raised-button style="margin-top: 10%;" class="btn btn-primary" mat-button (click)="onClickNo()">Cerrar</button>
+<div class="dialog-container">
+  <h2 class="dialog-title">
+    <mat-icon style="vertical-align: middle; margin-right: 8px;">edit</mat-icon>Agregar {{data.bandera}}
+  </h2>
+
+  <form [formGroup]="formulario" *ngIf="bandAtributos">
+    <label class="section-label">Atributo</label>
+    <div class="inline-form">
+      <select class="poo-input" formControlName="nivelAtributo" style="width: 110px;">
+        <option *ngFor="let item of listNivel" [value]="item">{{item}}</option>
+      </select>
+      <select class="poo-input" formControlName="tipoAtributo" style="width: 110px;">
+        <option *ngFor="let item of list" [value]="item">{{item}}</option>
+      </select>
+      <input class="poo-input" formControlName="atributo" type="text" placeholder="Nombre del atributo" style="flex: 1;">
+      <button type="button" class="btn-poo btn-poo-success"
+        [disabled]="formulario.pristine || formulario.invalid" (click)="editarAtributos()">{{boton}}</button>
+    </div>
+  </form>
+
+  <form [formGroup]="formulario2" *ngIf="bandFunciones" style="margin-top: 16px;">
+    <label class="section-label">Funci&#243;n</label>
+    <div class="inline-form">
+      <select class="poo-input" formControlName="nivelFuncion" style="width: 110px;">
+        <option *ngFor="let item of listNivel2" [value]="item">{{item}}</option>
+      </select>
+      <select class="poo-input" formControlName="tipoFuncion" style="width: 110px;">
+        <option *ngFor="let item of list2" [value]="item">{{item}}</option>
+      </select>
+      <input class="poo-input" formControlName="funcion" type="text" placeholder="Nombre de la funci&#243;n" style="flex: 1;">
+      <button type="button" class="btn-poo btn-poo-success"
+        [disabled]="formulario2.pristine || formulario2.invalid" (click)="editarFunciones()">{{boton}}</button>
+    </div>
+  </form>
+
+  <form [formGroup]="formularioHerencia" *ngIf="bandHerencia" style="margin-top: 16px;">
+    <label class="section-label">Herencia — Selecciona la clase padre</label>
+    <div class="inline-form">
+      <select class="poo-input" formControlName="clasePadre" style="flex: 1;">
+        <option value="" disabled>Selecciona una clase</option>
+        <option *ngFor="let item of clases" [value]="item.nombre">{{item.nombre}}</option>
+      </select>
+      <button type="button" class="btn-poo btn-poo-primary"
+        [disabled]="formularioHerencia.invalid" (click)="agregarHerencia()">Asignar herencia</button>
+    </div>
+  </form>
+
+  <button class="btn-poo btn-poo-ghost" style="margin-top: 24px;" (click)="onClickNo()">
+    <mat-icon style="font-size: 16px; height: 16px; width: 16px;">close</mat-icon> Cerrar
+  </button>
 </div>
