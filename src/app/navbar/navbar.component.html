@@ -14,6 +14,10 @@
       <mat-icon style="font-size: 18px; height: 18px; width: 18px; vertical-align: middle;">analytics</mat-icon>
       <span>Monitoreo</span>
     </button>
+    <button *ngIf="bandLogeo && !esAdmin" routerLink="/hacer-examen" class="nav-btn">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; vertical-align: middle;">analytics</mat-icon>
+      <span>Examen</span>
+    </button>
   </div>
 
   <div class="nav-center">

@@ -4,13 +4,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { SecureStorageService } from './secure-storage.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // URL de tu API en Django (ajusta esto)
-  private apiUrl = 'http://localhost:8000/api/login/'; 
+  private apiUrl = `${environment.apiUrl}api/login/`; 
 
   // BehaviorSubject permite saber si estás logueado en tiempo real en cualquier componente
   private _isLoggedIn = new BehaviorSubject<boolean>(false);

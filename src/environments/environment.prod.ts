@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: '/'
+  apiUrl: '/'  // En producción, el frontend y backend están detrás del mismo dominio (nginx proxy)
 };

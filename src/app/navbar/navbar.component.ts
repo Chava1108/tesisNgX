@@ -3,6 +3,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { FormularioComponent } from '../dialogs/formulario/formulario.component';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
 import { filter } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SecureStorageService } from '../services/secure-storage.service';
@@ -55,7 +56,7 @@ export class NavbarComponent implements OnInit {
       'Authorization': `Token ${token}` 
     });
     this.http
-      .post('http://localhost:8000/api/logout/', { motivo: 'manual' }, { headers: headers })
+      .post(`${environment.apiUrl}api/logout/`, { motivo: 'manual' }, { headers: headers })
       .subscribe({
         next: () => this.authService.logout(),
         error: () => this.authService.logout(), 

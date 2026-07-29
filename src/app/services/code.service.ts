@@ -5,6 +5,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { SecureStorageService } from './secure-storage.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,7 @@ import { SecureStorageService } from './secure-storage.service';
 export class CodeService {
   constructor(private httpClient: HttpClient, private storage: SecureStorageService) {}
   servidor = 'http://hilite.me/api';
-  servidorPython = 'http://127.0.0.1:8000';
+  servidorPython = environment.apiUrl.replace(/\/$/, '');
   postCode(code: string, linenos: number, lexers: string, style: string) {
     const body = { code: code, linenos: linenos, lexers: lexers, style: style };
     return this.httpClient.post(`${this.servidor}`, body);

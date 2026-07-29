@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SecureStorageService } from './secure-storage.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,7 @@ import { SecureStorageService } from './secure-storage.service';
 
 export class BaseDeDatosService {
 
-  servidor='http://127.0.0.1:8000/';
+  servidor = environment.apiUrl;
   constructor(private httpClient: HttpClient, private storage: SecureStorageService) { }
   
   getClases(): any{

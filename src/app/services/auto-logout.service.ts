@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SecureStorageService } from './secure-storage.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class AutoLogoutService {
   // CONFIGURACIÓN: 5 Minutos (según tu código) o 10
   private TIMEOUT_LIMIT = 10 * 60 * 1000; 
   private logoutTimer: any;
-  private apiUrl = 'http://localhost:8000/api/logout/'; 
+  private apiUrl = `${environment.apiUrl}api/logout/`; 
 
   // 1. CREAMOS UNA REFERENCIA FIJA AL MANEJADOR DE EVENTOS
   // Esto es vital para que removeEventListener funcione
