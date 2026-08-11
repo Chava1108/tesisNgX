@@ -13,7 +13,7 @@ import { environment } from '../../environments/environment';
 export class CodeService {
   constructor(private httpClient: HttpClient, private storage: SecureStorageService) {}
   servidor = 'http://hilite.me/api';
-  servidorPython = environment.apiUrl.replace(/\/$/, '');
+  servidorPython = environment.apiUrl.replace(/\/$/, '')+'/api';
   postCode(code: string, linenos: number, lexers: string, style: string) {
     const body = { code: code, linenos: linenos, lexers: lexers, style: style };
     return this.httpClient.post(`${this.servidor}`, body);
@@ -58,7 +58,7 @@ export class CodeService {
   }
 
   registrarTooltip(idUsuario: number, palabra: string, lenguaje: string) {
-    return this.httpClient.post(`${this.servidorPython}/api/tooltip-log`, {
+    return this.httpClient.post(`${this.servidorPython}/tooltip-log`, {
       id_usuario: idUsuario,
       palabra: palabra,
       lenguaje: lenguaje

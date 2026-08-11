@@ -1,7 +1,8 @@
 import {MediaMatcher} from '@angular/cdk/layout';
-import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormularioComponent } from '../dialogs/formulario/formulario.component';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -21,10 +22,11 @@ export class AgregarComponentComponent implements OnDestroy {
 
   private _mobileQueryListener: () => void;
 
-  constructor(changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public dialog: MatDialog) {
+  constructor(changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public dialog: MatDialog, private router: Router,) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
+    
 
   }
 
@@ -38,7 +40,7 @@ export class AgregarComponentComponent implements OnDestroy {
   shouldRun = true;
 
   recargarPagina(){
-    location.href="http://localhost:4200/area-de-trabajo.component"
+    this.router.navigate(['/area-de-trabajo.component']);
   }
 
   abrirForm(){

@@ -5,10 +5,12 @@
       <button class="btn btn-sm btn-outline-success" (click)="editarClase(); $event.stopPropagation()">
         <i class="fas fa-edit"></i> Editar
       </button>
-      <button class="btn btn-sm btn-outline-primary" (click)="agregarHerencia(); $event.stopPropagation()">
+      <button class="btn btn-sm btn-outline-primary" (click)="agregarHerencia(); $event.stopPropagation()" 
+              [disabled]="esMain" [title]="esMain ? 'Main no puede heredar' : 'Agregar herencia'">
         <i class="fas fa-sitemap"></i> Herencia
       </button>
-      <button class="btn btn-sm btn-outline-danger" (click)="eliminarClase(); $event.stopPropagation()">
+      <button class="btn btn-sm btn-outline-danger" (click)="eliminarClase(); $event.stopPropagation()"
+              [disabled]="esMain" [title]="esMain ? 'No se puede eliminar la clase Main' : 'Eliminar clase'">
         <i class="fas fa-trash"></i> Eliminar
       </button>
     </div>
@@ -54,9 +56,13 @@
     <div class="column column-center">
       <div class="class-node">
         <div class="class-image-placeholder">
-          <img  [src]="imagenClase" alt="Imagen de la clase" class="class-image">
+          <img [src]="imagenClase" alt="Imagen de la clase" class="class-image"
+               (error)="$any($event.target).src='assets/imgs/claseMain.png'">
         </div>
         <div class="class-name">{{ data.label }}</div>
+        <div class="class-badge" *ngIf="esMain">
+          <i class="fas fa-star"></i> Clase Principal
+        </div>
         <div class="class-parents" *ngIf="clasesPadre.length > 0">
           <span class="parent-badge" *ngFor="let p of clasesPadre">
             <i class="fas fa-arrow-up"></i> {{ p.nombre }}

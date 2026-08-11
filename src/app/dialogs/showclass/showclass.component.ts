@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { BaseDeDatosService } from 'src/app/services/base-de-datos.service';
 import { EditarFormularioComponent } from '../editar-formulario/editar-formulario.component';
 import { ConfirmComponent } from '../confirm/confirm.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-showclass',
@@ -22,8 +23,13 @@ export class ShowclassComponent implements OnInit {
   bandEditar: boolean = false;
   id = this.data.identificador;
 
-  // Imagen de la clase (comentada de momento)
-  imagenClase: string = this.data.imagen;
+  // Verificar si es la clase Main (no se puede eliminar)
+  esMain: boolean = this.data.label?.toLowerCase() === 'main';
+
+  // Imagen de la clase - construida con la URL del servidor
+  imagenClase: string = this.data.imagen?.startsWith('http') 
+    ? this.data.imagen 
+    : environment.apiUrl + 'archivos/' + this.data.imagen;
 
   // Datos para vista gráfica
   atributosPropios: any[] = [];

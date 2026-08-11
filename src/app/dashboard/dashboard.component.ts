@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { SecureStorageService } from '../services/secure-storage.service';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,7 +11,7 @@ import { SecureStorageService } from '../services/secure-storage.service';
 })
 export class DashboardComponent implements OnInit {
 
-  private apiUrl = 'http://localhost:8000/api/dashboard-analytics';
+  private apiUrl =  `${environment.apiUrl}api/`;
 
   // Filtros
   usuarios: any[] = [];
@@ -82,7 +83,7 @@ export class DashboardComponent implements OnInit {
     const token = this.storage.getItem('token');
     const headers = new HttpHeaders({ 'Authorization': `Token ${token}` });
 
-    let url = `${this.apiUrl}?dias=${this.diasSeleccionados}`;
+    let url = `${this.apiUrl}dashboard-analytics/?dias=${this.diasSeleccionados}`;
     if (this.usuarioSeleccionado) {
       url += `&usuario_id=${this.usuarioSeleccionado}`;
     }

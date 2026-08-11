@@ -7,6 +7,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ConfirmComponent } from '../confirm/confirm.component';
 import { SecureStorageService } from 'src/app/services/secure-storage.service';
+import { environment } from 'src/environments/environment.prod';
 @Component({
   selector: 'app-form-proyect',
   templateUrl: './form-proyect.component.html',
@@ -32,7 +33,7 @@ export class FormProyectComponent implements OnInit {
       next: (res:any)=>{
         localStorage.setItem("Id_Proyecto", res[0].id.toString())
         localStorage.setItem("Nombre_Proyecto", res[0].nombre)
-        location.href="http://localhost:4200/area-de-trabajo.component"
+        this.router.navigate(['/area-de-trabajo.component']);
       }
     })
   }

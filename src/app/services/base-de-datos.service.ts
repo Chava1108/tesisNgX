@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 
 export class BaseDeDatosService {
 
-  servidor = environment.apiUrl;
+  servidor = environment.apiUrl+'api/';
   constructor(private httpClient: HttpClient, private storage: SecureStorageService) { }
   
   getClases(): any{

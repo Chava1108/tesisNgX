@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class UsuariosService {
-  servidor = environment.apiUrl;
+  servidor = environment.apiUrl+'api/';
 
   constructor(private httpClient: HttpClient) { }
 
@@ -19,6 +19,6 @@ export class UsuariosService {
   }
 
   registrar(data: any): any {
-    return this.httpClient.post(`${this.servidor}api/register/`, data);
+    return this.httpClient.post(`${this.servidor}register/`, data);
   }
 }

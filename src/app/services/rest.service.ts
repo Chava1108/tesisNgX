@@ -13,6 +13,6 @@ export class RestService {
   }
 
   sendPost(body:FormData):Observable<any>{
-    return this.http.post(`${environment.apiUrl}upload`,body)
+    return this.http.post(`${environment.apiUrl}api/upload`,body)
   }
 }

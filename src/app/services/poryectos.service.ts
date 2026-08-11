@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class PoryectosService {
-  servidor = environment.apiUrl;
+  servidor = environment.apiUrl+'api/';
   constructor( private httpClient: HttpClient ) { }
 
   getProyectos(id: any){

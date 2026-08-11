@@ -17,6 +17,7 @@ import { ShowclassComponent } from '../dialogs/showclass/showclass.component';
 import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { SecureStorageService } from '../services/secure-storage.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-area-de-trabajo',
@@ -289,7 +290,7 @@ export class AreaDeTrabajoComponent implements OnInit {
         this.nodos = clases.map((element: any) => ({
           id: element.nombre,
           label: element.nombre,
-          imagen: 'http://127.0.0.1:8000/archivos/' + element.imagen,
+          imagen: environment.apiUrl + 'archivos/' + element.imagen,
           atributos: [], // Se llenarán después mediante el Parser si lo deseas
           funciones: [], 
           identificador: element.id,
@@ -409,6 +410,37 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   abrirArchivo(archivo: any) {
+    // Si hay un archivo activo y es diferente al nuevo, guardar primero
+    if (this.archivoActivo && this.archivoActivo.ruta_relativa !== archivo.ruta_relativa) {
+      this.pushTerminal({ 
+        texto: `> Guardando cambios de ${this.archivoActivo.nombre}...`, 
+        tipo: 'info' 
+      });
+      
+      this.guardarCambios().subscribe({
+        next: () => {
+          this.pushTerminal({ 
+            texto: `✅ ${this.archivoActivo.nombre} guardado correctamente.`, 
+            tipo: 'info' 
+          });
+          this.cargarNuevoArchivo(archivo);
+        },
+        error: (err) => {
+          this.pushTerminal({
+            texto: `⚠️ Error al guardar ${this.archivoActivo.nombre}: ${err.message}`,
+            tipo: 'error',
+          });
+          // Aun con error, permitir cambiar de archivo
+          this.cargarNuevoArchivo(archivo);
+        }
+      });
+    } else {
+      // Si no hay archivo activo o es el mismo, cargar directamente
+      this.cargarNuevoArchivo(archivo);
+    }
+  }
+
+  private cargarNuevoArchivo(archivo: any) {
     this.archivoActivo = archivo;
     console.log(this.archivoActivo);
     // Pedimos el contenido al backend

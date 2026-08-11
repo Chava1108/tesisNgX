@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class ExamenService {
-  private baseUrl = environment.apiUrl.replace(/\/$/, '');
+  private baseUrl = environment.apiUrl.replace(/\/$/, '')+'/api/';
 
   constructor(private http: HttpClient) {}
 
