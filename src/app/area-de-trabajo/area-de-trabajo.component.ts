@@ -17,6 +17,7 @@ import { ShowclassComponent } from '../dialogs/showclass/showclass.component';
 import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { SecureStorageService } from '../services/secure-storage.service';
+import { SessionTimerService } from '../services/session-timer.service';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -182,6 +183,7 @@ export class AreaDeTrabajoComponent implements OnInit {
   mostrarExplorador: boolean = true;
   mostrarDiagrama: boolean = true;
   mostrarConsola: boolean = false;
+  cargandoCodigo: boolean = false;
   salidaTerminal: any = [];
 
   pushTerminal(msg: { texto: string; tipo: string }) {
@@ -226,6 +228,7 @@ export class AreaDeTrabajoComponent implements OnInit {
     private fb: FormBuilder,
     private codeService: CodeService,
     private storage: SecureStorageService,
+    private sessionTimer: SessionTimerService,
   ) {}
   nombrePadre = '';
   nombreHijo = '';
@@ -246,6 +249,7 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   listaArchivos: any[] = [];
   archivoActivo: any = null;
+  claseSeleccionada: string | null = null;
 
   form = this.fb.group({
     content: '',
@@ -256,6 +260,9 @@ export class AreaDeTrabajoComponent implements OnInit {
   aributosHeredados: any = [];
   lenguajeActual: string = 'java';
   ngOnInit(): void {
+    // Iniciar temporizador de sesión
+    this.sessionTimer.iniciarSesion();
+    
     this.idProyect = Number(this.storage.getItem('Id_Proyecto'));
     this.nameProyect = this.storage.getItem('Nombre_Proyecto');
     this.proyectosService
@@ -374,16 +381,31 @@ export class AreaDeTrabajoComponent implements OnInit {
   // Esta función se llama al dar clic en "Ver código"
   reinicio(id: any, node: any) {
     this.cargarArchivosProyecto();
+    this.cargandoCodigo = true;
+    // Actualizar la clase seleccionada desde el diagrama
+    this.claseSeleccionada = node.label;
+    // Registrar actividad de sesión
+    this.sessionTimer.registrarActividad();
+    
     this.codeService.obtenerCodigoFuente(id).subscribe({
       next: (res: any) => {
         this.code = res.codigo;
+        this.cargandoCodigo = false;
         if (!this.mostrarEditor) {
           this.toggleEditor();
+        }
+        // Actualizar el archivo activo basado en la clase
+        const archivoCorrespondiente = this.listaArchivos.find(
+          (f) => f.nombre.replace(/\.(java|cpp|h)$/i, '') === node.label
+        );
+        if (archivoCorrespondiente) {
+          this.archivoActivo = archivoCorrespondiente;
         }
         console.log('Código cargado exitosamente');
       },
       error: (err) => {
         console.error('Error al cargar código:', err);
+        this.cargandoCodigo = false;
         this.code =
           '// Error: No se pudo cargar el código fuente.\n// ' +
             err.error?.error || err.message;
@@ -442,12 +464,26 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   private cargarNuevoArchivo(archivo: any) {
     this.archivoActivo = archivo;
+    this.cargandoCodigo = true;
+    // Actualizar la clase seleccionada basado en el nombre del archivo (sin extensión)
+    const nombreSinExtension = archivo.nombre.replace(/\.(java|cpp|h)$/i, '');
+    this.claseSeleccionada = nombreSinExtension;
     console.log(this.archivoActivo);
+    // Registrar actividad de sesión
+    this.sessionTimer.registrarActividad();
     // Pedimos el contenido al backend
     this.codeService
       .leerArchivoPorRuta(archivo.ruta_relativa)
-      .subscribe((res: any) => {
-        this.code = res.codigo;
+      .subscribe({
+        next: (res: any) => {
+          this.code = res.codigo;
+          this.cargandoCodigo = false;
+        },
+        error: (err) => {
+          console.error('Error al cargar archivo:', err);
+          this.code = '// Error al cargar el archivo';
+          this.cargandoCodigo = false;
+        }
       });
   }
 
@@ -516,10 +552,12 @@ export class AreaDeTrabajoComponent implements OnInit {
         texto: '⚠️ No hay ningún archivo seleccionado para guardar.',
         tipo: 'error',
       });
-      return; // Detiene la función aquí
+      return;
     }
 
     this.pushTerminal({ texto: '> Guardando...', tipo: 'info' });
+    // Registrar actividad para mantener la sesión
+    this.sessionTimer.registrarActividad();
 
     this.guardarCambios().subscribe({
       next: () => {
@@ -527,6 +565,8 @@ export class AreaDeTrabajoComponent implements OnInit {
           texto: '✅ Archivo guardado correctamente.',
           tipo: 'info',
         });
+        // Actualizar el diagrama después de guardar
+        this.getClase();
       },
       error: (err) => {
         this.pushTerminal({

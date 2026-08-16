@@ -44,16 +44,18 @@ export class FormProyectComponent implements OnInit {
 
     this.api.postProyectos(nombreProyecto, this.idUsr, lenguaje).subscribe({
       next: (res:any)=>{
-        this.obtenerProyecto(nombreProyecto, this.idUsr)
         this.dialog.open(ConfirmComponent,{
           width:'300px',
-          data:'El proyecto se creo con éxito'
+          data:'El proyecto se creó con éxito. Ya puedes verlo en tu lista de proyectos.'
         })
-        this.dialgRef.close();
-
+        // Cerrar con true para indicar que se creó el proyecto
+        this.dialgRef.close(true);
       },
       error: () =>{
-
+        this.dialog.open(ConfirmComponent,{
+          width:'300px',
+          data:'Error al crear el proyecto. Inténtalo de nuevo.'
+        })
       }
     })
   }

@@ -42,15 +42,25 @@
                 <as-split-area [size]="mostrarConsola ? 70 : 100">
                     <div style="display: flex; flex-direction: row; height: 100%;">
                     
-                    <div *ngIf="mostrarExplorador" class="file-sidebar" style="width: 180px; background: #181825; color: #cdd6f4; border-right: 1px solid #313244; display: flex; flex-direction: column;">
+                    <div *ngIf="mostrarExplorador" class="file-sidebar" style="width: 200px; background: #181825; color: #cdd6f4; border-right: 1px solid #313244; display: flex; flex-direction: column;">
                         <div style="padding: 10px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: #a6adc8;">ARCHIVOS {{lenguajeActual}}</div>
                         
                         <div class="lista-archivos" style="overflow-y: auto; flex-grow: 1;">
                         <div *ngFor="let archivo of listaArchivos" (click)="abrirArchivo(archivo)"
                             [style.background-color]="archivoActivo?.nombre === archivo.nombre ? '#45475a' : 'transparent'"
-                            style="padding: 5px 15px; cursor: pointer; font-size: 13px; display: flex; align-items: center;">
-                           <img [src]="lenguajeActual === 'cpp' ? 'assets/imgs/cpp-icon.svg' : 'assets/imgs/java-icon.svg'" width="16" style="margin-right: 8px;">
-                            {{ archivo.nombre }}
+                            [style.border-left]="archivoActivo?.nombre === archivo.nombre ? '3px solid #89b4fa' : '3px solid transparent'"
+                            style="padding: 6px 10px; cursor: pointer; font-size: 13px; display: flex; align-items: center; transition: all 0.2s ease;">
+                           <!-- Flecha indicadora de selección -->
+                           <mat-icon *ngIf="archivoActivo?.nombre === archivo.nombre" 
+                                     style="font-size: 14px; width: 14px; height: 14px; color: #89b4fa; margin-right: 6px; flex-shrink: 0;">
+                             chevron_right
+                           </mat-icon>
+                           <span *ngIf="archivoActivo?.nombre !== archivo.nombre" style="width: 20px; flex-shrink: 0;"></span>
+                           <img [src]="lenguajeActual === 'cpp' ? 'assets/imgs/cpp-icon.svg' : 'assets/imgs/java-icon.svg'" width="16" style="margin-right: 8px; flex-shrink: 0;">
+                           <span [style.color]="archivoActivo?.nombre === archivo.nombre ? '#89b4fa' : '#cdd6f4'" 
+                                 [style.font-weight]="archivoActivo?.nombre === archivo.nombre ? '600' : '400'">
+                             {{ archivo.nombre }}
+                           </span>
                         </div>
                         </div>
                         
@@ -59,7 +69,12 @@
                         </button>
                     </div>
 
-                    <div style="flex-grow: 1; height: 100%;">
+                    <div style="flex-grow: 1; height: 100%; position: relative;">
+                        <!-- Spinner de carga -->
+                        <div *ngIf="cargandoCodigo" class="loading-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 30, 46, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;">
+                            <mat-spinner diameter="50" color="primary"></mat-spinner>
+                            <p style="color: #cdd6f4; margin-top: 16px; font-size: 14px;">Cargando código...</p>
+                        </div>
                         <ngx-monaco-editor style="height: 100%; width: 100%;" [options]="editorOptions" [(ngModel)]="code" (onInit)="onInitEditor($event)">
                         <div class="zona-editor" (keydown.control.s)="$event.preventDefault(); btnGuardar()"></div>
                         </ngx-monaco-editor>
@@ -143,9 +158,19 @@
                 <svg:g class="node">
                 <svg:foreignObject width="140" height="200" class="tarjeta">
                     <xhtml:div xmlns="http://www.w3.org/1999/xhtml">
-                    <div class="node-card">
+                    <div class="node-card" 
+                         [class.node-selected]="claseSeleccionada === node.label"
+                         [style.border]="claseSeleccionada === node.label ? '2px solid #89b4fa' : '1px solid #313244'"
+                         [style.box-shadow]="claseSeleccionada === node.label ? '0 0 15px rgba(137, 180, 250, 0.5), 0 0 30px rgba(137, 180, 250, 0.2)' : 'none'"
+                         [style.background]="claseSeleccionada === node.label ? 'linear-gradient(135deg, #1e1e2e 0%, #2a2a40 100%)' : '#1e1e2e'">
+                        <!-- Indicador de selección -->
+                        <div *ngIf="claseSeleccionada === node.label" 
+                             style="position: absolute; top: -8px; right: -8px; background: #89b4fa; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
+                          <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #1e1e2e;">edit</mat-icon>
+                        </div>
                         <img [attr.src]="(node.label === 'Main' || node.label === 'main') ? 'assets/imgs/claseMain.png' : node.imagen" alt="img" height="48" width="80" style="border-radius: 6px; object-fit: cover;" />
-                        <h1 style="font-size: 13px; margin: 6px 0 8px; color: #cdd6f4; font-weight: 600;">{{node.label}}</h1>
+                        <h1 style="font-size: 13px; margin: 6px 0 8px; font-weight: 600;"
+                            [style.color]="claseSeleccionada === node.label ? '#89b4fa' : '#cdd6f4'">{{node.label}}</h1>
                         <button class="node-btn" (click)="Showclass(node)">
                           <mat-icon style="font-size: 14px; height: 14px; width: 14px; vertical-align: middle;">visibility</mat-icon> Ver clase
                         </button>

@@ -1,0 +1,28 @@
+<div class="session-dialog-container">
+  <div class="session-icon warning">
+    <mat-icon>hourglass_empty</mat-icon>
+  </div>
+  
+  <h2 class="session-title">Sesión por expirar</h2>
+  
+  <div class="countdown-container">
+    <div class="countdown-circle">
+      <span class="countdown-time">{{ tiempoFormateado }}</span>
+    </div>
+  </div>
+  
+  <p class="session-message">
+    Tu sesión expirará pronto. ¿Deseas continuar trabajando?
+  </p>
+  
+  <div class="session-buttons">
+    <button class="btn-session btn-extend" (click)="extenderSesion()">
+      <mat-icon>refresh</mat-icon>
+      Continuar sesión
+    </button>
+    <button class="btn-session btn-logout" (click)="cerrarSesion()">
+      <mat-icon>logout</mat-icon>
+      Cerrar sesión
+    </button>
+  </div>
+</div>

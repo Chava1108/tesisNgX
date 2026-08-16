@@ -11,6 +11,7 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list'; 
 import {MatToolbarModule} from '@angular/material/toolbar'; 
 import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -29,6 +30,7 @@ import { RealizarTestComponent } from './realizar-test/realizar-test.component';
 import { HacerExamenComponent } from './hacer-examen/hacer-examen.component';
 import { VisorCodigoComponent } from './visor-codigo/visor-codigo.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { SessionExpiringComponent } from './dialogs/session-expiring/session-expiring.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { FormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
@@ -53,6 +55,7 @@ import { NgChartsModule } from 'ng2-charts';
    HacerExamenComponent,
    VisorCodigoComponent,
    DashboardComponent,
+   SessionExpiringComponent,
   ],
   imports: [
     BrowserModule,
@@ -64,6 +67,7 @@ import { NgChartsModule } from 'ng2-charts';
     MatListModule,
     MatToolbarModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     HttpClientModule,
     NgxGraphModule,
     MatButtonModule,
