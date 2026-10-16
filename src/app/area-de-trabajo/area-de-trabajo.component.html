@@ -26,11 +26,11 @@
             </div>
           <span style="color: #a6adc8; font-size: 13px; font-weight: 500;">{{ archivoActivo?.nombre || 'Explorador de proyecto' }}</span>
           <div>
-        <button (click)="ejecutarProyecto()" [disabled]="!archivoActivo" class="btn btn-sm btn-success" title="Ejecutar Proyecto">
+        <button (click)="ejecutarProyecto()" [disabled]="!archivoActivo || cargandoArchivo"class="btn btn-sm btn-success" title="Ejecutar Proyecto">
         <mat-icon>play_arrow</mat-icon> Run
         </button>
 
-        <button (click)="btnGuardar()" [disabled]="!archivoActivo" class="btn btn-sm btn-primary" style="margin: 0 5px;" title="Guardar">
+        <button (click)="btnGuardar()" [disabled]="!archivoActivo || cargandoArchivo"class="btn btn-sm btn-primary" style="margin: 0 5px;" title="Guardar">
         <mat-icon>save</mat-icon>
         </button>
             <button (click)="toggleEditor()" class="btn btn-sm btn-outline-danger ml-2"><mat-icon>close</mat-icon></button>

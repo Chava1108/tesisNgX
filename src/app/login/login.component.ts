@@ -23,7 +23,7 @@ export class LoginComponent implements OnInit {
       passwd: new FormControl('', [
         Validators.required,
         Validators.minLength(2),
-        Validators.maxLength(15),
+        Validators.maxLength(64), // Debe coincidir con el límite del registro
       ]),
     });
   }

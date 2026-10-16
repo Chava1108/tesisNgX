@@ -246,6 +246,10 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   listaArchivos: any[] = [];
   archivoActivo: any = null;
+  // Mientras se carga un archivo, archivoActivo y code aún corresponden al anterior:
+  // se bloquea el guardado para no escribir código en el archivo equivocado.
+  cargandoArchivo = false;
+  private cargaSub?: Subscription;
 
   form = this.fb.group({
     content: '',
@@ -353,6 +357,7 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
+    this.cargaSub?.unsubscribe();
   }
 
   private listenForm() {
@@ -371,23 +376,33 @@ export class AreaDeTrabajoComponent implements OnInit {
     });
   }
 
-  // Esta función se llama al dar clic en "Ver código"
+  // Esta función se llama al dar clic en "Código" de un nodo del diagrama.
+  // Abre el ARCHIVO de la clase (no solo su texto) para que archivoActivo y code
+  // siempre correspondan a la misma clase al guardar.
   reinicio(id: any, node: any) {
-    this.cargarArchivosProyecto();
-    this.codeService.obtenerCodigoFuente(id).subscribe({
+    const ext = this.lenguajeActual === 'cpp' ? '.cpp' : '.java';
+    this.codeService.listarArchivos(this.idProyect).subscribe({
       next: (res: any) => {
-        this.code = res.codigo;
-        if (!this.mostrarEditor) {
-          this.toggleEditor();
+        this.listaArchivos = res;
+        const archivo = this.listaArchivos.find(
+          (f) => f.nombre === node.label + ext,
+        );
+        if (archivo) {
+          this.abrirArchivo(archivo);
+        } else {
+          this.pushTerminal({
+            texto: `⚠️ No se encontró el archivo de la clase ${node.label}.`,
+            tipo: 'error',
+          });
         }
-        console.log('Código cargado exitosamente');
+        if (!this.mostrarEditor) this.toggleEditor();
       },
       error: (err) => {
-        console.error('Error al cargar código:', err);
-        this.code =
-          '// Error: No se pudo cargar el código fuente.\n// ' +
-            err.error?.error || err.message;
-        if (!this.mostrarEditor) this.toggleEditor();
+        console.error('Error al cargar archivos:', err);
+        this.pushTerminal({
+          texto: '⚠️ No se pudo cargar el código fuente.',
+          tipo: 'error',
+        });
       },
     });
   }
@@ -403,7 +418,7 @@ export class AreaDeTrabajoComponent implements OnInit {
       console.log(this.listaArchivos);
       // Opcional: Abrir Main.java por defecto si no hay nada abierto
       const main = this.listaArchivos.find((f) => f.es_main);
-      if (main && !this.archivoActivo) {
+      if (main && !this.archivoActivo && !this.cargandoArchivo) {
         this.abrirArchivo(main);
       }
     });
@@ -441,13 +456,25 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   private cargarNuevoArchivo(archivo: any) {
-    this.archivoActivo = archivo;
-    console.log(this.archivoActivo);
-    // Pedimos el contenido al backend
-    this.codeService
+    // Cancela una carga previa para que una respuesta tardía no sobrescriba la actual
+    this.cargaSub?.unsubscribe();
+    this.cargandoArchivo = true;
+    // Pedimos el contenido al backend; archivoActivo y code se asignan juntos al llegar
+    this.cargaSub = this.codeService
       .leerArchivoPorRuta(archivo.ruta_relativa)
-      .subscribe((res: any) => {
-        this.code = res.codigo;
+      .subscribe({
+        next: (res: any) => {
+          this.archivoActivo = archivo;
+          this.code = res.codigo;
+          this.cargandoArchivo = false;
+        },
+        error: (err) => {
+          this.cargandoArchivo = false;
+          this.pushTerminal({
+            texto: `⚠️ No se pudo abrir ${archivo.nombre}: ${err.message}`,
+            tipo: 'error',
+          });
+        },
       });
   }
 
@@ -455,6 +482,13 @@ export class AreaDeTrabajoComponent implements OnInit {
     if (!this.archivoActivo) {
       this.pushTerminal({
         texto: '⚠️ Selecciona un archivo o el Main antes de ejecutar.',
+        tipo: 'error',
+      });
+      return;
+    }
+    if (this.cargandoArchivo) {
+      this.pushTerminal({
+        texto: '⚠️ Espera a que termine de cargar el archivo.',
         tipo: 'error',
       });
       return;
@@ -517,6 +551,13 @@ export class AreaDeTrabajoComponent implements OnInit {
         tipo: 'error',
       });
       return; // Detiene la función aquí
+    }
+    if (this.cargandoArchivo) {
+      this.pushTerminal({
+        texto: '⚠️ Espera a que termine de cargar el archivo.',
+        tipo: 'error',
+      });
+      return;
     }
 
     this.pushTerminal({ texto: '> Guardando...', tipo: 'info' });

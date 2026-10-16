@@ -101,6 +101,36 @@
 
                 <p class="field-error" *ngIf="errorMsg" style="text-align:center; margin-top: 12px;">{{ errorMsg }}</p>
 
+                <div class="privacy-notice full-width">
+                    <div class="privacy-header">
+                        <mat-icon class="privacy-icon">privacy_tip</mat-icon>
+                        <span>Aviso de privacidad</span>
+                    </div>
+                    <p class="privacy-text">
+                        POOGraph es una herramienta desarrollada con fines de investigaci&#243;n acad&#233;mica (proyecto
+                        de tesis). Los datos que proporciones y tu actividad dentro de la plataforma se recolectan
+                        <strong>&#250;nicamente con fines de estudio</strong> sobre el aprendizaje de la Programaci&#243;n
+                        Orientada a Objetos.
+                    </p>
+                    <ul class="privacy-list">
+                        <li>Tu informaci&#243;n <strong>no ser&#225; compartida, vendida ni publicada</strong> con
+                            terceros.</li>
+                        <li>Los resultados del estudio se difundir&#225;n de forma <strong>agregada y
+                            an&#243;nima</strong>; en ning&#250;n caso se publicar&#225; tu nombre, correo ni datos que
+                            permitan identificarte.</li>
+                        <li>Solo se dar&#225;n a conocer los <strong>resultados del an&#225;lisis</strong>, nunca la
+                            identidad de los participantes.</li>
+                        <li>Tu participaci&#243;n es <strong>voluntaria</strong> y puedes solicitar la eliminaci&#243;n
+                            de tus datos en cualquier momento.</li>
+                    </ul>
+
+                    <label class="privacy-consent">
+                        <input type="checkbox" formControlName="aceptaPrivacidad" />
+                        <span>He le&#237;do y acepto que mis datos sean utilizados con fines de estudio conforme a este
+                            aviso de privacidad.</span>
+                    </label>
+                </div>
+
                 <button type="submit" class="btn-poo btn-poo-primary register-btn" (click)="crearUsuario()"
                     [disabled]="horizontalStepperForm.invalid || invalidPassword || invalidUsername">
                     <mat-icon style="font-size: 18px; height: 18px; width: 18px;">how_to_reg</mat-icon> Crear mi cuenta
