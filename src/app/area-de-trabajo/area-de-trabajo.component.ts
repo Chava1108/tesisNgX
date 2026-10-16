@@ -17,6 +17,7 @@ import { ShowclassComponent } from '../dialogs/showclass/showclass.component';
 import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { SecureStorageService } from '../services/secure-storage.service';
+import { SessionTimerService } from '../services/session-timer.service';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -226,6 +227,7 @@ export class AreaDeTrabajoComponent implements OnInit {
     private fb: FormBuilder,
     private codeService: CodeService,
     private storage: SecureStorageService,
+    private sessionTimer: SessionTimerService,
   ) {}
   nombrePadre = '';
   nombreHijo = '';
@@ -250,6 +252,12 @@ export class AreaDeTrabajoComponent implements OnInit {
   // se bloquea el guardado para no escribir código en el archivo equivocado.
   cargandoArchivo = false;
   private cargaSub?: Subscription;
+  claseSeleccionada: string | null = null;
+
+  // El overlay de carga del editor usa el mismo indicador que bloquea el guardado
+  get cargandoCodigo(): boolean {
+    return this.cargandoArchivo;
+  }
 
   form = this.fb.group({
     content: '',
@@ -260,6 +268,9 @@ export class AreaDeTrabajoComponent implements OnInit {
   aributosHeredados: any = [];
   lenguajeActual: string = 'java';
   ngOnInit(): void {
+    // Iniciar temporizador de sesión
+    this.sessionTimer.iniciarSesion();
+    
     this.idProyect = Number(this.storage.getItem('Id_Proyecto'));
     this.nameProyect = this.storage.getItem('Nombre_Proyecto');
     this.proyectosService
@@ -380,6 +391,10 @@ export class AreaDeTrabajoComponent implements OnInit {
   // Abre el ARCHIVO de la clase (no solo su texto) para que archivoActivo y code
   // siempre correspondan a la misma clase al guardar.
   reinicio(id: any, node: any) {
+    // Resaltar la clase en el diagrama y registrar actividad de sesión
+    this.claseSeleccionada = node.label;
+    this.sessionTimer.registrarActividad();
+
     const ext = this.lenguajeActual === 'cpp' ? '.cpp' : '.java';
     this.codeService.listarArchivos(this.idProyect).subscribe({
       next: (res: any) => {
@@ -459,6 +474,8 @@ export class AreaDeTrabajoComponent implements OnInit {
     // Cancela una carga previa para que una respuesta tardía no sobrescriba la actual
     this.cargaSub?.unsubscribe();
     this.cargandoArchivo = true;
+    // Registrar actividad de sesión
+    this.sessionTimer.registrarActividad();
     // Pedimos el contenido al backend; archivoActivo y code se asignan juntos al llegar
     this.cargaSub = this.codeService
       .leerArchivoPorRuta(archivo.ruta_relativa)
@@ -466,6 +483,8 @@ export class AreaDeTrabajoComponent implements OnInit {
         next: (res: any) => {
           this.archivoActivo = archivo;
           this.code = res.codigo;
+          // Resaltar en el diagrama la clase del archivo abierto (nombre sin extensión)
+          this.claseSeleccionada = archivo.nombre.replace(/\.(java|cpp|h)$/i, '');
           this.cargandoArchivo = false;
         },
         error: (err) => {
@@ -550,7 +569,7 @@ export class AreaDeTrabajoComponent implements OnInit {
         texto: '⚠️ No hay ningún archivo seleccionado para guardar.',
         tipo: 'error',
       });
-      return; // Detiene la función aquí
+      return;
     }
     if (this.cargandoArchivo) {
       this.pushTerminal({
@@ -561,6 +580,8 @@ export class AreaDeTrabajoComponent implements OnInit {
     }
 
     this.pushTerminal({ texto: '> Guardando...', tipo: 'info' });
+    // Registrar actividad para mantener la sesión
+    this.sessionTimer.registrarActividad();
 
     this.guardarCambios().subscribe({
       next: () => {
@@ -568,6 +589,8 @@ export class AreaDeTrabajoComponent implements OnInit {
           texto: '✅ Archivo guardado correctamente.',
           tipo: 'info',
         });
+        // Actualizar el diagrama después de guardar
+        this.getClase();
       },
       error: (err) => {
         this.pushTerminal({
