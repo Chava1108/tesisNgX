@@ -49,19 +49,28 @@ export class CodeService {
     });
   }
 
-  guardarArchivo(rutaRelativa: string, contenido: string, id_proyecto:number) {
+  // origen: manual | ejecutar | cambio_archivo | inactividad (se registra en el log de analítica)
+  guardarArchivo(rutaRelativa: string, contenido: string, id_proyecto:number, origen: string = 'manual') {
     return this.httpClient.post(`${this.servidorPython}/guardar-archivo`, {
       ruta_relativa: rutaRelativa,
       codigo: contenido,
-      id_proyecto: id_proyecto
+      id_proyecto: id_proyecto,
+      origen: origen
     });
   }
 
-  registrarTooltip(idUsuario: number, palabra: string, lenguaje: string) {
+  registrarTooltip(idUsuario: number, palabra: string, lenguaje: string, contexto?: string) {
     return this.httpClient.post(`${this.servidorPython}/tooltip-log`, {
       id_usuario: idUsuario,
       palabra: palabra,
-      lenguaje: lenguaje
+      lenguaje: lenguaje,
+      contexto: contexto
     });
+  }
+
+  // Igual que registrarTooltip, pero sobrevive al cierre de la pestaña (navigator.sendBeacon)
+  registrarTooltipAlSalir(idUsuario: number, palabra: string, lenguaje: string, contexto: string) {
+    const cuerpo = JSON.stringify({ id_usuario: idUsuario, palabra, lenguaje, contexto });
+    navigator.sendBeacon(`${this.servidorPython}/tooltip-log`, new Blob([cuerpo], { type: 'application/json' }));
   }
 }

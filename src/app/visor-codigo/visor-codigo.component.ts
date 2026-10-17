@@ -23,7 +23,7 @@ export class VisorCodigoComponent implements OnInit {
   code: string = '// Selecciona un archivo para ver el código';
 
   // Consola de compilación
-  mostrarConsola: boolean = false;
+  mostrarConsola: boolean = true;  // visible desde el inicio: la entrada se escribe ANTES de ejecutar
   salidaTerminal: any[] = [];
   entradasUsuario: string = '';
   compilando: boolean = false;
@@ -180,11 +180,9 @@ export class VisorCodigoComponent implements OnInit {
     this.codeService.compilarProyecto(this.proyectoSeleccionado.id, this.entradasUsuario).subscribe({
       next: (res: any) => {
         this.compilando = false;
-        if (res.exito) {
-          this.pushTerminal({ texto: res.mensaje, tipo: 'info' });
-        } else {
-          this.pushTerminal({ texto: res.mensaje, tipo: 'error' });
-        }
+        // Compiló, pero el programa terminó con error (por ejemplo, una excepción): se muestra en rojo
+        const ok = res.exito && !res.codigo_salida;
+        this.pushTerminal({ texto: res.mensaje, tipo: ok ? 'info' : 'error' });
       },
       error: (err) => {
         this.compilando = false;

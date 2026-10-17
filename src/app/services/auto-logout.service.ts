@@ -1,114 +1,177 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from './auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Observable, of } from 'rxjs';
+import { catchError, timeout } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 import { SecureStorageService } from './secure-storage.service';
+import { SessionExpiringComponent } from '../dialogs/session-expiring/session-expiring.component';
 import { environment } from '../../environments/environment';
 
+/**
+ * Único temporizador de sesión de la aplicación.
+ * Cierra la sesión tras 10 minutos sin actividad real del usuario y avisa 1 minuto antes.
+ * Se basa en la marca de tiempo de la última actividad (no en un setTimeout), por lo que
+ * también funciona si el equipo se suspende o la pestaña queda en segundo plano.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AutoLogoutService {
 
-  // CONFIGURACIÓN: 5 Minutos (según tu código) o 10
-  private TIMEOUT_LIMIT = 10 * 60 * 1000; 
-  private logoutTimer: any;
-  private apiUrl = `${environment.apiUrl}api/logout/`; 
+  private readonly LIMITE_INACTIVIDAD = 10 * 60 * 1000;
+  private readonly AVISO_ANTES = 60 * 1000;
+  private readonly INTERVALO_REVISION = 5 * 1000;
+  private readonly CLAVE_ULTIMA_ACTIVIDAD = 'ultima_actividad';
+  private readonly EVENTOS = ['mousedown', 'mousemove', 'keydown', 'wheel', 'touchstart', 'scroll'];
 
-  // 1. CREAMOS UNA REFERENCIA FIJA AL MANEJADOR DE EVENTOS
-  // Esto es vital para que removeEventListener funcione
-  private eventHandler = () => this.resetTimer();
+  private apiUrl = `${environment.apiUrl}api/logout/`;
+  private ultimaActividad = Date.now();
+  private intervalo: any = null;
+  private monitoreando = false;
+  private cerrando = false;
+  private avisoRef?: MatDialogRef<SessionExpiringComponent>;
+
+  /**
+   * Acción opcional que se ejecuta antes de cerrar la sesión por inactividad
+   * (por ejemplo, guardar el archivo abierto en el área de trabajo).
+   */
+  antesDeCerrarSesion: (() => Observable<any>) | null = null;
+
+  // Referencia fija para que removeEventListener elimine el mismo manejador
+  private manejadorActividad = () => this.registrarActividad();
 
   constructor(
     private authService: AuthService,
-    private router: Router,
     private ngZone: NgZone,
     private http: HttpClient,
+    private dialog: MatDialog,
     private storage: SecureStorageService
   ) { }
 
   startMonitoring() {
-    // Solo iniciamos si está autenticado
-    if (this.authService.estaAutenticado()) {
-      this.resetTimer(); 
-      
-      // Agregamos la referencia fija
-      window.addEventListener('click', this.eventHandler);
-      window.addEventListener('mousemove', this.eventHandler);
-      window.addEventListener('keypress', this.eventHandler);
-      window.addEventListener('scroll', this.eventHandler, true);
-      console.log('👁️ Vigilancia de inactividad iniciada');
-    }
+    if (this.monitoreando || !this.authService.estaAutenticado()) return;
+    this.monitoreando = true;
+    this.cerrando = false;
+
+    // Al recargar la página se conserva la última actividad de la pestaña
+    const guardada = Number(sessionStorage.getItem(this.CLAVE_ULTIMA_ACTIVIDAD));
+    this.ultimaActividad = guardada > 0 ? guardada : Date.now();
+    this.guardarUltimaActividad();
+
+    this.ngZone.runOutsideAngular(() => {
+      // Fase de captura: el editor Monaco detiene la propagación de varias teclas
+      this.EVENTOS.forEach((e) =>
+        window.addEventListener(e, this.manejadorActividad, { capture: true, passive: true })
+      );
+      this.intervalo = setInterval(() => this.revisarInactividad(), this.INTERVALO_REVISION);
+    });
+    this.revisarInactividad();
   }
 
   stopMonitoring() {
-    if (this.logoutTimer) {
-      clearTimeout(this.logoutTimer);
+    this.monitoreando = false;
+    if (this.intervalo) {
+      clearInterval(this.intervalo);
+      this.intervalo = null;
     }
-    
-    // 2. AHORA SÍ SE ELIMINAN LOS EVENTOS CORRECTAMENTE
-    // Al pasar la misma referencia 'this.eventHandler', JS sabe cuál borrar
-    window.removeEventListener('click', this.eventHandler);
-    window.removeEventListener('mousemove', this.eventHandler);
-    window.removeEventListener('keypress', this.eventHandler);
-    window.removeEventListener('scroll', this.eventHandler, true);
-    console.log('😴 Vigilancia detenida');
+    this.EVENTOS.forEach((e) =>
+      window.removeEventListener(e, this.manejadorActividad, { capture: true })
+    );
+    this.cerrarAviso();
   }
 
-  private resetTimer() {
-    // 3. SEGURIDAD EXTRA: Si por alguna razón esto se dispara en el Login, lo frenamos
+  private registrarActividad() {
+    // Con el aviso abierto, el usuario debe elegir explícitamente si continúa
+    if (this.avisoRef || this.cerrando) return;
+    const ahora = Date.now();
+    // Limitar escrituras a una por segundo (mousemove se dispara constantemente)
+    if (ahora - this.ultimaActividad < 1000) return;
+    this.ultimaActividad = ahora;
+    this.guardarUltimaActividad();
+  }
+
+  private guardarUltimaActividad() {
+    sessionStorage.setItem(this.CLAVE_ULTIMA_ACTIVIDAD, String(this.ultimaActividad));
+  }
+
+  private revisarInactividad() {
+    if (!this.monitoreando || this.cerrando) return;
     if (!this.authService.estaAutenticado()) {
-      this.stopMonitoring();
+      this.ngZone.run(() => this.stopMonitoring());
       return;
     }
 
-    if (this.logoutTimer) {
-      clearTimeout(this.logoutTimer);
+    const inactivo = Date.now() - this.ultimaActividad;
+    if (inactivo >= this.LIMITE_INACTIVIDAD) {
+      this.ngZone.run(() => this.cerrarSesion('timeout'));
+    } else if (inactivo >= this.LIMITE_INACTIVIDAD - this.AVISO_ANTES && !this.avisoRef) {
+      const segundos = Math.ceil((this.LIMITE_INACTIVIDAD - inactivo) / 1000);
+      this.ngZone.run(() => this.mostrarAviso(segundos));
     }
-
-    this.ngZone.runOutsideAngular(() => {
-      this.logoutTimer = setTimeout(() => {
-        this.ngZone.run(() => {
-          // 4. DOBLE CHECK ANTES DE CERRAR
-          // Verificamos de nuevo antes de lanzar la alerta
-          if (this.authService.estaAutenticado()) {
-             this.logoutPorInactividad();
-          } else {
-             this.stopMonitoring();
-          }
-        });
-      }, this.TIMEOUT_LIMIT);
-    });
   }
 
-  private logoutPorInactividad() {
-    console.log("Cerrando sesión por inactividad...");
-    
-    const token = this.storage.getItem('token');
-    
-    // Si no hay token, no tiene caso llamar a la API, solo limpiamos local
-    if (!token) {
-        this.finalizarSesionLocal();
-        return;
-    }
-
-    const headers = new HttpHeaders({ 'Authorization': `Token ${token}` });
-    
-    this.http.post(this.apiUrl, { motivo: 'timeout' }, { headers: headers }).subscribe({
-      next: () => {
-        console.log("Log de inactividad guardado en BD");
-        this.finalizarSesionLocal();
-      },
-      error: (err) => {
-        console.error("No se pudo guardar el log", err);
-        this.finalizarSesionLocal();
+  private mostrarAviso(segundos: number) {
+    this.avisoRef = this.dialog.open(SessionExpiringComponent, {
+      width: '400px',
+      disableClose: true,
+      data: { segundos },
+    });
+    this.avisoRef.afterClosed().subscribe((resultado) => {
+      this.avisoRef = undefined;
+      if (resultado === 'extend') {
+        this.ultimaActividad = Date.now();
+        this.guardarUltimaActividad();
+      } else if (resultado === 'logout') {
+        this.cerrarSesion('manual');
+      } else if (resultado === 'expired') {
+        this.cerrarSesion('timeout');
       }
     });
   }
 
-  private finalizarSesionLocal() {
-    this.stopMonitoring(); 
-    this.authService.logout(); 
-    alert("Tu sesión ha expirado por inactividad.");
+  private cerrarAviso() {
+    if (this.avisoRef) {
+      const ref = this.avisoRef;
+      this.avisoRef = undefined;
+      ref.close();
+    }
+  }
+
+  private cerrarSesion(motivo: 'timeout' | 'manual') {
+    if (this.cerrando) return;
+    this.cerrando = true;
+    this.cerrarAviso();
+
+    // 1. Guardar el trabajo pendiente (máximo 5 s para no bloquear el cierre)
+    const guardar$ = this.antesDeCerrarSesion
+      ? this.antesDeCerrarSesion().pipe(timeout(5000), catchError(() => of(null)))
+      : of(null);
+
+    guardar$.subscribe(() => {
+      // 2. Registrar el cierre en el backend (log de analítica)
+      const token = this.storage.getItem('token');
+      if (!token) {
+        this.finalizarSesionLocal(motivo);
+        return;
+      }
+      const headers = new HttpHeaders({ Authorization: `Token ${token}` });
+      this.http.post(this.apiUrl, { motivo }, { headers }).subscribe({
+        next: () => this.finalizarSesionLocal(motivo),
+        error: (err) => {
+          console.error('No se pudo registrar el cierre de sesión', err);
+          this.finalizarSesionLocal(motivo);
+        },
+      });
+    });
+  }
+
+  private finalizarSesionLocal(motivo: 'timeout' | 'manual') {
+    this.stopMonitoring();
+    this.antesDeCerrarSesion = null;
+    this.authService.logout();
+    if (motivo === 'timeout') {
+      alert('Tu sesión se cerró por 10 minutos de inactividad. Si tenías un archivo abierto, se guardó automáticamente.');
+    }
   }
 }

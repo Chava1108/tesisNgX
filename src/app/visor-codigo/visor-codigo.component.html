@@ -93,7 +93,7 @@
         </div>
       </div>
 
-      <!-- Editor Monaco (solo lectura) -->
+      <!-- Editor (solo lectura) + consola, con divisores ajustables -->
       <div class="editor-panel">
         <div class="editor-tab" *ngIf="archivoActivo">
           <img [src]="getIconoArchivo()" width="14">
@@ -102,32 +102,48 @@
           <button class="btn-compilar" (click)="ejecutarProyecto()" [disabled]="compilando" title="Compilar y ejecutar">
             <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle;">play_arrow</mat-icon> Ejecutar
           </button>
+          <button class="btn-consola" (click)="mostrarConsola = !mostrarConsola" [class.activo]="mostrarConsola" title="Mostrar u ocultar la consola">
+            <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle;">terminal</mat-icon> Consola
+          </button>
         </div>
-        <ngx-monaco-editor
-          [style.height]="mostrarConsola ? 'calc(100% - 32px - 180px)' : 'calc(100% - 32px)'"
-          style="width: 100%;"
-          [options]="editorOptions"
-          [(ngModel)]="code"
-          (onInit)="onInitEditor($event)">
-        </ngx-monaco-editor>
 
-        <!-- Terminal / Consola -->
-        <div class="terminal-panel" *ngIf="mostrarConsola">
-          <div class="terminal-header">
-            <span><mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle;margin-right:4px;">terminal</mat-icon>Consola</span>
-            <button class="btn-terminal-close" (click)="limpiarTerminal(); mostrarConsola = false">
-              <mat-icon style="font-size:16px;height:16px;width:16px;">close</mat-icon>
-            </button>
-          </div>
-          <div class="terminal-body">
-            <div *ngFor="let msg of salidaTerminal" [class]="'terminal-line terminal-' + msg.tipo">
-              {{ msg.texto }}
-            </div>
-          </div>
-          <div class="terminal-input-row">
-            <span class="terminal-prompt">&gt;</span>
-            <input type="text" [(ngModel)]="entradasUsuario" placeholder="Entrada del programa..." class="terminal-input">
-          </div>
+        <div class="split-contenedor">
+          <as-split direction="vertical" [gutterSize]="4" unit="percent">
+            <as-split-area [size]="mostrarConsola ? 62 : 100" [minSize]="20">
+              <ngx-monaco-editor style="height: 100%; width: 100%; display: block;"
+                [options]="editorOptions"
+                [(ngModel)]="code"
+                (onInit)="onInitEditor($event)">
+              </ngx-monaco-editor>
+            </as-split-area>
+
+            <as-split-area [size]="38" [minSize]="12" [visible]="mostrarConsola">
+              <as-split direction="horizontal" [gutterSize]="4" unit="percent">
+                <!-- Entrada estándar (Scanner / cin) -->
+                <as-split-area [size]="30" [minSize]="15">
+                  <div class="terminal-panel">
+                    <div class="terminal-header">
+                      <span><mat-icon>keyboard</mat-icon>Entrada (Scanner / cin)</span>
+                    </div>
+                    <textarea [(ngModel)]="entradasUsuario" class="terminal-entrada"
+                      placeholder="Un valor por línea o separados por espacio, sin comas. Decimales con punto: 2.5"></textarea>
+                  </div>
+                </as-split-area>
+                <!-- Salida -->
+                <as-split-area [size]="70" [minSize]="20">
+                  <div class="terminal-panel">
+                    <div class="terminal-header">
+                      <span><mat-icon>terminal</mat-icon>Salida / consola</span>
+                      <button class="btn-terminal-close" (click)="limpiarTerminal()" title="Limpiar salida y entrada">Limpiar</button>
+                    </div>
+                    <div class="terminal-body">
+                      <div *ngFor="let msg of salidaTerminal" [class]="'terminal-line terminal-' + msg.tipo">{{ msg.texto }}</div>
+                    </div>
+                  </div>
+                </as-split-area>
+              </as-split>
+            </as-split-area>
+          </as-split>
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { SecureStorageService } from '../services/secure-storage.service';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +20,7 @@ export class DashboardComponent implements OnInit {
 
   // Resumen
   resumen: any = {};
+  sinteticosExcluidos = 0;
 
   // Charts
   tiempoSesionData: ChartData<'bar'> = { labels: [], datasets: [] };
@@ -92,6 +93,7 @@ export class DashboardComponent implements OnInit {
       next: (data) => {
         this.usuarios = data.usuarios || [];
         this.resumen = data.resumen || {};
+        this.sinteticosExcluidos = data.sinteticos_excluidos || 0;
         this.actualizarGraficas(data);
         this.cargando = false;
       },
@@ -162,18 +164,26 @@ export class DashboardComponent implements OnInit {
       }]
     };
 
-    // Acciones resumen (doughnut)
+    // Acciones resumen (doughnut): hay más tipos de evento que colores base, se repiten con otra opacidad
     const colores = [
       '#89b4fa', '#a6e3a1', '#f38ba8', '#fab387', '#f9e2af',
       '#cba6f7', '#94e2d5', '#89dceb', '#74c7ec', '#b4befe'
     ];
+    const opacidades = ['', 'b3', '73'];
     this.accionesData = {
       labels: data.acciones_resumen.map((a: any) => a.accion),
       datasets: [{
         data: data.acciones_resumen.map((a: any) => a.total),
-        backgroundColor: colores.slice(0, data.acciones_resumen.length),
+        backgroundColor: data.acciones_resumen.map((_: any, i: number) =>
+          colores[i % colores.length] + opacidades[Math.floor(i / colores.length) % opacidades.length]),
       }]
     };
+  }
+
+  // "compilacion: 5 · tiempo: 1" para el detalle de errores
+  get detalleErrores(): string {
+    const tipos = this.resumen.errores_por_tipo || {};
+    return Object.keys(tipos).map(t => `${t}: ${tipos[t]}`).join(' · ');
   }
 
   filtrar(): void {

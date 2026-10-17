@@ -311,14 +311,47 @@
   cursor: not-allowed;
 }
 
+/* Editor + consola con divisores ajustables (angular-split) */
+.split-contenedor {
+  flex: 1;
+  min-height: 0;   /* permite que el split ocupe el alto restante del panel */
+}
+.btn-consola {
+  margin-left: 6px;
+  background: none;
+  color: #a6adc8;
+  border: 1px solid #45475a;
+  border-radius: 5px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.btn-consola.activo {
+  color: #f9e2af;
+  border-color: #f9e2af;
+}
+
 /* Terminal Panel */
 .terminal-panel {
-  height: 180px;
+  height: 100%;
   background: #11111B;
   border-top: 1px solid #313244;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
+}
+.terminal-entrada {
+  flex: 1;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: none;
+  resize: none;
+  padding: 10px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  outline: none;
+}
+.terminal-entrada::placeholder {
+  color: #6c7086;
 }
 .terminal-header {
   display: flex;

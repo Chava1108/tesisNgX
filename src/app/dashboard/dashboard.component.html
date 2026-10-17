@@ -64,6 +64,11 @@
       </div>
     </div>
   </div>
+  <p class="nota-resumen" *ngIf="!cargando">
+    Sesiones sin cierre registrado (pestaña cerrada): {{ resumen.sesiones_sin_cierre || 0 }}
+    <span *ngIf="detalleErrores"> · Errores por tipo: {{ detalleErrores }}</span>
+    <span *ngIf="sinteticosExcluidos"> · Se excluyen {{ sinteticosExcluidos }} usuarios de prueba del simulador</span>
+  </p>
 
   <!-- Indicador de carga -->
   <div *ngIf="cargando" class="loading">Cargando datos...</div>

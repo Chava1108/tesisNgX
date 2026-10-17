@@ -5,7 +5,6 @@ import { FormProyectComponent } from '../dialogs/form-proyect/form-proyect.compo
 import { PoryectosService } from '../services/poryectos.service';
 import { AuthService } from '../services/auth.service';
 import { SecureStorageService } from '../services/secure-storage.service';
-import { SessionTimerService } from '../services/session-timer.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -18,8 +17,7 @@ constructor(
     private apis: PoryectosService, 
     private router: Router,
     private authService: AuthService,
-    private storage: SecureStorageService,
-    private sessionTimer: SessionTimerService
+    private storage: SecureStorageService
   ) { }
   username:any
   id:any
@@ -31,9 +29,6 @@ ngOnInit(): void {
       this.authService.logout(); // Si no hay datos, lo saca
       return;
     }
-
-    // Iniciar temporizador de sesión
-    this.sessionTimer.iniciarSesion();
 
     const user = this.authService.obtenerUsuarioActual();
     this.username = user.username;
@@ -54,8 +49,6 @@ ngOnInit(): void {
 openProyect(proyect: any) {
     this.storage.setItem("Id_Proyecto", proyect.id);
     this.storage.setItem("Nombre_Proyecto", proyect.nombre);
-    // Registrar actividad para mantener la sesión
-    this.sessionTimer.registrarActividad();
     this.router.navigate(['/area-de-trabajo.component']); 
   }
 

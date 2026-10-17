@@ -14,10 +14,10 @@ import { PoryectosService } from '../services/poryectos.service';
 import { CodeService } from '../services/code.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ShowclassComponent } from '../dialogs/showclass/showclass.component';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { SecureStorageService } from '../services/secure-storage.service';
-import { SessionTimerService } from '../services/session-timer.service';
+import { AutoLogoutService } from '../services/auto-logout.service';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -200,14 +200,7 @@ export class AreaDeTrabajoComponent implements OnInit {
 
   toggleDiagrama() {
     this.mostrarDiagrama = !this.mostrarDiagrama;
-    // Registrar en log de actividad
-    const userId = Number(this.storage.getItem('Usrid'));
-    if (userId) {
-      const accion = this.mostrarDiagrama ? 'MOSTRAR_DIAGRAMA' : 'OCULTAR_DIAGRAMA';
-      this.codeService.registrarTooltip(userId, accion, this.lenguajeActual).subscribe({
-        error: (err: any) => console.error('Error registrando toggle diagrama:', err)
-      });
-    }
+    this.registrarDiagrama(this.mostrarDiagrama, 'botón');
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 300);
@@ -227,7 +220,7 @@ export class AreaDeTrabajoComponent implements OnInit {
     private fb: FormBuilder,
     private codeService: CodeService,
     private storage: SecureStorageService,
-    private sessionTimer: SessionTimerService,
+    private autoLogout: AutoLogoutService,
   ) {}
   nombrePadre = '';
   nombreHijo = '';
@@ -267,10 +260,34 @@ export class AreaDeTrabajoComponent implements OnInit {
     ' Bienvenidos a POOGraph \n La Programación Orientada a objetos permite que el \n código sea reutilizable, organizado y fácil de mantener \n  En este sitio podras personalizar tus diagramas para \n trabajar con POO, es ideal por si';
   aributosHeredados: any = [];
   lenguajeActual: string = 'java';
+  // Usuario del log de analítica; se guarda al entrar porque al cerrar sesión el storage se limpia
+  private idUsuarioLog = 0;
+  private alCerrarPestana = () => {
+    if (this.mostrarDiagrama && this.idUsuarioLog) {
+      this.codeService.registrarTooltipAlSalir(this.idUsuarioLog, 'OCULTAR_DIAGRAMA', this.lenguajeActual, 'cierre_pestaña');
+    }
+  };
+
+  /**
+   * Registra cuándo el diagrama queda visible u oculto para medir el tiempo con el diagrama.
+   * El diagrama está visible por defecto, así que también se registra al entrar y al salir
+   * del área de trabajo, no solo con el botón.
+   */
+  private registrarDiagrama(visible: boolean, contexto: string) {
+    if (!this.idUsuarioLog) return;
+    const palabra = visible ? 'MOSTRAR_DIAGRAMA' : 'OCULTAR_DIAGRAMA';
+    this.codeService.registrarTooltip(this.idUsuarioLog, palabra, this.lenguajeActual, contexto).subscribe({
+      error: (err: any) => console.error('Error registrando el diagrama:', err)
+    });
+  }
+
   ngOnInit(): void {
-    // Iniciar temporizador de sesión
-    this.sessionTimer.iniciarSesion();
-    
+    // Si la sesión se cierra por inactividad, guardar antes el archivo abierto
+    this.autoLogout.antesDeCerrarSesion = () => this.guardarArchivoAbierto();
+
+    this.idUsuarioLog = Number(this.storage.getItem('Usrid')) || 0;
+    window.addEventListener('pagehide', this.alCerrarPestana);
+
     this.idProyect = Number(this.storage.getItem('Id_Proyecto'));
     this.nameProyect = this.storage.getItem('Nombre_Proyecto');
     this.proyectosService
@@ -285,6 +302,8 @@ export class AreaDeTrabajoComponent implements OnInit {
         this.storage.setItem('lenguajeActual', this.lenguajeActual);
         // 2. ACTUALIZAR LAS OPCIONES DE MONACO
         this.actualizarEditorOptions();
+        // El diagrama está visible al entrar (se registra ya con el lenguaje del proyecto)
+        if (this.mostrarDiagrama) this.registrarDiagrama(true, 'entrada');
       });
     this.nodos = [];
     this.links = [];
@@ -369,6 +388,9 @@ export class AreaDeTrabajoComponent implements OnInit {
   ngOnDestroy() {
     this.sub?.unsubscribe();
     this.cargaSub?.unsubscribe();
+    this.autoLogout.antesDeCerrarSesion = null;
+    window.removeEventListener('pagehide', this.alCerrarPestana);
+    if (this.mostrarDiagrama) this.registrarDiagrama(false, 'salida');
   }
 
   private listenForm() {
@@ -391,9 +413,8 @@ export class AreaDeTrabajoComponent implements OnInit {
   // Abre el ARCHIVO de la clase (no solo su texto) para que archivoActivo y code
   // siempre correspondan a la misma clase al guardar.
   reinicio(id: any, node: any) {
-    // Resaltar la clase en el diagrama y registrar actividad de sesión
+    // Resaltar la clase en el diagrama
     this.claseSeleccionada = node.label;
-    this.sessionTimer.registrarActividad();
 
     const ext = this.lenguajeActual === 'cpp' ? '.cpp' : '.java';
     this.codeService.listarArchivos(this.idProyect).subscribe({
@@ -447,7 +468,7 @@ export class AreaDeTrabajoComponent implements OnInit {
         tipo: 'info' 
       });
       
-      this.guardarCambios().subscribe({
+      this.guardarCambios('cambio_archivo').subscribe({
         next: () => {
           this.pushTerminal({ 
             texto: `✅ ${this.archivoActivo.nombre} guardado correctamente.`, 
@@ -474,8 +495,6 @@ export class AreaDeTrabajoComponent implements OnInit {
     // Cancela una carga previa para que una respuesta tardía no sobrescriba la actual
     this.cargaSub?.unsubscribe();
     this.cargandoArchivo = true;
-    // Registrar actividad de sesión
-    this.sessionTimer.registrarActividad();
     // Pedimos el contenido al backend; archivoActivo y code se asignan juntos al llegar
     this.cargaSub = this.codeService
       .leerArchivoPorRuta(archivo.ruta_relativa)
@@ -517,7 +536,7 @@ export class AreaDeTrabajoComponent implements OnInit {
       texto: '> Preparando ejecución...',
       tipo: 'info',
     });
-    this.guardarCambios().subscribe({
+    this.guardarCambios('ejecutar').subscribe({
       next: () => {
         this.iniciarCompilacionReal();
       },
@@ -540,11 +559,9 @@ export class AreaDeTrabajoComponent implements OnInit {
       .compilarProyecto(this.idProyect, this.entradasUsuario)
       .subscribe({
         next: (res: any) => {
-          if (res.exito) {
-            this.pushTerminal({ texto: res.mensaje, tipo: 'info' });
-          } else {
-            this.pushTerminal({ texto: res.mensaje, tipo: 'error' });
-          }
+          // Compiló, pero el programa terminó con error (por ejemplo, una excepción): se muestra en rojo
+          const ok = res.exito && !res.codigo_salida;
+          this.pushTerminal({ texto: res.mensaje, tipo: ok ? 'info' : 'error' });
         },
         error: (err) =>
           this.pushTerminal({
@@ -554,12 +571,19 @@ export class AreaDeTrabajoComponent implements OnInit {
       });
   }
 
-  guardarCambios(): Observable<any> {
-    // Retornamos la petición del servicio directamente
+  // Guarda el archivo abierto si es seguro hacerlo (usado al cerrar sesión por inactividad)
+  private guardarArchivoAbierto(): Observable<any> {
+    if (!this.archivoActivo || this.cargandoArchivo) return of(null);
+    return this.guardarCambios('inactividad');
+  }
+
+  // origen: manual | ejecutar | cambio_archivo | inactividad (distingue guardados automáticos en la analítica)
+  guardarCambios(origen: string = 'manual'): Observable<any> {
     return this.codeService.guardarArchivo(
       this.archivoActivo.ruta_relativa,
       this.code,
       this.idProyect,
+      origen,
     );
   }
 
@@ -580,8 +604,6 @@ export class AreaDeTrabajoComponent implements OnInit {
     }
 
     this.pushTerminal({ texto: '> Guardando...', tipo: 'info' });
-    // Registrar actividad para mantener la sesión
-    this.sessionTimer.registrarActividad();
 
     this.guardarCambios().subscribe({
       next: () => {
