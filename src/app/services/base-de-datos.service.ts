@@ -16,9 +16,6 @@ export class BaseDeDatosService {
     return this.httpClient.get(`${this.servidor}clases`);
   }
 
-  getUsuarios(): any {
-    return this.httpClient.get(`${this.servidor}usuario`);
-  }
 
   getClasesProyectId(id:number): any{
     return this.httpClient.get(`${this.servidor}clasesProyectId/${id}`);
@@ -31,6 +28,14 @@ export class BaseDeDatosService {
   postClase(nivel: String, clase:string, imagen:string, id_proyecto:number, id_usuario:number):any{
     const body={nivel:nivel,nombre:clase,imagen:imagen, id_proyecto: id_proyecto, id_usuario:id_usuario}
     return this.httpClient.post(`${this.servidor}clases`,body);
+  }
+
+  /**
+   * Editor UML: crea la clase completa (herencia, atributos y métodos) en una sola petición.
+   * Con vista_previa: true solo valida y devuelve el código que se generaría.
+   */
+  crearClaseCompleta(payload: any) {
+    return this.httpClient.post<any>(`${this.servidor}clases/completa`, payload);
   }
 
   postAtributos(nivel:string, nombre:string, tipo:string, id_clase:number):any{

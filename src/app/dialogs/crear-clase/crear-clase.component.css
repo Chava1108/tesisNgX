@@ -1,0 +1,61 @@
+/* Editor UML para crear clases (paleta de la plataforma) */
+:host { display: block; height: 100%; }
+.editor { height: 100%; display: flex; flex-direction: column; background: #1e1e2e; color: #cdd6f4; font-size: 13.5px; }
+.editor-barra { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 18px; background: #181825; border-bottom: 1px solid #313244; }
+.titulo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; }
+.nota { margin-left: auto; color: #a6adc8; font-size: 12px; }
+.editor-cuerpo { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.columna-izq { overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+.columna-der { overflow: hidden; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; background: #181825; border-left: 1px solid #313244; min-width: 0; }
+
+/* Tarjeta UML */
+.tarjeta { border: 1px solid #89b4fa; border-radius: 9px; overflow: hidden; }
+.tarjeta-cab { display: grid; gap: 5px; padding: 12px; background: rgba(137, 180, 250, 0.12); border-bottom: 1px solid #89b4fa; }
+.tarjeta-cab label, .imagen { color: #a6adc8; font-size: 12px; }
+.tarjeta-sec { display: grid; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #313244; }
+.tarjeta-sec:last-child { border-bottom: none; }
+.sec-titulo { font-size: 12px; font-weight: 600; color: #cba6f7; letter-spacing: 0.04em; text-transform: uppercase; }
+.miembro { display: grid; gap: 3px; }
+.fila { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+input, select { font: inherit; color: #cdd6f4; background: #181825; border: 1px solid #45475a; border-radius: 7px; padding: 6px 8px; min-width: 0; }
+input:focus, select:focus, button:focus-visible { outline: 2px solid #89b4fa; outline-offset: 1px; }
+.invalido { border-color: #f38ba8 !important; }
+.nombre-clase { font-family: 'Fira Code', Consolas, monospace; font-size: 15px; font-weight: 600; text-align: center; }
+select { flex: 0 1 130px; }
+input.nombre { flex: 1 1 120px; font-family: 'Fira Code', Consolas, monospace; }
+input.params { flex: 1 1 110px; font-family: 'Fira Code', Consolas, monospace; }
+.parentesis { color: #a6adc8; font-family: Consolas, monospace; }
+
+.vis { display: inline-flex; border: 1px solid #45475a; border-radius: 7px; overflow: hidden; flex-shrink: 0; }
+.vis button { width: 30px; padding: 6px 0; border: none; background: #181825; color: #a6adc8; font: 600 13px Consolas, monospace; cursor: pointer; }
+.vis button[aria-pressed="true"] { background: #89b4fa; color: #11111b; }
+.quitar { background: none; border: none; color: #a6adc8; font-size: 18px; line-height: 1; padding: 2px 6px; cursor: pointer; }
+.quitar:hover { color: #f38ba8; }
+.agregar { justify-self: start; background: none; border: 1px dashed #45475a; color: #89b4fa; border-radius: 7px; padding: 5px 10px; font: inherit; cursor: pointer; }
+.imagen { display: grid; gap: 5px; }
+.imagen input { padding: 5px; }
+
+/* Código */
+.codigo-cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.codigo { flex: 1; min-height: 0; margin: 0; overflow: auto; background: #11111b; border-radius: 8px; padding: 12px 14px;
+  font: 12.5px/1.55 'Fira Code', Consolas, monospace; color: #cdd6f4; }
+.linea { display: block; white-space: pre; min-height: 1.55em; }
+.linea.nueva { background: rgba(166, 227, 161, 0.16); }
+
+.ayuda { font-size: 12px; color: #a6adc8; }
+.ayuda.mal { color: #f38ba8; }
+.ayuda.aviso { color: #f9e2af; }
+
+/* Pie */
+.editor-pie { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 18px; background: #181825; border-top: 1px solid #313244; }
+.espacio { flex: 1; }
+.btn { font: inherit; font-weight: 600; border: none; border-radius: 7px; padding: 8px 18px; cursor: pointer; background: #89b4fa; color: #11111b; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.sec { background: #313244; color: #cdd6f4; }
+
+@media (max-width: 900px) {
+  .editor-cuerpo { grid-template-columns: 1fr; overflow-y: auto; }
+  .columna-izq { overflow: visible; }
+  .columna-der { border-left: none; border-top: 1px solid #313244; min-height: 320px; }
+}

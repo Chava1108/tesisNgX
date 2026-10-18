@@ -1,0 +1,60 @@
+<div class="admin-pagina">
+  <div class="admin-encabezado">
+    <h1><mat-icon>groups</mat-icon> Estudiantes y grupos del estudio</h1>
+    <p>El grupo <b>experimental</b> usa la plataforma completa; el de <b>control</b> solo presenta exámenes.
+      <b>Pruebas</b> y <b>sintéticos</b> quedan fuera del análisis.</p>
+  </div>
+
+  <div class="chips">
+    <button class="chip" [class.activo]="filtroGrupo === ''" (click)="filtroGrupo = ''">Todos ({{ total }})</button>
+    <button *ngFor="let g of grupos" class="chip" [class.activo]="filtroGrupo === g.valor" (click)="filtroGrupo = g.valor">
+      {{ g.etiqueta }} ({{ conteo[g.valor] || 0 }})
+    </button>
+  </div>
+
+  <div class="barra">
+    <input class="campo" [(ngModel)]="busqueda" placeholder="Buscar por usuario, nombre o correo">
+    <span class="barra-sep"></span>
+    <span class="texto-suave">{{ seleccionados.size }} seleccionado(s)</span>
+    <select class="campo" [(ngModel)]="grupoMasivo">
+      <option *ngFor="let g of grupos" [value]="g.valor">{{ g.etiqueta }}</option>
+    </select>
+    <button class="btn" [disabled]="!seleccionados.size" (click)="asignarSeleccionados()">Asignar grupo</button>
+    <button class="btn btn-secundario" (click)="exportar()"><mat-icon>download</mat-icon> CSV</button>
+  </div>
+
+  <p class="aviso-ok" *ngIf="mensaje">{{ mensaje }}</p>
+  <p class="aviso-error" *ngIf="error">{{ error }}</p>
+  <p class="texto-suave" *ngIf="cargando">Cargando...</p>
+
+  <div class="tabla-contenedor" *ngIf="!cargando">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th><input type="checkbox" [checked]="todosMarcados" (change)="alternarTodos()"></th>
+          <th>Usuario</th><th>Nombre</th><th>Correo</th><th>Sem.</th><th>Grupo</th>
+          <th class="num">Proyectos</th><th class="num">Eventos</th><th class="num">Exámenes</th><th>Último acceso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of visibles" [class.fila-marcada]="seleccionados.has(e.id)">
+          <td><input type="checkbox" [checked]="seleccionados.has(e.id)" (change)="alternar(e.id)"></td>
+          <td>{{ e.username }}</td>
+          <td>{{ e.name }}</td>
+          <td class="texto-suave">{{ e.email }}</td>
+          <td>{{ e.semestre || '—' }}</td>
+          <td>
+            <select class="campo campo-chico" [ngClass]="'grupo-' + e.grupo" [ngModel]="e.grupo" (ngModelChange)="cambiarGrupo(e, $event)">
+              <option *ngFor="let g of grupos" [value]="g.valor">{{ g.etiqueta }}</option>
+            </select>
+          </td>
+          <td class="num">{{ e.proyectos }}</td>
+          <td class="num">{{ e.eventos }}</td>
+          <td class="num">{{ e.examenes_completados }}</td>
+          <td class="texto-suave">{{ e.ultimo_acceso ? (e.ultimo_acceso | date:'dd/MM/yy HH:mm') : 'Nunca' }}</td>
+        </tr>
+        <tr *ngIf="visibles.length === 0"><td colspan="10" class="vacio">No hay estudiantes con este filtro.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>

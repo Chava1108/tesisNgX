@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { FormularioComponent } from '../dialogs/formulario/formulario.component';
+import { CrearClaseComponent } from '../dialogs/crear-clase/crear-clase.component';
+import { AreaEventosService, ClaseCreada } from '../services/area-eventos.service';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environments/environment';
 import { filter } from 'rxjs/operators';
@@ -24,7 +25,8 @@ export class NavbarComponent implements OnInit {
     public dialog: MatDialog,
     private authService: AuthService,
     private http: HttpClient,
-    private storage: SecureStorageService
+    private storage: SecureStorageService,
+    private areaEventos: AreaEventosService
   ) {}
 
   ngOnInit(): void {
@@ -64,14 +66,16 @@ export class NavbarComponent implements OnInit {
   }
 
   abrirCrearClase() {
-    const dialogRef = this.dialog.open(FormularioComponent, {
-      width: '80%',
-      height: '80%',
-      data: 'Formulario',
+    // Editor UML: tarjeta de la clase + código generado en vivo
+    const dialogRef = this.dialog.open<CrearClaseComponent, unknown, ClaseCreada | undefined>(CrearClaseComponent, {
+      width: '92vw',
+      maxWidth: '1280px',
+      height: '86vh',
+      panelClass: 'dialogo-sin-relleno',
     });
-    dialogRef.afterClosed().subscribe((res) => {
-      console.log(res);
-      // Aquí podrías emitir un evento para recargar el diagrama si crearon una clase
+    dialogRef.afterClosed().subscribe((creada) => {
+      // El área de trabajo recarga el diagrama y abre el archivo de la clase nueva
+      if (creada) this.areaEventos.notificarClaseCreada(creada);
     });
   }
 

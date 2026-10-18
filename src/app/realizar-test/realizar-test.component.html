@@ -55,6 +55,17 @@
           class="input-texto"
         />
       </div>
+      <div class="campo">
+        <label for="tipo">
+          <mat-icon class="label-icon">category</mat-icon>
+          Tipo de examen
+        </label>
+        <select id="tipo" [(ngModel)]="tipoExamen" class="input-texto">
+          <option value="pre">Pre-test (instrumento inicial)</option>
+          <option value="post">Post-test (instrumento final)</option>
+          <option value="practica">Práctica</option>
+        </select>
+      </div>
     </div>
   </div>
 

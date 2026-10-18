@@ -18,6 +18,7 @@ import { Observable, Subscription, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { SecureStorageService } from '../services/secure-storage.service';
 import { AutoLogoutService } from '../services/auto-logout.service';
+import { AreaEventosService } from '../services/area-eventos.service';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -221,6 +222,7 @@ export class AreaDeTrabajoComponent implements OnInit {
     private codeService: CodeService,
     private storage: SecureStorageService,
     private autoLogout: AutoLogoutService,
+    private areaEventos: AreaEventosService,
   ) {}
   nombrePadre = '';
   nombreHijo = '';
@@ -281,7 +283,16 @@ export class AreaDeTrabajoComponent implements OnInit {
     });
   }
 
+  private claseCreadaSub?: Subscription;
+
   ngOnInit(): void {
+    // Al crear una clase con el editor UML: recargar el diagrama y abrir su archivo
+    this.claseCreadaSub = this.areaEventos.claseCreada$.subscribe((clase) => {
+      this.pushTerminal({ texto: `✅ Clase ${clase.nombre} creada.`, tipo: 'info' });
+      this.getClase();
+      this.reinicio(clase.id, { label: clase.nombre });
+    });
+
     // Si la sesión se cierra por inactividad, guardar antes el archivo abierto
     this.autoLogout.antesDeCerrarSesion = () => this.guardarArchivoAbierto();
 
@@ -324,7 +335,9 @@ export class AreaDeTrabajoComponent implements OnInit {
         this.nodos = clases.map((element: any) => ({
           id: element.nombre,
           label: element.nombre,
-          imagen: environment.apiUrl + 'archivos/' + element.imagen,
+          // Sin imagen: el nodo muestra la inicial de la clase
+          imagen: element.imagen ? environment.apiUrl + 'archivos/' + element.imagen : '',
+          inicial: (element.nombre || '?').charAt(0).toUpperCase(),
           atributos: [], // Se llenarán después mediante el Parser si lo deseas
           funciones: [], 
           identificador: element.id,
@@ -386,6 +399,7 @@ export class AreaDeTrabajoComponent implements OnInit {
   }
 
   ngOnDestroy() {
+    this.claseCreadaSub?.unsubscribe();
     this.sub?.unsubscribe();
     this.cargaSub?.unsubscribe();
     this.autoLogout.antesDeCerrarSesion = null;

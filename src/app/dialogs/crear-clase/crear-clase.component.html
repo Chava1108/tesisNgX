@@ -1,0 +1,111 @@
+<div class="editor">
+  <div class="editor-barra">
+    <span class="titulo"><mat-icon>schema</mat-icon> Nueva clase</span>
+    <span class="nota">Proyecto {{ lenguaje === 'cpp' ? 'C++' : 'Java' }} · − privado · # protegido · + público</span>
+  </div>
+
+  <div class="editor-cuerpo">
+    <!-- ============ Tarjeta UML editable ============ -->
+    <div class="columna-izq">
+      <div class="tarjeta">
+        <div class="tarjeta-cab">
+          <label for="cc-nombre">Nombre de la clase</label>
+          <input id="cc-nombre" class="nombre-clase" [class.invalido]="error('nombre')" autocomplete="off"
+                 placeholder="Por ejemplo: Auto" [ngModel]="nombre" (ngModelChange)="nombre = $event; cambio()">
+          <span class="ayuda mal" *ngIf="error('nombre')">{{ error('nombre') }}</span>
+          <span class="ayuda aviso" *ngIf="sugerencia">{{ sugerencia }}</span>
+
+          <label for="cc-padre">Hereda de</label>
+          <select id="cc-padre" [class.invalido]="error('padre')" [ngModel]="padre" (ngModelChange)="padre = $event; cambio()">
+            <option value="">(ninguna, es una clase base)</option>
+            <option *ngFor="let c of clasesProyecto" [value]="c">{{ c }}</option>
+          </select>
+          <span class="ayuda mal" *ngIf="error('padre')">{{ error('padre') }}</span>
+        </div>
+
+        <!-- Atributos -->
+        <div class="tarjeta-sec">
+          <span class="sec-titulo">Atributos</span>
+          <div class="miembro" *ngFor="let a of atributos; let i = index; trackBy: trackPorIndice">
+            <div class="fila">
+              <span class="vis" role="group" aria-label="Visibilidad">
+                <button *ngFor="let n of niveles" type="button" [attr.aria-pressed]="a.nivel === n.valor"
+                        [title]="n.nombre" (click)="cambiarNivel(a, n.valor)">{{ n.simbolo }}</button>
+              </span>
+              <select aria-label="Tipo" [class.invalido]="error('atributos.' + i + '.tipo')" [ngModel]="a.tipo" (ngModelChange)="a.tipo = $event; cambio()">
+                <optgroup *ngFor="let g of gruposTipos(false)" [label]="g.etiqueta">
+                  <option *ngFor="let t of g.tipos" [value]="t">{{ t }}</option>
+                </optgroup>
+              </select>
+              <input [id]="'atributo-' + i" class="nombre" placeholder="nombreAtributo" aria-label="Nombre del atributo"
+                     [class.invalido]="error('atributos.' + i + '.nombre')" [ngModel]="a.nombre"
+                     (ngModelChange)="a.nombre = $event; cambio()" (keydown.enter)="enterEnMiembro($event, false)">
+              <button type="button" class="quitar" title="Quitar atributo" (click)="quitar(atributos, i)">×</button>
+            </div>
+            <span class="ayuda mal" *ngIf="error('atributos.' + i + '.nombre') || error('atributos.' + i + '.tipo')">
+              {{ error('atributos.' + i + '.nombre') || error('atributos.' + i + '.tipo') }}
+            </span>
+          </div>
+          <button type="button" class="agregar" (click)="agregarAtributo()">+ Atributo</button>
+        </div>
+
+        <!-- Métodos -->
+        <div class="tarjeta-sec">
+          <span class="sec-titulo">Métodos</span>
+          <div class="miembro" *ngFor="let m of metodos; let i = index; trackBy: trackPorIndice">
+            <div class="fila">
+              <span class="vis" role="group" aria-label="Visibilidad">
+                <button *ngFor="let n of niveles" type="button" [attr.aria-pressed]="m.nivel === n.valor"
+                        [title]="n.nombre" (click)="cambiarNivel(m, n.valor)">{{ n.simbolo }}</button>
+              </span>
+              <select aria-label="Tipo de retorno" [class.invalido]="error('metodos.' + i + '.tipo')" [ngModel]="m.tipo" (ngModelChange)="m.tipo = $event; cambio()">
+                <optgroup *ngFor="let g of gruposTipos(true)" [label]="g.etiqueta">
+                  <option *ngFor="let t of g.tipos" [value]="t">{{ t }}</option>
+                </optgroup>
+              </select>
+              <input [id]="'metodo-' + i" class="nombre" placeholder="nombreMetodo" aria-label="Nombre del método"
+                     [class.invalido]="error('metodos.' + i + '.nombre')" [ngModel]="m.nombre"
+                     (ngModelChange)="m.nombre = $event; cambio()" (keydown.enter)="enterEnMiembro($event, true)">
+              <span class="parentesis">(</span>
+              <input class="params" placeholder="int a, double b" aria-label="Parámetros"
+                     [class.invalido]="error('metodos.' + i + '.parametros')" [ngModel]="m.parametros"
+                     (ngModelChange)="m.parametros = $event; cambio()">
+              <span class="parentesis">)</span>
+              <button type="button" class="quitar" title="Quitar método" (click)="quitar(metodos, i)">×</button>
+            </div>
+            <span class="ayuda mal" *ngIf="error('metodos.' + i + '.nombre') || error('metodos.' + i + '.tipo') || error('metodos.' + i + '.parametros')">
+              {{ error('metodos.' + i + '.nombre') || error('metodos.' + i + '.tipo') || error('metodos.' + i + '.parametros') }}
+            </span>
+          </div>
+          <button type="button" class="agregar" (click)="agregarMetodo()">+ Método</button>
+        </div>
+      </div>
+
+      <label class="imagen" for="cc-imagen">
+        Imagen para el diagrama (opcional)
+        <input id="cc-imagen" type="file" accept="image/*" (change)="seleccionarImagen($event)">
+        <span class="ayuda">Si no eliges una, el diagrama muestra la inicial de la clase.</span>
+      </label>
+    </div>
+
+    <!-- ============ Código generado en vivo ============ -->
+    <div class="columna-der">
+      <div class="codigo-cab">
+        <span class="sec-titulo">Código que se generará ({{ lenguaje === 'cpp' ? 'C++' : 'Java' }})</span>
+        <span class="ayuda" *ngIf="cargandoVista">Actualizando…</span>
+      </div>
+      <pre class="codigo"><span *ngFor="let l of lineas" class="linea" [class.nueva]="l.nueva">{{ l.texto }}</span></pre>
+      <span class="ayuda">Lo resaltado es lo que acabas de agregar o cambiar.</span>
+    </div>
+  </div>
+
+  <div class="editor-pie">
+    <span class="ayuda mal" *ngIf="errorGeneral">{{ errorGeneral }}</span>
+    <span class="ayuda aviso" *ngIf="confirmarSalida">Se perderá lo que escribiste. Pulsa «Cancelar» otra vez para salir.</span>
+    <span class="espacio"></span>
+    <button type="button" class="btn sec" (click)="cancelar()">Cancelar</button>
+    <button type="button" class="btn" [disabled]="hayErrores || creando" (click)="crear()">
+      {{ creando ? 'Creando…' : 'Crear clase' }}
+    </button>
+  </div>
+</div>

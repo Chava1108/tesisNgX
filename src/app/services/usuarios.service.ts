@@ -9,13 +9,10 @@ export class UsuariosService {
 
   constructor(private httpClient: HttpClient) { }
 
-  getUsuarios(): any{
-    return this.httpClient.get(`${this.servidor}usuario`);
-  }
-
-  postUsuarios(name:string, email:string, username:string, password:string):any{
-    const body={name:name, email:email, username:username, password:password}
-    return this.httpClient.post(`${this.servidor}usuario`,body);
+  // Solo responde si el nombre está libre: el registro ya no descarga la lista de cuentas (A-12)
+  usuarioDisponible(username: string) {
+    return this.httpClient.get<{ disponible: boolean }>(
+      `${this.servidor}usuario-disponible?username=${encodeURIComponent(username)}`);
   }
 
   registrar(data: any): any {

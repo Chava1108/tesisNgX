@@ -6,6 +6,18 @@
   <!-- Filtros -->
   <div class="filtros-row">
     <div class="filtro-group">
+      <label>Grupo:</label>
+      <select [(ngModel)]="grupoSeleccionado" (ngModelChange)="usuarioSeleccionado = ''">
+        <option value="todos">Todos (sin sintéticos)</option>
+        <option value="estudio">Experimental + control</option>
+        <option value="experimental">Experimental</option>
+        <option value="control">Control</option>
+        <option value="pruebas">Pruebas</option>
+        <option value="sin_asignar">Sin asignar</option>
+        <option value="sinteticos">Sintéticos</option>
+      </select>
+    </div>
+    <div class="filtro-group">
       <label>Estudiante:</label>
       <select [(ngModel)]="usuarioSeleccionado">
         <option value="">Todos</option>

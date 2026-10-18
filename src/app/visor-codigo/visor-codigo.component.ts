@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BaseDeDatosService } from '../services/base-de-datos.service';
 import { PoryectosService } from '../services/poryectos.service';
 import { CodeService } from '../services/code.service';
+import { AdminService, etiquetaGrupo } from '../services/admin.service';
 
 @Component({
   selector: 'app-visor-codigo',
@@ -56,8 +57,11 @@ export class VisorCodigoComponent implements OnInit {
   constructor(
     private apiService: BaseDeDatosService,
     private proyectosService: PoryectosService,
-    private codeService: CodeService
+    private codeService: CodeService,
+    private admin: AdminService
   ) {}
+
+  etiquetaGrupo = etiquetaGrupo;
 
   ngOnInit(): void {
     this.cargarUsuarios();
@@ -94,9 +98,10 @@ export class VisorCodigoComponent implements OnInit {
   }
 
   cargarUsuarios() {
-    this.apiService.getUsuarios().subscribe({
+    // Lista de estudiantes del panel de administración (con su grupo; requiere token de admin)
+    this.admin.estudiantes().subscribe({
       next: (res: any) => {
-        this.usuarios = res;
+        this.usuarios = res.estudiantes;
       },
       error: (err: any) => console.error('Error cargando usuarios:', err),
     });

@@ -41,6 +41,8 @@ export class AuthService {
     this.storage.setItem('usrTmp', user.username);
     if(user.token) this.storage.setItem('token', user.token);
     if(user.is_admin !== undefined) this.storage.setItem('is_admin', user.is_admin.toString());
+    // Grupo del estudio: 'control' solo ve los exámenes (GrupoGuard)
+    this.storage.setItem('grupo', user.grupo || 'sin_asignar');
   }
 
   logout() {

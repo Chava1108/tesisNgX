@@ -52,10 +52,9 @@ export class RegisterComponent implements OnInit {
       this.invalidUsername = false;
       return;
     }
-    this.api.getUsuarios().subscribe({
-      next: (res: any) => {
-        this.invalidUsername = Array.isArray(res)
-          && res.some((u: any) => (u.username || '').toLowerCase() === usuario.toLowerCase());
+    this.api.usuarioDisponible(usuario).subscribe({
+      next: (res) => {
+        this.invalidUsername = !res.disponible;
       },
       error: () => { this.invalidUsername = false; }
     });

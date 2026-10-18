@@ -17,6 +17,7 @@ export class DashboardComponent implements OnInit {
   usuarios: any[] = [];
   usuarioSeleccionado: string = '';
   diasSeleccionados: number = 14;
+  grupoSeleccionado: string = 'todos';
 
   // Resumen
   resumen: any = {};
@@ -84,7 +85,7 @@ export class DashboardComponent implements OnInit {
     const token = this.storage.getItem('token');
     const headers = new HttpHeaders({ 'Authorization': `Token ${token}` });
 
-    let url = `${this.apiUrl}dashboard-analytics/?dias=${this.diasSeleccionados}`;
+    let url = `${this.apiUrl}dashboard-analytics/?dias=${this.diasSeleccionados}&grupo=${this.grupoSeleccionado}`;
     if (this.usuarioSeleccionado) {
       url += `&usuario_id=${this.usuarioSeleccionado}`;
     }

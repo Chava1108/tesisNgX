@@ -1,0 +1,233 @@
+<div class="admin-pagina">
+  <div class="admin-encabezado">
+    <h1><mat-icon>assignment</mat-icon> Exámenes y resultados</h1>
+    <p>Marca como <b>Pre-test</b> y <b>Post-test</b> los instrumentos de la tesis: con ellos se calcula la ganancia de aprendizaje.</p>
+  </div>
+
+  <div class="pestanas">
+    <button [class.activa]="pestana === 'examenes'" (click)="cambiarPestana('examenes')"><mat-icon>list</mat-icon> Exámenes</button>
+    <button [class.activa]="pestana === 'resultados'" (click)="cambiarPestana('resultados')"><mat-icon>fact_check</mat-icon> Resultados</button>
+    <button [class.activa]="pestana === 'ganancia'" (click)="cambiarPestana('ganancia')"><mat-icon>trending_up</mat-icon> Ganancia de aprendizaje</button>
+  </div>
+
+  <p class="aviso-ok" *ngIf="mensaje">{{ mensaje }}</p>
+  <p class="aviso-error" *ngIf="error">{{ error }}</p>
+
+  <!-- ================= EXÁMENES ================= -->
+  <ng-container *ngIf="pestana === 'examenes'">
+    <div class="barra">
+      <span class="texto-suave">{{ examenes.length }} examen(es)</span>
+      <span class="barra-sep"></span>
+      <button class="btn" routerLink="/realizar-test"><mat-icon>add</mat-icon> Crear examen</button>
+    </div>
+
+    <!-- Edición -->
+    <div class="tarjeta" *ngIf="edicion">
+      <h3>Editar examen</h3>
+      <div class="formulario">
+        <label>Título <input class="campo" [(ngModel)]="edicion.titulo"></label>
+        <label>Tipo
+          <select class="campo" [(ngModel)]="edicion.tipo">
+            <option *ngFor="let t of tipos" [value]="t.valor">{{ t.etiqueta }}</option>
+          </select>
+        </label>
+        <label>Disponible desde <input class="campo" type="datetime-local" [(ngModel)]="edicion.fecha_disponible"></label>
+        <label>Duración (min) <input class="campo" type="number" min="1" [(ngModel)]="edicion.duracion_minutos"></label>
+        <label class="check"><input type="checkbox" [(ngModel)]="edicion.activo"> Activo (visible para los estudiantes)</label>
+      </div>
+      <p class="texto-suave" *ngIf="edicion.intentos_completados">
+        Este examen ya tiene {{ edicion.intentos_completados }} intento(s): las preguntas no se pueden modificar.
+      </p>
+      <div class="acciones">
+        <button class="btn" (click)="guardarEdicion()">Guardar</button>
+        <button class="btn btn-secundario" (click)="edicion = null">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr><th>Título</th><th>Tipo</th><th>Disponible desde</th><th class="num">Min.</th><th>Estado</th>
+            <th class="num">Preguntas</th><th class="num">Completados</th><th class="num">Promedio</th><th></th></tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let e of examenes">
+            <tr [class.fila-inactiva]="!e.activo">
+              <td><b>{{ e.titulo }}</b></td>
+              <td>
+                <select class="campo campo-chico" [ngClass]="'tipo-' + e.tipo" [ngModel]="e.tipo" (ngModelChange)="cambiarCampo(e, 'tipo', $event)">
+                  <option *ngFor="let t of tipos" [value]="t.valor">{{ t.etiqueta }}</option>
+                </select>
+              </td>
+              <td>{{ e.fecha_disponible | date:'dd/MM/yy HH:mm' }}</td>
+              <td class="num">{{ e.duracion_minutos }}</td>
+              <td>
+                <button class="estado" [class.estado-activo]="e.activo" (click)="cambiarCampo(e, 'activo', !e.activo)"
+                        [title]="e.activo ? 'Clic para desactivar' : 'Clic para activar'">
+                  {{ e.activo ? 'Activo' : 'Inactivo' }}
+                </button>
+              </td>
+              <td class="num">{{ e.total_preguntas }}</td>
+              <td class="num">{{ e.intentos_completados }}<span class="texto-suave" *ngIf="e.intentos_en_curso"> (+{{ e.intentos_en_curso }} en curso)</span></td>
+              <td class="num">{{ e.promedio !== null ? (e.promedio | number:'1.1-1') : '—' }}</td>
+              <td class="acciones-fila">
+                <button class="icono" title="Ver preguntas" (click)="verPreguntas(e)"><mat-icon>visibility</mat-icon></button>
+                <button class="icono" title="Editar" (click)="editar(e)"><mat-icon>edit</mat-icon></button>
+                <button class="icono" title="Resultados" (click)="irAResultados(e)"><mat-icon>fact_check</mat-icon></button>
+                <button class="icono icono-peligro" title="Eliminar (solo sin intentos)" [disabled]="e.intentos_completados || e.intentos_en_curso" (click)="eliminar(e)"><mat-icon>delete</mat-icon></button>
+              </td>
+            </tr>
+            <tr *ngIf="preguntasDe?.id === e.id">
+              <td colspan="9" class="celda-preguntas">
+                <div *ngFor="let p of preguntasDe.preguntas" class="pregunta">
+                  <b>{{ p.orden }}. {{ p.texto }}</b>
+                  <div *ngFor="let o of p.opciones" [class.correcta]="o.es_correcta">
+                    {{ o.letra }}. {{ o.texto }} <span *ngIf="o.es_correcta">✓</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+          <tr *ngIf="examenes.length === 0"><td colspan="9" class="vacio">Aún no hay exámenes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <!-- ================= RESULTADOS ================= -->
+  <ng-container *ngIf="pestana === 'resultados'">
+    <div class="barra">
+      <select class="campo" [(ngModel)]="idExamenResultados" (ngModelChange)="cargarResultados()">
+        <option [ngValue]="null" disabled>Selecciona un examen</option>
+        <option *ngFor="let e of examenes" [ngValue]="e.id">{{ e.titulo }} ({{ etiquetaTipo(e.tipo) }})</option>
+      </select>
+      <select class="campo" [(ngModel)]="grupoResultados" (ngModelChange)="cargarResultados()">
+        <option value="">Todos los grupos</option>
+        <option value="estudio">Experimental + control</option>
+        <option *ngFor="let g of grupos" [value]="g.valor">{{ g.etiqueta }}</option>
+      </select>
+      <span class="barra-sep"></span>
+      <button class="btn btn-secundario" *ngIf="resultados?.intentos?.length" (click)="exportarResultados()"><mat-icon>download</mat-icon> CSV</button>
+    </div>
+
+    <p class="texto-suave" *ngIf="!resultados">Selecciona un examen para ver sus resultados.</p>
+
+    <ng-container *ngIf="resultados">
+      <div class="tarjetas">
+        <div class="tarjeta-dato" *ngFor="let g of gruposConEstadisticas">
+          <span class="dato-etiqueta">{{ etiquetaGrupo(g) }}</span>
+          <span class="dato-valor">{{ resultados.estadisticas_por_grupo[g].promedio | number:'1.1-1' }}</span>
+          <span class="texto-suave">promedio · n = {{ resultados.estadisticas_por_grupo[g].n }} ·
+            mín {{ resultados.estadisticas_por_grupo[g].minimo }} · máx {{ resultados.estadisticas_por_grupo[g].maximo }}</span>
+        </div>
+        <p class="texto-suave" *ngIf="!gruposConEstadisticas.length">Aún no hay intentos completados con este filtro.</p>
+      </div>
+
+      <h3>Intentos</h3>
+      <div class="tabla-contenedor">
+        <table class="tabla">
+          <thead><tr><th>Estudiante</th><th>Grupo</th><th class="num">Calificación</th><th>Inicio</th><th class="num">Duración (min)</th><th>Estado</th><th></th></tr></thead>
+          <tbody>
+            <tr *ngFor="let i of resultados.intentos">
+              <td>{{ i.estudiante.username }} <span class="texto-suave">{{ i.estudiante.name }}</span></td>
+              <td><span class="etiqueta" [ngClass]="'grupo-' + i.estudiante.grupo">{{ etiquetaGrupo(i.estudiante.grupo) }}</span></td>
+              <td class="num"><b>{{ i.calificacion !== null ? (i.calificacion | number:'1.1-1') : '—' }}</b></td>
+              <td>{{ i.fecha_inicio | date:'dd/MM/yy HH:mm' }}</td>
+              <td class="num">{{ i.duracion_min ?? '—' }}</td>
+              <td>{{ i.completado ? 'Completado' : 'En curso' }}</td>
+              <td class="acciones-fila">
+                <button class="icono" title="Ver respuestas" [disabled]="!i.completado" (click)="verDetalle(i)"><mat-icon>visibility</mat-icon></button>
+                <button class="icono icono-peligro" title="Permitir repetir (borra el intento)" (click)="reiniciar(i)"><mat-icon>replay</mat-icon></button>
+              </td>
+            </tr>
+            <tr *ngIf="!resultados.intentos.length"><td colspan="7" class="vacio">Sin intentos.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Aciertos por pregunta</h3>
+      <div class="tabla-contenedor">
+        <table class="tabla">
+          <thead><tr><th class="num">#</th><th>Pregunta</th><th class="num">Respondida por</th><th>Aciertos</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let p of resultados.preguntas">
+              <td class="num">{{ p.orden }}</td>
+              <td>{{ p.texto }}</td>
+              <td class="num">{{ p.respondidas }}</td>
+              <td>
+                <div class="barra-progreso" *ngIf="p.porcentaje_aciertos !== null">
+                  <div class="relleno" [style.width.%]="p.porcentaje_aciertos"
+                       [class.bajo]="p.porcentaje_aciertos < 40"></div>
+                  <span>{{ p.porcentaje_aciertos }} %</span>
+                </div>
+                <span class="texto-suave" *ngIf="p.porcentaje_aciertos === null">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- ================= GANANCIA ================= -->
+  <ng-container *ngIf="pestana === 'ganancia'">
+    <div class="barra">
+      <select class="campo" [(ngModel)]="grupoGanancia" (ngModelChange)="cargarGanancia()">
+        <option value="estudio">Experimental + control</option>
+        <option *ngFor="let g of grupos" [value]="g.valor">{{ g.etiqueta }}</option>
+      </select>
+      <span class="texto-suave">g = (post − pre) / (100 − pre) · se usa el último pre-test y post-test completado de cada alumno</span>
+      <span class="barra-sep"></span>
+      <button class="btn btn-secundario" *ngIf="ganancia?.estudiantes?.length" (click)="exportarGanancia()"><mat-icon>download</mat-icon> CSV</button>
+    </div>
+
+    <ng-container *ngIf="ganancia">
+      <div class="tarjetas">
+        <div class="tarjeta-dato" *ngFor="let g of gruposGanancia">
+          <span class="dato-etiqueta">{{ etiquetaGrupo(g) }}</span>
+          <span class="dato-valor">{{ ganancia.resumen_por_grupo[g].ganancia_del_grupo ?? '—' }}</span>
+          <span class="texto-suave">ganancia del grupo ⟨g⟩ · n = {{ ganancia.resumen_por_grupo[g].n_completos }}</span>
+          <span class="texto-suave">pre {{ ganancia.resumen_por_grupo[g].promedio_pre }} → post {{ ganancia.resumen_por_grupo[g].promedio_post }} ·
+            g individual promedio {{ ganancia.resumen_por_grupo[g].ganancia_promedio_individual ?? '—' }}</span>
+        </div>
+        <p class="texto-suave" *ngIf="!gruposGanancia.length">
+          Todavía no hay alumnos con pre-test y post-test completos en este grupo.
+        </p>
+      </div>
+      <p class="texto-suave" *ngIf="ganancia.sin_pre_o_post">{{ ganancia.sin_pre_o_post }} alumno(s) sin pre-test o sin post-test (se excluyen de los promedios).</p>
+
+      <div class="tabla-contenedor">
+        <table class="tabla">
+          <thead><tr><th>Estudiante</th><th>Grupo</th><th class="num">Pre-test</th><th class="num">Post-test</th><th class="num">Ganancia g</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let f of ganancia.estudiantes">
+              <td>{{ f.estudiante.username }} <span class="texto-suave">{{ f.estudiante.name }}</span></td>
+              <td><span class="etiqueta" [ngClass]="'grupo-' + f.estudiante.grupo">{{ etiquetaGrupo(f.estudiante.grupo) }}</span></td>
+              <td class="num">{{ f.pre ?? '—' }}</td>
+              <td class="num">{{ f.post ?? '—' }}</td>
+              <td class="num"><b [class.negativo]="f.ganancia !== null && f.ganancia < 0">{{ f.ganancia ?? '—' }}</b></td>
+            </tr>
+            <tr *ngIf="!ganancia.estudiantes.length"><td colspan="5" class="vacio">No hay estudiantes en este grupo.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- ================= DETALLE DE UN INTENTO ================= -->
+  <div class="velo" *ngIf="detalle" (click)="detalle = null">
+    <div class="ventana" (click)="$event.stopPropagation()">
+      <div class="ventana-titulo">
+        <span>{{ detalle.estudiante.username }} · {{ detalle.examen }} · <b>{{ detalle.calificacion | number:'1.1-1' }}</b></span>
+        <button class="icono" (click)="detalle = null"><mat-icon>close</mat-icon></button>
+      </div>
+      <div class="ventana-cuerpo">
+        <div *ngFor="let r of detalle.respuestas" class="pregunta" [class.incorrecta]="!r.es_correcta">
+          <b>{{ r.orden }}. {{ r.pregunta }}</b>
+          <div>Respondió: {{ r.elegida }} <span>{{ r.es_correcta ? '✓' : '✗' }}</span></div>
+          <div class="texto-suave" *ngIf="!r.es_correcta">Correcta: {{ r.correcta }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

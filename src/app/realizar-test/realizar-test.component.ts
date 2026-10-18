@@ -18,6 +18,7 @@ export class RealizarTestComponent implements OnInit {
   tituloExamen: string = '';
   fechaDisponible: string = '';
   duracionMinutos: number = 30;
+  tipoExamen: string = 'practica';  // pre / post: instrumentos para la ganancia de aprendizaje
 
   preguntaActual: string = '';
   opciones: string[] = ['', '', '', ''];
@@ -77,6 +78,7 @@ export class RealizarTestComponent implements OnInit {
       titulo: this.tituloExamen.trim(),
       fecha_disponible: this.fechaDisponible,
       duracion_minutos: this.duracionMinutos,
+      tipo: this.tipoExamen,
       creado_por: Number(this.storage.getItem('Usrid')),
       preguntas: this.preguntas.map((p, i) => ({
         texto: p.texto,
@@ -93,7 +95,7 @@ export class RealizarTestComponent implements OnInit {
       next: (res: any) => {
         this.guardando = false;
         alert(`Examen "${this.tituloExamen}" guardado con ${this.preguntas.length} pregunta(s).`);
-        this.router.navigate(['/home']);
+        this.router.navigate(['/admin/examenes']);
       },
       error: (err: any) => {
         this.guardando = false;

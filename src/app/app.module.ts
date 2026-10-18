@@ -31,6 +31,9 @@ import { HacerExamenComponent } from './hacer-examen/hacer-examen.component';
 import { VisorCodigoComponent } from './visor-codigo/visor-codigo.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { SessionExpiringComponent } from './dialogs/session-expiring/session-expiring.component';
+import { AdminExamenesComponent } from './admin-examenes/admin-examenes.component';
+import { AdminEstudiantesComponent } from './admin-estudiantes/admin-estudiantes.component';
+import { CrearClaseComponent } from './dialogs/crear-clase/crear-clase.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { FormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
@@ -56,6 +59,9 @@ import { NgChartsModule } from 'ng2-charts';
    VisorCodigoComponent,
    DashboardComponent,
    SessionExpiringComponent,
+   AdminExamenesComponent,
+   AdminEstudiantesComponent,
+   CrearClaseComponent,
   ],
   imports: [
     BrowserModule,

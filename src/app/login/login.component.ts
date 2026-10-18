@@ -47,7 +47,8 @@ export class LoginComponent implements OnInit {
     this.authService.login(credentials).subscribe({
       next: (res) => {
         // El servicio ya guardó la sesión en sessionStorage con el 'tap'
-        const destino = this.storage.getItem('is_admin') === '1' ? '/visor-codigo' : '/home';
+        const destino = this.storage.getItem('is_admin') === '1' ? '/visor-codigo'
+          : this.storage.getItem('grupo') === 'control' ? '/hacer-examen' : '/home';
         this.router.navigate([destino]);
       },
       error: (err) => {
